@@ -4,6 +4,8 @@
 #include <cmath>
 #include <iostream>
 
+//please work
+
 World::World() {
     // Static map with walls (1) and open spaces (0)
     map = {
