@@ -1,58 +1,101 @@
 #include "Player.h"
 
+const float CELL_SIZE = 50.0f; // Match grid cell size
+
 Player::Player(GameState* gs, int startX, int startY, float speed)
-    : GameObject(gs, "Player"), x(startX), y(startY), directionX(0), directionY(-1), speed(speed), moveTimer(0.0f),
-    nextDirectionX(0), nextDirectionY(-1) {}
+    : GameObject(gs, "Player"), gridX(startX), gridY(startY), directionX(0), directionY(-1),
+    nextDirectionX(0), nextDirectionY(-1), speed(speed), moving(false), isAlive(true), hitEdge(false) {
+    x = startX * CELL_SIZE + CELL_SIZE / 2; // Exact pixel position
+    y = startY * CELL_SIZE + CELL_SIZE / 2;
+    targetX = x;
+    targetY = y;
+}
 
 void Player::init() {
     directionX = 0;
     directionY = -1; // Start moving up
     nextDirectionX = 0;
     nextDirectionY = -1;
-    moveTimer = 0.0f;
+    moving = false;
+    isAlive = true;
+    hitEdge = false;
 }
 
 void Player::update(float dt) {
-    // Update movement timer
-    moveTimer += dt;
+    if (!isAlive) {
+        return; // Stop updating if player is dead
+    }
 
-    // Handle input for direction changes
     handleInput();
 
-    // Move at fixed intervals
-    if (moveTimer >= 1.0f / speed) {
+    // Move smoothly toward the target
+    moveToTarget(dt);
+
+    // If reached the target, check for the next move
+    if (!moving) {
         // Apply buffered direction change at the move step
         directionX = nextDirectionX;
         directionY = nextDirectionY;
 
-        // Update position based on direction
-        x += directionX;
-        y += directionY;
+        // Calculate new grid position
+        gridX += directionX;
+        gridY += directionY;
 
-        // Keep player within bounds
-        if (x < 0) x = 0;
-        if (x >= 12) x = 11;
-        if (y < 0) y = 0;
-        if (y >= 12) y = 11;
+        // Check for collision with edges
+        checkCollision();
 
-        moveTimer = 0.0f; // Reset timer
+        // If still alive, set target position for smooth movement
+        if (isAlive) {
+            targetX = gridX * CELL_SIZE + CELL_SIZE / 2;
+            targetY = gridY * CELL_SIZE + CELL_SIZE / 2;
+            moving = true;
+        }
+    }
+}
+
+void Player::moveToTarget(float dt) {
+    if (moving) {
+        // Move toward the target position smoothly
+        float dx = targetX - x;
+        float dy = targetY - y;
+        float dist = sqrt(dx * dx + dy * dy);
+        float step = speed * CELL_SIZE * dt;
+
+        if (dist > step) {
+            // Move by step size
+            x += step * dx / dist;
+            y += step * dy / dist;
+        }
+        else {
+            // Snap to target if close enough
+            x = targetX;
+            y = targetY;
+            moving = false; // Stop moving
+        }
     }
 }
 
 void Player::draw() {
     graphics::Brush brush;
-    brush.fill_color[0] = 0.0f; // Green
-    brush.fill_color[1] = 1.0f;
-    brush.fill_color[2] = 0.0f;
-    brush.fill_opacity = 1.0f;
 
-    float centerX = x * 50.0f + 25.0f;
-    float centerY = y * 50.0f + 25.0f;
-    graphics::drawRect(centerX, centerY, 50.0f, 50.0f, brush);
+    if (hitEdge) {
+        // Turn red if the player hit the edge
+        brush.fill_color[0] = 1.0f;
+        brush.fill_color[1] = 0.0f;
+        brush.fill_color[2] = 0.0f;
+    }
+    else {
+        // Default color (green)
+        brush.fill_color[0] = 0.0f;
+        brush.fill_color[1] = 1.0f;
+        brush.fill_color[2] = 0.0f;
+    }
+
+    brush.fill_opacity = 1.0f;
+    graphics::drawRect(x, y, CELL_SIZE, CELL_SIZE, brush);
 }
 
 void Player::handleInput() {
-    // Buffer direction changes, apply them only on the next move step
     if (graphics::getKeyState(graphics::SCANCODE_UP) && directionY == 0) {
         nextDirectionX = 0;
         nextDirectionY = -1;
@@ -68,5 +111,13 @@ void Player::handleInput() {
     if (graphics::getKeyState(graphics::SCANCODE_RIGHT) && directionX == 0) {
         nextDirectionX = 1;
         nextDirectionY = 0;
+    }
+}
+
+void Player::checkCollision() {
+    // Check for hitting the edge of the grid
+    if (gridX < 0 || gridX >= 12 || gridY < 0 || gridY >= 12) {
+        isAlive = false;
+        hitEdge = true;
     }
 }

@@ -1,5 +1,4 @@
-#ifndef GAMEOBJECT_H
-#define GAMEOBJECT_H
+#pragma once
 
 #include <string>
 
@@ -27,5 +26,3 @@ public:
     int getId() const { return m_id; }
     std::string getName() const { return m_name; }
 };
-
-#endif // GAMEOBJECT_H

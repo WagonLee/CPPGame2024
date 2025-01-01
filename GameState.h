@@ -1,14 +1,18 @@
-#ifndef GAMESTATE_H
-#define GAMESTATE_H
+#pragma once
 
 #include <vector>
 #include <memory>
 #include "GameObject.h"
+#include "Collectible.h"
 
 class GameState {
 private:
     static GameState* instance;
     std::vector<std::unique_ptr<GameObject>> gameObjects;
+
+    float collectibleSpawnTimer = 0.0f; // Timer for spawning collectibles
+    const float collectibleSpawnInterval = 5.0f; // 5 seconds interval
+    bool firstSpawnTriggered = false; // Tracks whether the first collectible has spawned
 
     GameState() {}
 
@@ -19,7 +23,6 @@ public:
     void draw();
     void init();
     void reset();
+    void spawnCollectible(); // Spawns a new collectible
     ~GameState();
 };
-
-#endif // GAMESTATE_H

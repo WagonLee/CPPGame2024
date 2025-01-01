@@ -19,14 +19,16 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="GameObject.cpp" />
-    <ClCompile Include="GameState.cpp" />
+    <ClCompile Include="collectible.cpp" />
+    <ClCompile Include="gameObject.cpp" />
+    <ClCompile Include="gameState.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="player.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GameObject.h" />
-    <ClInclude Include="GameState.h" />
+    <ClInclude Include="collectible.h" />
+    <ClInclude Include="gameObject.h" />
+    <ClInclude Include="gameState.h" />
     <ClInclude Include="player.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
