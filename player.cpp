@@ -1,7 +1,10 @@
 #include "Player.h"
+#include "graphics.h"
+#include "GameState.h"
 
 const float CELL_SIZE = 50.0f; // Match grid cell size
 
+// Constructor
 Player::Player(GameState* gs, int startX, int startY, float speed)
     : GameObject(gs, "Player"), gridX(startX), gridY(startY), directionX(0), directionY(-1),
     nextDirectionX(0), nextDirectionY(-1), speed(speed), moving(false), isAlive(true), hitEdge(false) {
@@ -11,6 +14,7 @@ Player::Player(GameState* gs, int startX, int startY, float speed)
     targetY = y;
 }
 
+// Initialize/reset player
 void Player::init() {
     directionX = 0;
     directionY = -1; // Start moving up
@@ -19,8 +23,17 @@ void Player::init() {
     moving = false;
     isAlive = true;
     hitEdge = false;
+
+    // Reset position
+    gridX = 6;
+    gridY = 6;
+    x = gridX * CELL_SIZE + CELL_SIZE / 2;
+    y = gridY * CELL_SIZE + CELL_SIZE / 2;
+    targetX = x;
+    targetY = y;
 }
 
+// Update movement and collisions
 void Player::update(float dt) {
     if (!isAlive) {
         return; // Stop updating if player is dead
@@ -53,6 +66,7 @@ void Player::update(float dt) {
     }
 }
 
+// Smooth movement to target position
 void Player::moveToTarget(float dt) {
     if (moving) {
         // Move toward the target position smoothly
@@ -75,14 +89,15 @@ void Player::moveToTarget(float dt) {
     }
 }
 
+// Draw the player
 void Player::draw() {
     graphics::Brush brush;
 
-    if (hitEdge) {
-        // Turn red if the player hit the edge
-        brush.fill_color[0] = 1.0f;
-        brush.fill_color[1] = 0.0f;
-        brush.fill_color[2] = 0.0f;
+    if (hitEdge || !isAlive) {
+        // Turn pink if the player hit the edge or is dead
+        brush.fill_color[0] = 1.0f; // Pink (R)
+        brush.fill_color[1] = 0.0f; // Pink (G)
+        brush.fill_color[2] = 1.0f; // Pink (B)
     }
     else {
         // Default color (green)
@@ -95,6 +110,7 @@ void Player::draw() {
     graphics::drawRect(x, y, CELL_SIZE, CELL_SIZE, brush);
 }
 
+// Handle keyboard input
 void Player::handleInput() {
     if (graphics::getKeyState(graphics::SCANCODE_UP) && directionY == 0) {
         nextDirectionX = 0;
@@ -114,10 +130,24 @@ void Player::handleInput() {
     }
 }
 
+// Collision check with grid edges
 void Player::checkCollision() {
     // Check for hitting the edge of the grid
     if (gridX < 0 || gridX >= 12 || gridY < 0 || gridY >= 12) {
-        isAlive = false;
-        hitEdge = true;
+        setDead(); // Mark player as dead
     }
+}
+
+// Set player as dead and stop activity
+void Player::setDead() {
+    isAlive = false;
+    hitEdge = true;
+
+    // Notify GameState to stop updates
+    GameState::getInstance()->endGame();
+}
+
+// Return whether the player is alive
+bool Player::getIsAlive() const {
+    return isAlive;
 }

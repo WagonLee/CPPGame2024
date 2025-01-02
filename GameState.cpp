@@ -1,8 +1,8 @@
 #include "GameState.h"
-#include <iostream>  // For debug prints
-#include <cstdlib>   // For rand() and srand()
-#include <ctime>     // For random seed and timestamps
-#include <chrono>    // For milliseconds precision
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+#include <chrono>
 
 GameState* GameState::instance = nullptr;
 
@@ -20,14 +20,17 @@ void GameState::addObject(GameObject* obj) {
 }
 
 void GameState::update(float dt) {
-    // --- ENEMY SPAWNING ---
+    if (isGameOver) return; // Stop all updates after player death
+
+    // ENEMY SPAWNING
     time_t currentTime = time(nullptr);
     if (difftime(currentTime, lastSpawnTime) >= enemySpawnInterval) {
-        spawnInteractiveObject<Enemy>(); // Template-based spawn
-        lastSpawnTime = currentTime; // Reset spawn timer
+        spawnInteractiveObject<Enemy>();
+        lastSpawnTime = currentTime;
+        enemySpawnInterval = enemySpawnMin + (rand() / (RAND_MAX / (enemySpawnMax - enemySpawnMin)));
     }
 
-    // --- COLLECTIBLE MANAGEMENT ---
+    // COLLECTIBLE MANAGEMENT
     int activeCollectibles = 0;
     for (const auto& obj : gameObjects) {
         Collectible* collectible = dynamic_cast<Collectible*>(obj.get());
@@ -37,17 +40,18 @@ void GameState::update(float dt) {
     }
 
     while (activeCollectibles < collectibleCount) {
-        spawnInteractiveObject<Collectible>(); // Template-based spawn
+        spawnInteractiveObject<Collectible>();
         activeCollectibles++;
     }
 
-    // --- POWERUP SPAWNING ---
+    // POWERUP SPAWNING
     if (difftime(currentTime, lastPowerUpSpawnTime) >= powerUpSpawnInterval) {
-        spawnInteractiveObject<PowerUpBlue>(); // Example PowerUp
-        lastPowerUpSpawnTime = currentTime; // Reset timer
+        spawnInteractiveObject<PowerUpBlue>();
+        lastPowerUpSpawnTime = currentTime;
+        powerUpSpawnInterval = powerUpSpawnMin + (rand() / (RAND_MAX / (powerUpSpawnMax - powerUpSpawnMin)));
     }
 
-    // --- UPDATE ALL OBJECTS ---
+    // UPDATE ALL OBJECTS
     for (auto& obj : gameObjects) {
         if (obj->isActive()) {
             obj->update(dt);
@@ -64,18 +68,25 @@ void GameState::draw() {
 }
 
 void GameState::init() {
-    // Reset timers and state
     lastSpawnTime = time(nullptr);
     lastPowerUpSpawnTime = time(nullptr);
     srand(static_cast<unsigned int>(time(nullptr)));
 
-    // Spawn 2 collectibles at game start
+    enemySpawnInterval = enemySpawnMin + (rand() / (RAND_MAX / (enemySpawnMax - enemySpawnMin)));
+    powerUpSpawnInterval = powerUpSpawnMin + (rand() / (RAND_MAX / (powerUpSpawnMax - powerUpSpawnMin)));
+
     for (int i = 0; i < collectibleCount; i++) {
         spawnInteractiveObject<Collectible>();
     }
 }
 
 void GameState::reset() {}
+
+// Handles stopping activity after player death
+void GameState::endGame() {
+    isGameOver = true;
+    std::cout << "Game Over! All activity stopped." << std::endl;
+}
 
 GameState::~GameState() {
     gameObjects.clear();

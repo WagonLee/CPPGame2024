@@ -9,7 +9,8 @@
 #include "InteractiveObject.h"
 #include "Enemy.h"
 #include "Collectible.h"
-#include "PowerUpBlue.h" // Example specialized PowerUp
+#include "PowerUpBlue.h"
+#include "Player.h" // Include player for death checks
 
 class GameState {
 private:
@@ -18,14 +19,21 @@ private:
 
     // Enemy spawn timing
     time_t lastSpawnTime;
-    const double enemySpawnInterval = 2.0;
+    double enemySpawnInterval;
+    const double enemySpawnMin = 5.0;
+    const double enemySpawnMax = 10.0;
 
     // Collectible management
     const int collectibleCount = 2;
 
     // PowerUp spawn timing
     time_t lastPowerUpSpawnTime;
-    const double powerUpSpawnInterval = 5.0;
+    double powerUpSpawnInterval;
+    const double powerUpSpawnMin = 10.0;
+    const double powerUpSpawnMax = 20.0;
+
+    // Player death state
+    bool isGameOver = false;
 
     GameState();
 
@@ -39,6 +47,7 @@ public:
     void draw();
     void init();
     void reset();
+    void endGame(); // Handles stopping all activity on player death
 
     // Template method for spawning InteractiveObjects
     template <typename T>
@@ -51,6 +60,8 @@ public:
 // Template implementation must be in the header file
 template <typename T>
 void GameState::spawnInteractiveObject() {
+    if (isGameOver) return; // Prevent spawning after player death
+
     int gridX, gridY;
     bool positionValid = false;
     int attempts = 0;
@@ -60,7 +71,6 @@ void GameState::spawnInteractiveObject() {
         gridY = rand() % 12;
         positionValid = true;
 
-        // Ensure no overlap with any existing InteractiveObject
         for (const auto& obj : gameObjects) {
             InteractiveObject* interactive = dynamic_cast<InteractiveObject*>(obj.get());
             if (interactive && interactive->isActive() &&
@@ -78,8 +88,7 @@ void GameState::spawnInteractiveObject() {
         return;
     }
 
-    // Create and add the new InteractiveObject
-    T* obj = new T(this, gridX, gridY); // Uses template type T (Enemy, Collectible, or PowerUp)
+    T* obj = new T(this, gridX, gridY); // Uses template type T
     addObject(obj);
 
     // Debug log with timestamp

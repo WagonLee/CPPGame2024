@@ -5,15 +5,15 @@
 
 class Player : public GameObject {
 private:
-    float x, y;               // Exact position in pixels for smooth movement
-    int gridX, gridY;         // Current grid position
-    int directionX, directionY;     // Current movement direction
+    float x, y;                  // Exact position in pixels for smooth movement
+    int gridX, gridY;            // Current grid position
+    int directionX, directionY;  // Current movement direction
     int nextDirectionX, nextDirectionY; // Buffered direction changes
-    float speed;            // Speed in grid squares per second
-    float targetX, targetY; // Target position for smooth transitions
-    bool moving;            // True if moving towards a target
-    bool isAlive;           // Tracks whether the player is alive
-    bool hitEdge;           // Placeholder to check if edge collision occurred
+    float speed;                 // Speed in grid squares per second
+    float targetX, targetY;      // Target position for smooth transitions
+    bool moving;                 // True if moving towards a target
+    bool isAlive;                // Tracks whether the player is alive
+    bool hitEdge;                // Placeholder to check if edge collision occurred
 
 public:
     Player(GameState* gs, int startX, int startY, float speed);
@@ -24,4 +24,8 @@ public:
     void handleInput(); // Handles keyboard input for direction changes
     void moveToTarget(float dt); // Smooth movement to target position
     void checkCollision(); // Checks collision with the edge
+
+    // New functions for death handling
+    void setDead();    // Marks player as dead
+    bool getIsAlive() const; // Returns whether the player is alive
 };
