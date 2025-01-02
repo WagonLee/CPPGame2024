@@ -1,5 +1,5 @@
 #include "GameState.h"
-#include <iostream>
+#include <iostream>  // Debug output added
 #include <cstdlib>
 #include <ctime>
 #include <chrono>
@@ -20,9 +20,9 @@ void GameState::addObject(GameObject* obj) {
 }
 
 void GameState::update(float dt) {
-    if (isGameOver) return; // Stop all updates after player death
+    if (isGameOver) return; // Stop updates after player death
 
-    // ENEMY SPAWNING
+    // --- ENEMY SPAWNING ---
     time_t currentTime = time(nullptr);
     if (difftime(currentTime, lastSpawnTime) >= enemySpawnInterval) {
         spawnInteractiveObject<Enemy>();
@@ -30,7 +30,7 @@ void GameState::update(float dt) {
         enemySpawnInterval = enemySpawnMin + (rand() / (RAND_MAX / (enemySpawnMax - enemySpawnMin)));
     }
 
-    // COLLECTIBLE MANAGEMENT
+    // --- COLLECTIBLE MANAGEMENT ---
     int activeCollectibles = 0;
     for (const auto& obj : gameObjects) {
         Collectible* collectible = dynamic_cast<Collectible*>(obj.get());
@@ -39,19 +39,34 @@ void GameState::update(float dt) {
         }
     }
 
-    while (activeCollectibles < collectibleCount) {
-        spawnInteractiveObject<Collectible>();
-        activeCollectibles++;
-    }
-
-    // POWERUP SPAWNING
+    // --- POWERUP SPAWNING ---
     if (difftime(currentTime, lastPowerUpSpawnTime) >= powerUpSpawnInterval) {
         spawnInteractiveObject<PowerUpBlue>();
         lastPowerUpSpawnTime = currentTime;
         powerUpSpawnInterval = powerUpSpawnMin + (rand() / (RAND_MAX / (powerUpSpawnMax - powerUpSpawnMin)));
     }
 
-    // UPDATE ALL OBJECTS
+    // --- COLLISION DETECTION ---
+    Player* player = nullptr;
+
+    // Locate the player
+    for (auto& obj : gameObjects) {
+        player = dynamic_cast<Player*>(obj.get());
+        if (player) break; // Found player instance
+    }
+
+    if (player) {
+        for (auto& obj : gameObjects) {
+            InteractiveObject* interactive = dynamic_cast<InteractiveObject*>(obj.get());
+            if (interactive && interactive->isActive()) {
+                if (interactive->checkCollision(*player)) {
+                    interactive->handleCollision(*player); // Handle collision
+                }
+            }
+        }
+    }
+
+    // --- UPDATE ALL OBJECTS ---
     for (auto& obj : gameObjects) {
         if (obj->isActive()) {
             obj->update(dt);
@@ -75,6 +90,7 @@ void GameState::init() {
     enemySpawnInterval = enemySpawnMin + (rand() / (RAND_MAX / (enemySpawnMax - enemySpawnMin)));
     powerUpSpawnInterval = powerUpSpawnMin + (rand() / (RAND_MAX / (powerUpSpawnMax - powerUpSpawnMin)));
 
+    // Spawn initial collectibles
     for (int i = 0; i < collectibleCount; i++) {
         spawnInteractiveObject<Collectible>();
     }

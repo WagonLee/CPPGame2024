@@ -8,5 +8,5 @@ public:
     void draw() override;
     void update(float dt) override;
     void init() override;
-    void handleCollision() override; // Placeholder for collision behavior
+    void handleCollision(Player& player) override; // No changes needed
 };

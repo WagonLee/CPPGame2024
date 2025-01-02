@@ -1,11 +1,12 @@
 #include "PowerUp.h"
-#include <iostream>   // For debug output
+#include <iostream>
 
 // Constructor for base PowerUp
 PowerUp::PowerUp(GameState* state, int x, int y, const std::string& name)
     : InteractiveObject(state, x, y, name) {}
 
 // Generic collision handling (can be overridden later)
-void PowerUp::handleCollision() {
+void PowerUp::handleCollision(Player& player) {
     std::cout << "PowerUp collected: " << m_name << std::endl;
+    setActive(false); // Default behavior: deactivate upon collision
 }
