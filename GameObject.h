@@ -11,6 +11,7 @@ protected:
     std::string m_name;
     int m_id;
     bool m_active;
+    bool active = true;
 
 public:
     GameObject(GameState* gs, const std::string& name = "");

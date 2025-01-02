@@ -20,16 +20,24 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="collectible.cpp" />
+    <ClCompile Include="enemy.cpp" />
     <ClCompile Include="gameObject.cpp" />
     <ClCompile Include="gameState.cpp" />
+    <ClCompile Include="interactiveObject.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="player.cpp" />
+    <ClCompile Include="powerUp.cpp" />
+    <ClCompile Include="powerUpBlue.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="collectible.h" />
+    <ClInclude Include="enemy.h" />
     <ClInclude Include="gameObject.h" />
     <ClInclude Include="gameState.h" />
+    <ClInclude Include="interactiveObject.h" />
     <ClInclude Include="player.h" />
+    <ClInclude Include="powerUp.h" />
+    <ClInclude Include="powerUpBlue.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

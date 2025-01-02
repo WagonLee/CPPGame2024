@@ -1,43 +1,16 @@
-#pragma once
-
-#include <vector>
-#include <memory>
-#include <cstdlib>
-#include <ctime>
-#include "GameObject.h"
-#include "Collectible.h"
-
-class GameState {
-private:
-    static GameState* instance;
-    std::vector<std::unique_ptr<GameObject>> gameObjects;
-
-    float collectibleSpawnTimer = 0.0f; // Timer for spawning collectibles
-    const float collectibleSpawnInterval = 5.0f; // 5 seconds interval
-    bool firstSpawnTriggered = false; // Tracks whether the first collectible has spawned
-
-    GameState() {}
-
-public:
-    static GameState* getInstance();
-    void addObject(GameObject* obj);
-    void update(float dt);
-    void draw();
-    void init();
-    void reset();
-    void spawnCollectible(); // Spawns a new collectible
-    ~GameState();
-};
-
 #include "GameState.h"
-#include <iostream> // For debug prints
+#include <iostream>  // For debug prints
+#include <cstdlib>   // For rand() and srand()
+#include <ctime>     // For random seed and timestamps
+#include <chrono>    // For milliseconds precision
 
 GameState* GameState::instance = nullptr;
+
+GameState::GameState() {}
 
 GameState* GameState::getInstance() {
     if (!instance) {
         instance = new GameState();
-        std::srand(std::time(nullptr)); // Seed random number generator
     }
     return instance;
 }
@@ -47,37 +20,34 @@ void GameState::addObject(GameObject* obj) {
 }
 
 void GameState::update(float dt) {
-    // Update collectible spawn timer
-    collectibleSpawnTimer += dt;
-
-    // Handle the first collectible spawn
-    if (!firstSpawnTriggered && collectibleSpawnTimer >= collectibleSpawnInterval) {
-        spawnCollectible();
-        firstSpawnTriggered = true;  // Mark first spawn as complete
-        collectibleSpawnTimer = 0.0f; // Reset timer for subsequent spawns
+    // --- ENEMY SPAWNING ---
+    time_t currentTime = time(nullptr);
+    if (difftime(currentTime, lastSpawnTime) >= enemySpawnInterval) {
+        spawnInteractiveObject<Enemy>(); // Template-based spawn
+        lastSpawnTime = currentTime; // Reset spawn timer
     }
 
-    // Handle subsequent spawns every 5 seconds
-    if (firstSpawnTriggered && collectibleSpawnTimer >= collectibleSpawnInterval) {
-        bool hasActiveCollectible = false;
-
-        // Check if an active collectible already exists
-        for (const auto& obj : gameObjects) {
-            Collectible* collectible = dynamic_cast<Collectible*>(obj.get());
-            if (collectible && collectible->isActive()) {
-                hasActiveCollectible = true;
-                break;
-            }
-        }
-
-        // Spawn a new collectible only if no active one exists
-        if (!hasActiveCollectible) {
-            spawnCollectible();
-            collectibleSpawnTimer = 0.0f; // Reset timer for the next spawn
+    // --- COLLECTIBLE MANAGEMENT ---
+    int activeCollectibles = 0;
+    for (const auto& obj : gameObjects) {
+        Collectible* collectible = dynamic_cast<Collectible*>(obj.get());
+        if (collectible && collectible->isActive()) {
+            activeCollectibles++;
         }
     }
 
-    // Update active game objects
+    while (activeCollectibles < collectibleCount) {
+        spawnInteractiveObject<Collectible>(); // Template-based spawn
+        activeCollectibles++;
+    }
+
+    // --- POWERUP SPAWNING ---
+    if (difftime(currentTime, lastPowerUpSpawnTime) >= powerUpSpawnInterval) {
+        spawnInteractiveObject<PowerUpBlue>(); // Example PowerUp
+        lastPowerUpSpawnTime = currentTime; // Reset timer
+    }
+
+    // --- UPDATE ALL OBJECTS ---
     for (auto& obj : gameObjects) {
         if (obj->isActive()) {
             obj->update(dt);
@@ -94,44 +64,18 @@ void GameState::draw() {
 }
 
 void GameState::init() {
-    collectibleSpawnTimer = 0.0f;
-    firstSpawnTriggered = false; // Ensure no collectible spawns at game start
-}
+    // Reset timers and state
+    lastSpawnTime = time(nullptr);
+    lastPowerUpSpawnTime = time(nullptr);
+    srand(static_cast<unsigned int>(time(nullptr)));
 
-void GameState::reset() {
-    gameObjects.clear();
-    collectibleSpawnTimer = 0.0f;
-    firstSpawnTriggered = false;
-}
-
-void GameState::spawnCollectible() {
-    // Generate random grid position
-    int gridX, gridY;
-    bool positionValid = false;
-
-    while (!positionValid) {
-        gridX = rand() % 12;
-        gridY = rand() % 12;
-        positionValid = true; // Assume valid initially
-
-        // Ensure no duplicate position
-        for (const auto& obj : gameObjects) {
-            Collectible* collectible = dynamic_cast<Collectible*>(obj.get());
-            if (collectible && collectible->isActive() &&
-                collectible->getGridX() == gridX && collectible->getGridY() == gridY) {
-                positionValid = false; // Position already occupied
-                break;
-            }
-        }
+    // Spawn 2 collectibles at game start
+    for (int i = 0; i < collectibleCount; i++) {
+        spawnInteractiveObject<Collectible>();
     }
-
-    // Create and add a new collectible
-    Collectible* collectible = new Collectible(this, gridX, gridY);
-    addObject(collectible);
-
-    // Debug print for spawn information
-    std::cout << "Collectible spawned at: (" << gridX << ", " << gridY << ")" << std::endl;
 }
+
+void GameState::reset() {}
 
 GameState::~GameState() {
     gameObjects.clear();

@@ -1,29 +1,36 @@
 #include "Collectible.h"
+#include "graphics.h"
 
-const float CELL_SIZE = 50.0f; // Match grid cell size
+// Constructor
+Collectible::Collectible(GameState* state, int x, int y)
+    : InteractiveObject(state, x, y, "Collectible") {}
 
-Collectible::Collectible(GameState* gs, int gridX, int gridY)
-    : GameObject(gs, "Collectible"), gridX(gridX), gridY(gridY), active(true) {
-    x = gridX * CELL_SIZE + CELL_SIZE / 2;
-    y = gridY * CELL_SIZE + CELL_SIZE / 2;
-}
-
-void Collectible::init() {
-    active = true;
-}
-
-void Collectible::update(float dt) {
-    // Collectibles do not need to update behavior for now
-}
-
+// Draw the collectible (yellow square)
 void Collectible::draw() {
-    if (active) {
-        graphics::Brush brush;
-        brush.fill_color[0] = 1.0f; // Yellow color
-        brush.fill_color[1] = 1.0f;
-        brush.fill_color[2] = 0.0f;
-        brush.fill_opacity = 1.0f;
+    graphics::Brush br;
+    br.outline_opacity = 0.0f;
+    br.fill_color[0] = 1.0f;
+    br.fill_color[1] = 1.0f;
+    br.fill_color[2] = 0.0f;
 
-        graphics::drawRect(x, y, CELL_SIZE * 0.6f, CELL_SIZE * 0.6f, brush);
-    }
+    float cellSize = 50.0f;
+    float xPos = gridX * cellSize + cellSize / 2.0f;
+    float yPos = gridY * cellSize + cellSize / 2.0f;
+
+    graphics::drawRect(xPos, yPos, cellSize, cellSize, br);
+}
+
+// Update logic for collectible
+void Collectible::update(float dt) {
+    // Placeholder for collectible-specific behavior
+}
+
+// Initialize collectible
+void Collectible::init() {
+    // Placeholder for initialization logic
+}
+
+// Handle collision
+void Collectible::handleCollision() {
+    // Placeholder for collision behavior (e.g., removal)
 }

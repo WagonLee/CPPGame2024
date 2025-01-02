@@ -2,9 +2,9 @@
 
 #include "InteractiveObject.h"
 
-class Collectible : public InteractiveObject {
+class Enemy : public InteractiveObject {
 public:
-    Collectible(GameState* state, int x, int y);
+    Enemy(GameState* state, int x, int y);
     void draw() override;
     void update(float dt) override;
     void init() override;
