@@ -25,7 +25,7 @@ void Collectible::draw() {
 // Update behavior
 void Collectible::update(float dt) {}
 
-// Initialize behavior (Definition added to fix linker error)
+// Initialize behavior
 void Collectible::init() {
     std::cout << "Collectible initialized at: (" << gridX << ", " << gridY << ")\n";
 }
@@ -33,5 +33,7 @@ void Collectible::init() {
 // Handle collision
 void Collectible::handleCollision(Player& player) {
     std::cout << "Collectible collected at: (" << gridX << ", " << gridY << ")\n";
-    setActive(false); // Collectible disappears, no respawn
+
+    setActive(false); // Collectible disappears
+    GameState::getInstance()->scheduleCollectibleRespawn(); // Schedule respawn
 }

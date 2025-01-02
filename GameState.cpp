@@ -30,12 +30,15 @@ void GameState::update(float dt) {
         enemySpawnInterval = enemySpawnMin + (rand() / (RAND_MAX / (enemySpawnMax - enemySpawnMin)));
     }
 
-    // --- COLLECTIBLE MANAGEMENT ---
-    int activeCollectibles = 0;
-    for (const auto& obj : gameObjects) {
-        Collectible* collectible = dynamic_cast<Collectible*>(obj.get());
-        if (collectible && collectible->isActive()) {
-            activeCollectibles++;
+    // --- COLLECTIBLE RESPAWN MANAGEMENT ---
+    for (auto it = collectibleRespawnTimers.begin(); it != collectibleRespawnTimers.end();) {
+        if (difftime(currentTime, it->second) >= collectibleRespawnDelay) {
+            spawnInteractiveObject<Collectible>(); // Respawn collectible
+            it = collectibleRespawnTimers.erase(it); // Remove from timer list
+            std::cout << "Collectible respawned at: " << currentTime << " seconds.\n";
+        }
+        else {
+            ++it;
         }
     }
 
@@ -82,6 +85,9 @@ void GameState::draw() {
     }
 }
 
+
+
+
 void GameState::init() {
     lastSpawnTime = time(nullptr);
     lastPowerUpSpawnTime = time(nullptr);
@@ -102,6 +108,12 @@ void GameState::reset() {}
 void GameState::endGame() {
     isGameOver = true;
     std::cout << "Game Over! All activity stopped." << std::endl;
+}
+
+void GameState::scheduleCollectibleRespawn() {
+    time_t currentTime = time(nullptr);
+    collectibleRespawnTimers.emplace_back(currentTime, currentTime + static_cast<time_t>(collectibleRespawnDelay));
+    std::cout << "Collectible scheduled for respawn at: " << currentTime + collectibleRespawnDelay << " seconds.\n";
 }
 
 GameState::~GameState() {

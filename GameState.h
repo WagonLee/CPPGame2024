@@ -26,6 +26,10 @@ private:
     // Collectible management
     const int collectibleCount = 2;
 
+    // Collectible respawn
+    std::vector<std::pair<time_t, time_t>> collectibleRespawnTimers; // Tracks respawn timers
+    const double collectibleRespawnDelay = 0.1; // Delay in seconds before respawn
+
     // PowerUp spawn timing
     time_t lastPowerUpSpawnTime;
     double powerUpSpawnInterval;
@@ -52,6 +56,9 @@ public:
     // Template method for spawning InteractiveObjects
     template <typename T>
     void spawnInteractiveObject();
+
+    // NEW: Schedule collectible respawn after a delay
+    void scheduleCollectibleRespawn();
 
     // Destructor
     ~GameState();
