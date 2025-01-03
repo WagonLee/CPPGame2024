@@ -35,7 +35,6 @@ void GameState::update(float dt) {
         if (difftime(currentTime, it->second) >= collectibleRespawnDelay) {
             spawnInteractiveObject<Collectible>(); // Respawn collectible
             it = collectibleRespawnTimers.erase(it); // Remove from timer list
-            std::cout << "Collectible respawned at: " << currentTime << " seconds.\n";
         }
         else {
             ++it;
@@ -58,7 +57,16 @@ void GameState::update(float dt) {
         if (player) break; // Found player instance
     }
 
+    static int previousTailSize = -1; // Track previous tail size for debugging
+
     if (player) {
+        // Debug print only when the tail size changes
+        int currentTailSize = player->getTailSize();
+        if (currentTailSize != previousTailSize) {
+            std::cout << "Player tail size updated: " << currentTailSize << std::endl;
+            previousTailSize = currentTailSize;
+        }
+
         for (auto& obj : gameObjects) {
             InteractiveObject* interactive = dynamic_cast<InteractiveObject*>(obj.get());
             if (interactive && interactive->isActive()) {
@@ -85,9 +93,6 @@ void GameState::draw() {
     }
 }
 
-
-
-
 void GameState::init() {
     lastSpawnTime = time(nullptr);
     lastPowerUpSpawnTime = time(nullptr);
@@ -113,7 +118,6 @@ void GameState::endGame() {
 void GameState::scheduleCollectibleRespawn() {
     time_t currentTime = time(nullptr);
     collectibleRespawnTimers.emplace_back(currentTime, currentTime + static_cast<time_t>(collectibleRespawnDelay));
-    std::cout << "Collectible scheduled for respawn at: " << currentTime + collectibleRespawnDelay << " seconds.\n";
 }
 
 GameState::~GameState() {

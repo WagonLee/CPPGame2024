@@ -1,6 +1,7 @@
 #include "Player.h"
 #include "graphics.h"
 #include "GameState.h"
+#include <iostream> // For debug output
 
 const float CELL_SIZE = 50.0f; // Match grid cell size
 
@@ -8,10 +9,15 @@ const float CELL_SIZE = 50.0f; // Match grid cell size
 Player::Player(GameState* gs, int startX, int startY, float speed)
     : GameObject(gs, "Player"), gridX(startX), gridY(startY), directionX(0), directionY(-1),
     nextDirectionX(0), nextDirectionY(-1), speed(speed), moving(false), isAlive(true), hitEdge(false) {
-    x = startX * CELL_SIZE + CELL_SIZE / 2; // Exact pixel position
+    x = startX * CELL_SIZE + CELL_SIZE / 2;
     y = startY * CELL_SIZE + CELL_SIZE / 2;
     targetX = x;
     targetY = y;
+
+    // Initialize placeholder tail size of 2 segments
+    for (int i = 0; i < 2; ++i) {
+        tail.push_back({ startX, startY }); // Start with segments stacked at the player position
+    }
 }
 
 // Initialize/reset player
@@ -31,6 +37,12 @@ void Player::init() {
     y = gridY * CELL_SIZE + CELL_SIZE / 2;
     targetX = x;
     targetY = y;
+
+    // Clear tail and reinitialize size to 2
+    tail.clear();
+    for (int i = 0; i < 2; ++i) {
+        tail.push_back({ gridX, gridY });
+    }
 }
 
 // Update movement and collisions
@@ -39,13 +51,21 @@ void Player::update(float dt) {
         return; // Stop updating if player is dead
     }
 
-    handleInput();
+    handleInput(); // Handle input for movement
 
     // Move smoothly toward the target
     moveToTarget(dt);
 
     // If reached the target, check for the next move
     if (!moving) {
+        // Update tail positions to smoothly follow the player
+        if (!tail.empty()) {
+            for (int i = tail.size() - 1; i > 0; --i) {
+                tail[i] = tail[i - 1]; // Shift segments forward
+            }
+            tail[0] = { gridX, gridY }; // First segment follows player's previous position
+        }
+
         // Apply buffered direction change at the move step
         directionX = nextDirectionX;
         directionY = nextDirectionY;
@@ -69,45 +89,51 @@ void Player::update(float dt) {
 // Smooth movement to target position
 void Player::moveToTarget(float dt) {
     if (moving) {
-        // Move toward the target position smoothly
         float dx = targetX - x;
         float dy = targetY - y;
         float dist = sqrt(dx * dx + dy * dy);
         float step = speed * CELL_SIZE * dt;
 
         if (dist > step) {
-            // Move by step size
             x += step * dx / dist;
             y += step * dy / dist;
         }
         else {
-            // Snap to target if close enough
             x = targetX;
             y = targetY;
-            moving = false; // Stop moving
+            moving = false;
         }
     }
 }
 
-// Draw the player
+// Draw the player and its tail
 void Player::draw() {
     graphics::Brush brush;
 
     if (hitEdge || !isAlive) {
-        // Turn pink if the player hit the edge or is dead
-        brush.fill_color[0] = 1.0f; // Pink (R)
-        brush.fill_color[1] = 0.0f; // Pink (G)
-        brush.fill_color[2] = 1.0f; // Pink (B)
+        brush.fill_color[0] = 1.0f; // Pink for death
+        brush.fill_color[1] = 0.0f;
+        brush.fill_color[2] = 1.0f;
     }
     else {
-        // Default color (green)
-        brush.fill_color[0] = 0.0f;
+        brush.fill_color[0] = 0.0f; // Green for player
         brush.fill_color[1] = 1.0f;
         brush.fill_color[2] = 0.0f;
     }
 
     brush.fill_opacity = 1.0f;
     graphics::drawRect(x, y, CELL_SIZE, CELL_SIZE, brush);
+
+    // Draw the tail
+    brush.fill_color[0] = 1.0f; // Yellow for tail
+    brush.fill_color[1] = 1.0f;
+    brush.fill_color[2] = 0.0f;
+
+    for (const auto& segment : tail) {
+        float tailX = segment.x * CELL_SIZE + CELL_SIZE / 2;
+        float tailY = segment.y * CELL_SIZE + CELL_SIZE / 2;
+        graphics::drawRect(tailX, tailY, CELL_SIZE * 0.8f, CELL_SIZE * 0.8f, brush); // Smaller tail squares
+    }
 }
 
 // Handle keyboard input
@@ -132,22 +158,18 @@ void Player::handleInput() {
 
 // Collision check with grid edges
 void Player::checkCollision() {
-    // Check for hitting the edge of the grid
     if (gridX < 0 || gridX >= 12 || gridY < 0 || gridY >= 12) {
-        setDead(); // Mark player as dead
+        setDead();
     }
 }
 
-// Set player as dead and stop activity
+// Death handling
 void Player::setDead() {
     isAlive = false;
     hitEdge = true;
-
-    // Notify GameState to stop updates
     GameState::getInstance()->endGame();
 }
 
-// Return whether the player is alive
 bool Player::getIsAlive() const {
     return isAlive;
 }

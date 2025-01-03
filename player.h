@@ -2,6 +2,7 @@
 
 #include "GameObject.h"
 #include "graphics.h"
+#include <vector> // For tail storage
 
 class Player : public GameObject {
 private:
@@ -15,21 +16,41 @@ private:
     bool isAlive;           // Tracks whether the player is alive
     bool hitEdge;           // Placeholder to check if edge collision occurred
 
+    // Tail properties
+    struct TailSegment {
+        int x, y;
+    };
+    std::vector<TailSegment> tail; // Tail storage
+
 public:
+    // Constructor
     Player(GameState* gs, int startX, int startY, float speed);
-    void update(float dt) override;
-    void draw() override;
-    void init() override;
 
-    void handleInput(); // Handles keyboard input for direction changes
-    void moveToTarget(float dt); // Smooth movement to target position
-    void checkCollision(); // Checks collision with the edge
+    // Core methods
+    void update(float dt) override;   // Updates player state each frame
+    void draw() override;             // Draws the player and tail
+    void init() override;             // Initializes the player state
 
-    // New Accessors for Position
-    int getGridX() const { return gridX; }
-    int getGridY() const { return gridY; }
+    // Input handling
+    void handleInput();               // Handles keyboard input for direction changes
+
+    // Movement
+    void moveToTarget(float dt);      // Smooth movement to target position
+
+    // Collision handling
+    void checkCollision();            // Checks collision with the edge
+
+    // Tail-related methods
+    void addTailSegment();            // Adds a tail segment to the player
+
+    // Position accessors
+    int getGridX() const { return gridX; }  // Get X position in grid
+    int getGridY() const { return gridY; }  // Get Y position in grid
+
+    // Debugging
+    int getTailSize() const { return tail.size(); } // Returns the tail size for debugging
 
     // Death handling
-    void setDead();
-    bool getIsAlive() const;
+    void setDead();                    // Sets player as dead and stops activity
+    bool getIsAlive() const;           // Checks if player is alive
 };
