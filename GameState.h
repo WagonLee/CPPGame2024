@@ -33,8 +33,8 @@ private:
     // PowerUp spawn timing
     time_t lastPowerUpSpawnTime;
     double powerUpSpawnInterval;
-    const double powerUpSpawnMin = 10.0;
-    const double powerUpSpawnMax = 20.0;
+    const double powerUpSpawnMin = 1.0;
+    const double powerUpSpawnMax = 2.0;
 
     // Player death state
     bool isGameOver = false;
@@ -59,6 +59,11 @@ public:
 
     // NEW: Schedule collectible respawn after a delay
     void scheduleCollectibleRespawn();
+
+    // NEW: Provide read-only access to game objects (Added for Enemy checks)
+    const std::vector<std::unique_ptr<GameObject>>& getGameObjects() const {
+        return gameObjects;
+    }
 
     // Destructor
     ~GameState();

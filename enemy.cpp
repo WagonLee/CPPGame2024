@@ -8,9 +8,8 @@ const float CELL_SIZE = 50.0f; // Match grid cell size
 
 // Constructor
 Enemy::Enemy(GameState* state, int x, int y)
-    : InteractiveObject(state, x, y, "Enemy"), isWeak(false), directionX(0), directionY(0) {
+    : InteractiveObject(state, x, y, "Enemy"), isWeak(false), directionX(0), directionY(0), moveInterval(1500 + rand() % 2500) {
     lastMoveTime = std::chrono::high_resolution_clock::now(); // Initialize movement timer
-    randomizeDirection(); // Set initial random direction
 
     // Smooth movement variables
     xPos = x * CELL_SIZE + CELL_SIZE / 2;
@@ -19,6 +18,8 @@ Enemy::Enemy(GameState* state, int x, int y)
     targetY = yPos;
     moving = false;
     speed = 0.002f; // Match the player's speed
+
+    randomizeDirection(); // Set initial random direction
 }
 
 // Draw the enemy
@@ -49,29 +50,34 @@ void Enemy::update(float dt) {
     auto now = std::chrono::high_resolution_clock::now();
     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastMoveTime).count();
 
-    if (!moving && elapsed >= moveInterval) { // Move every 2 seconds
+    if (!moving && elapsed >= moveInterval) { // Random move interval
         lastMoveTime = now; // Reset timer
+        moveInterval = 1500 + rand() % 2500; // Randomize next move interval (1.5s - 4s)
 
-        // Pick a new random direction every 2 seconds
+        // Pick a new random direction
         randomizeDirection();
 
         // Calculate new grid position
         int newGridX = gridX + directionX;
         int newGridY = gridY + directionY;
 
-        // Check if the new position is within bounds
-        if (newGridX >= 0 && newGridX < 12 && newGridY >= 0 && newGridY < 12) {
+        // Check if the new position is valid
+        if (canMoveTo(newGridX, newGridY)) { // NEW CHECK: Validate move
             gridX = newGridX;
             gridY = newGridY;
+
+            // Set target position for smooth movement
+            targetX = gridX * CELL_SIZE + CELL_SIZE / 2;
+            targetY = gridY * CELL_SIZE + CELL_SIZE / 2;
+            moving = true;
+
+            std::cout << "Enemy moved to (" << gridX << ", " << gridY << ") with interval "
+                << moveInterval << " ms in direction (" << directionX << ", " << directionY << ")" << std::endl;
         }
-
-        // Set target position for smooth movement
-        targetX = gridX * CELL_SIZE + CELL_SIZE / 2;
-        targetY = gridY * CELL_SIZE + CELL_SIZE / 2;
-        moving = true;
-
-        std::cout << "Enemy moved to (" << gridX << ", " << gridY << ") in direction ("
-            << directionX << ", " << directionY << ")" << std::endl; // Debug log
+        else {
+            // Retry direction if move is invalid
+            randomizeDirection();
+        }
     }
 }
 
@@ -120,4 +126,23 @@ void Enemy::randomizeDirection() {
     case 3: directionX = 1; directionY = 0; break;  // Right
     }
     std::cout << "Enemy changed direction: (" << directionX << ", " << directionY << ")" << std::endl;
+}
+
+// Check if the move is valid (NEW FUNCTION)
+bool Enemy::canMoveTo(int x, int y) const {
+    // Ensure position is within bounds
+    if (x < 0 || x >= 12 || y < 0 || y >= 12) {
+        return false;
+    }
+
+    // Check for collisions with other interactive objects
+    for (const auto& obj : GameState::getInstance()->getGameObjects()) {
+        InteractiveObject* interactive = dynamic_cast<InteractiveObject*>(obj.get());
+        if (interactive && interactive->isActive() &&
+            interactive->getGridX() == x && interactive->getGridY() == y) {
+            return false; // Blocked by another object
+        }
+    }
+
+    return true; // Position is valid
 }
