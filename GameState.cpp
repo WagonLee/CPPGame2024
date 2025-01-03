@@ -3,7 +3,8 @@
 #include <cstdlib>
 #include <ctime>
 #include <chrono>
-#include "MovingEnemy.h" // Updated to MovingEnemy
+#include "MovingEnemy.h"
+#include "StationaryEnemy.h" // Added for stationary enemies
 #include "Collectible.h"
 #include "PowerUpBlue.h"
 
@@ -44,12 +45,19 @@ void GameState::update(float dt) {
         gameObjects.reserve(100);
     }
 
-    // --- ENEMY SPAWNING ---
+    // --- MOVING ENEMY SPAWNING ---
     time_t currentTime = time(nullptr);
-    if (difftime(currentTime, lastSpawnTime) >= enemySpawnInterval) {
+    if (difftime(currentTime, lastMovingEnemySpawnTime) >= movingEnemySpawnInterval) {
         spawnInteractiveObject<MovingEnemy>();
-        lastSpawnTime = currentTime;
-        enemySpawnInterval = enemySpawnMin + (rand() / (RAND_MAX / (enemySpawnMax - enemySpawnMin)));
+        lastMovingEnemySpawnTime = currentTime;
+        movingEnemySpawnInterval = movingEnemySpawnMin + (rand() / (RAND_MAX / (movingEnemySpawnMax - movingEnemySpawnMin)));
+    }
+
+    // --- STATIONARY ENEMY SPAWNING ---
+    if (difftime(currentTime, lastStationarySpawnTime) >= stationaryEnemySpawnInterval) {
+        spawnInteractiveObject<StationaryEnemy>();
+        lastStationarySpawnTime = currentTime;
+        stationaryEnemySpawnInterval = stationarySpawnMin + (rand() / (RAND_MAX / (stationarySpawnMax - stationarySpawnMin)));
     }
 
     // --- COLLECTIBLE RESPAWN MANAGEMENT ---
@@ -70,7 +78,7 @@ void GameState::update(float dt) {
         powerUpSpawnInterval = powerUpSpawnMin + (rand() / (RAND_MAX / (powerUpSpawnMax - powerUpSpawnMin)));
     }
 
-    // --- COLLISION DETECTION (RESTORED) ---
+    // --- COLLISION DETECTION ---
     Player* player = nullptr;
 
     // Locate the player
@@ -87,7 +95,7 @@ void GameState::update(float dt) {
             previousTailSize = currentTailSize;
         }
 
-        // FIXED: Separate loop for collision detection
+        // Check collisions
         for (auto& obj : gameObjects) {
             InteractiveObject* interactive = dynamic_cast<InteractiveObject*>(obj.get());
 
@@ -107,7 +115,7 @@ void GameState::update(float dt) {
     // Update all objects and buffer new ones
     for (auto& obj : gameObjects) {
         if (obj && obj->isActive()) {
-            obj->update(dt); // Update active objects
+            obj->update(dt);
 
             // Collect new objects if spawned during update
             auto movingEnemy = dynamic_cast<MovingEnemy*>(obj.get());
@@ -117,8 +125,8 @@ void GameState::update(float dt) {
                     newObjects.push_back(std::move(newEnemy));
                 }
             }
-                }
-            }
+        }
+    }
 
     // Append buffered objects safely
     for (auto& newObj : newObjects) {
@@ -133,15 +141,13 @@ void GameState::update(float dt) {
             [](const std::unique_ptr<GameObject>& obj) {
                 return !obj || !obj->isActive();
             }),
-        gameObjects.end()
-                );
+        gameObjects.end());
 
-    // --- Debug Logs (Only for Development Mode) ---
+    // --- Debug Logs ---
 #ifdef DEBUG
     std::cout << "Active objects after update: " << gameObjects.size() << std::endl;
 #endif
-        }
-
+}
 
 // Draw all game objects
 void GameState::draw() {
@@ -154,11 +160,15 @@ void GameState::draw() {
 
 // Initialize game state
 void GameState::init() {
-    lastSpawnTime = time(nullptr);
+    lastMovingEnemySpawnTime = time(nullptr);
+    movingEnemySpawnInterval = movingEnemySpawnMin + (rand() / (RAND_MAX / (movingEnemySpawnMax - movingEnemySpawnMin)));
+
+    lastStationarySpawnTime = time(nullptr); // Added for stationary enemies
+    stationaryEnemySpawnInterval = stationarySpawnMin + (rand() / (RAND_MAX / (stationarySpawnMax - stationarySpawnMin)));
+
     lastPowerUpSpawnTime = time(nullptr);
     srand(static_cast<unsigned int>(time(nullptr)));
 
-    enemySpawnInterval = enemySpawnMin + (rand() / (RAND_MAX / (enemySpawnMax - enemySpawnMin)));
     powerUpSpawnInterval = powerUpSpawnMin + (rand() / (RAND_MAX / (powerUpSpawnMax - powerUpSpawnMin)));
 
     // Spawn initial collectibles

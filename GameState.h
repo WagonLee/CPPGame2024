@@ -7,7 +7,8 @@
 #include <chrono>     // For precise timing
 #include "GameObject.h"
 #include "InteractiveObject.h"
-#include "MovingEnemy.h" // Updated to MovingEnemy
+#include "MovingEnemy.h"
+#include "StationaryEnemy.h" // Added new enemy type
 #include "Collectible.h"
 #include "PowerUpBlue.h"
 #include "Player.h" // Include player for tail checks
@@ -17,11 +18,17 @@ private:
     static GameState* instance;
     std::vector<std::unique_ptr<GameObject>> gameObjects;
 
-    // Enemy spawn timing
-    time_t lastSpawnTime;
-    double enemySpawnInterval;
-    const double enemySpawnMin = 5.0;
-    const double enemySpawnMax = 10.0;
+    // MovingEnemy spawn timing
+    time_t lastMovingEnemySpawnTime;                     // Renamed for MovingEnemy
+    double movingEnemySpawnInterval;                     // Renamed for MovingEnemy
+    const double movingEnemySpawnMin = 5.0;              // Minimum spawn interval
+    const double movingEnemySpawnMax = 10.0;             // Maximum spawn interval
+
+    // StationaryEnemy spawn timing
+    time_t lastStationarySpawnTime;                      // Added for StationaryEnemy
+    double stationaryEnemySpawnInterval;                 // Added for StationaryEnemy
+    const double stationarySpawnMin = 10.0;              // Minimum spawn interval
+    const double stationarySpawnMax = 20.0;              // Maximum spawn interval
 
     // Collectible management
     const int collectibleCount = 2;
@@ -118,6 +125,9 @@ void GameState::spawnInteractiveObject() {
     if constexpr (std::is_same<T, MovingEnemy>::value) {
         addObject(new MovingEnemy(this, gridX, gridY));
     }
+    else if constexpr (std::is_same<T, StationaryEnemy>::value) { // Added StationaryEnemy
+        addObject(new StationaryEnemy(this, gridX, gridY));
+    }
     else if constexpr (std::is_same<T, Collectible>::value) {
         addObject(new Collectible(this, gridX, gridY));
     }
@@ -141,5 +151,3 @@ void GameState::spawnInteractiveObject() {
     std::cout << typeid(T).name() << " spawned at: (" << gridX << ", " << gridY << ") at time: "
         << timeStr << ":" << ms.count() << " " << (1900 + timeInfo.tm_year) << std::endl;
 }
-
-
