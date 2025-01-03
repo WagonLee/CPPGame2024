@@ -18,9 +18,11 @@ private:
 
     // Tail properties
     struct TailSegment {
-        int x, y;
+        int gridX, gridY;     // Grid position
+        float x, y;           // Smooth pixel position
+        float targetX, targetY; // Target positions for smooth movement (Added to fix error)
     };
-    std::vector<TailSegment> tail; // Tail storage
+    std::vector<TailSegment> tail; // Fixed tail declaration
 
 public:
     // Constructor
@@ -36,6 +38,7 @@ public:
 
     // Movement
     void moveToTarget(float dt);      // Smooth movement to target position
+    void updateTail(float dt);        // Smooth tail movement update
 
     // Collision handling
     void checkCollision();            // Checks collision with the edge

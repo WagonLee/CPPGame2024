@@ -16,7 +16,7 @@ Player::Player(GameState* gs, int startX, int startY, float speed)
 
     // Initialize placeholder tail size of 2 segments
     for (int i = 0; i < 2; ++i) {
-        tail.push_back({ startX, startY }); // Start with segments stacked at the player position
+        tail.push_back({ startX, startY, x, y, x, y }); // Added smooth tracking variables
     }
 }
 
@@ -41,7 +41,7 @@ void Player::init() {
     // Clear tail and reinitialize size to 2
     tail.clear();
     for (int i = 0; i < 2; ++i) {
-        tail.push_back({ gridX, gridY });
+        tail.push_back({ gridX, gridY, x, y, x, y }); // Smooth movement variables added
     }
 }
 
@@ -56,14 +56,23 @@ void Player::update(float dt) {
     // Move smoothly toward the target
     moveToTarget(dt);
 
+    // Smooth tail movement
+    updateTail(dt); // Added smooth tail update
+
     // If reached the target, check for the next move
     if (!moving) {
         // Update tail positions to smoothly follow the player
         if (!tail.empty()) {
             for (int i = tail.size() - 1; i > 0; --i) {
-                tail[i] = tail[i - 1]; // Shift segments forward
+                tail[i].gridX = tail[i - 1].gridX;
+                tail[i].gridY = tail[i - 1].gridY;
+                tail[i].targetX = tail[i - 1].targetX;
+                tail[i].targetY = tail[i - 1].targetY;
             }
-            tail[0] = { gridX, gridY }; // First segment follows player's previous position
+            tail[0].gridX = gridX; // First segment follows player's previous position
+            tail[0].gridY = gridY;
+            tail[0].targetX = targetX;
+            tail[0].targetY = targetY;
         }
 
         // Apply buffered direction change at the move step
@@ -106,6 +115,27 @@ void Player::moveToTarget(float dt) {
     }
 }
 
+// Smooth tail movement
+void Player::updateTail(float dt) {
+    for (size_t i = 0; i < tail.size(); ++i) {
+        TailSegment& segment = tail[i];
+
+        float dx = segment.targetX - segment.x;
+        float dy = segment.targetY - segment.y;
+        float dist = sqrt(dx * dx + dy * dy);
+        float step = speed * CELL_SIZE * dt;
+
+        if (dist > step) {
+            segment.x += step * dx / dist;
+            segment.y += step * dy / dist;
+        }
+        else {
+            segment.x = segment.targetX;
+            segment.y = segment.targetY;
+        }
+    }
+}
+
 // Draw the player and its tail
 void Player::draw() {
     graphics::Brush brush;
@@ -130,9 +160,7 @@ void Player::draw() {
     brush.fill_color[2] = 0.0f;
 
     for (const auto& segment : tail) {
-        float tailX = segment.x * CELL_SIZE + CELL_SIZE / 2;
-        float tailY = segment.y * CELL_SIZE + CELL_SIZE / 2;
-        graphics::drawRect(tailX, tailY, CELL_SIZE * 0.8f, CELL_SIZE * 0.8f, brush); // Smaller tail squares
+        graphics::drawRect(segment.x, segment.y, CELL_SIZE * 0.8f, CELL_SIZE * 0.8f, brush); // Smaller tail squares
     }
 }
 
