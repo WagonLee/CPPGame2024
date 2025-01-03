@@ -1,7 +1,8 @@
 #include "Collectible.h"
 #include "graphics.h"
 #include "GameState.h"
-#include <iostream>
+#include "Player.h" // Include Player to modify tail
+#include <iostream> // For debug output
 
 // Constructor
 Collectible::Collectible(GameState* state, int x, int y)
@@ -33,6 +34,9 @@ void Collectible::init() {
 // Handle collision
 void Collectible::handleCollision(Player& player) {
     std::cout << "Collectible collected at: (" << gridX << ", " << gridY << ")\n";
+
+    // Add a tail segment when collected
+    player.addTailSegment(); // NEW: Add tail segment to player
 
     setActive(false); // Collectible disappears
     GameState::getInstance()->scheduleCollectibleRespawn(); // Schedule respawn

@@ -14,10 +14,7 @@ Player::Player(GameState* gs, int startX, int startY, float speed)
     targetX = x;
     targetY = y;
 
-    // Initialize placeholder tail size of 2 segments
-    for (int i = 0; i < 2; ++i) {
-        tail.push_back({ startX, startY, x, y, x, y }); // Added smooth tracking variables
-    }
+    // Player starts with no tail
 }
 
 // Initialize/reset player
@@ -38,11 +35,39 @@ void Player::init() {
     targetX = x;
     targetY = y;
 
-    // Clear tail and reinitialize size to 2
+    // Clear tail on reset
     tail.clear();
-    for (int i = 0; i < 2; ++i) {
-        tail.push_back({ gridX, gridY, x, y, x, y }); // Smooth movement variables added
+}
+
+// Add a tail segment (Fixed Position)
+void Player::addTailSegment() {
+    int newGridX, newGridY;
+    float newX, newY, newTargetX, newTargetY;
+
+    if (tail.empty()) {
+        // If no tail exists, spawn the first segment behind the player
+        newGridX = gridX - directionX; // Move opposite to the direction
+        newGridY = gridY - directionY;
+        newX = newGridX * CELL_SIZE + CELL_SIZE / 2;
+        newY = newGridY * CELL_SIZE + CELL_SIZE / 2;
+        newTargetX = newX;
+        newTargetY = newY;
     }
+    else {
+        // If tail exists, spawn behind the last segment
+        const auto& lastSegment = tail.back();
+        newGridX = lastSegment.gridX - directionX;
+        newGridY = lastSegment.gridY - directionY;
+        newX = newGridX * CELL_SIZE + CELL_SIZE / 2;
+        newY = newGridY * CELL_SIZE + CELL_SIZE / 2;
+        newTargetX = newX;
+        newTargetY = newY;
+    }
+
+    // Add the new segment
+    tail.push_back({ newGridX, newGridY, newX, newY, newTargetX, newTargetY });
+
+    std::cout << "Tail segment added at: (" << newGridX << ", " << newGridY << "). Total segments: " << tail.size() << std::endl;
 }
 
 // Update movement and collisions
@@ -57,7 +82,10 @@ void Player::update(float dt) {
     moveToTarget(dt);
 
     // Smooth tail movement
-    updateTail(dt); // Added smooth tail update
+    updateTail(dt); // Update tail with smooth movement
+
+    // Check for self-collision with tail
+    checkTailCollision();
 
     // If reached the target, check for the next move
     if (!moving) {
@@ -136,6 +164,16 @@ void Player::updateTail(float dt) {
     }
 }
 
+// Check for collision with the tail
+void Player::checkTailCollision() {
+    for (const auto& segment : tail) {
+        if (segment.gridX == gridX && segment.gridY == gridY) {
+            setDead(); // Player dies if colliding with its own tail
+            break;
+        }
+    }
+}
+
 // Draw the player and its tail
 void Player::draw() {
     graphics::Brush brush;
@@ -160,7 +198,7 @@ void Player::draw() {
     brush.fill_color[2] = 0.0f;
 
     for (const auto& segment : tail) {
-        graphics::drawRect(segment.x, segment.y, CELL_SIZE * 0.8f, CELL_SIZE * 0.8f, brush); // Smaller tail squares
+        graphics::drawRect(segment.x, segment.y, CELL_SIZE * 0.8f, CELL_SIZE * 0.8f, brush);
     }
 }
 

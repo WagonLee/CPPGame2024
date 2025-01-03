@@ -10,7 +10,7 @@
 #include "Enemy.h"
 #include "Collectible.h"
 #include "PowerUpBlue.h"
-#include "Player.h" // Include player for death checks
+#include "Player.h" // Include player for tail checks
 
 class GameState {
 private:
@@ -78,6 +78,7 @@ void GameState::spawnInteractiveObject() {
         gridY = rand() % 12;
         positionValid = true;
 
+        // Check for conflicts with other active objects
         for (const auto& obj : gameObjects) {
             InteractiveObject* interactive = dynamic_cast<InteractiveObject*>(obj.get());
             if (interactive && interactive->isActive() &&
@@ -87,15 +88,36 @@ void GameState::spawnInteractiveObject() {
                 break;
             }
         }
+
+        // NEW CHECK: Prevent spawning on player's tail segments
+        Player* player = nullptr;
+        for (const auto& obj : gameObjects) {
+            player = dynamic_cast<Player*>(obj.get());
+            if (player) break; // Found player instance
+        }
+
+        if (player) {
+            const auto& tail = player->getTailSize(); // Access tail segments
+            for (const auto& segment : player->tail) { // Iterate through tail
+                if (segment.gridX == gridX && segment.gridY == gridY) {
+                    std::cout << "Spawn conflict with tail at: (" << gridX << ", " << gridY << ")" << std::endl;
+                    positionValid = false;
+                    break;
+                }
+            }
+        }
+
         attempts++;
     }
 
+    // Abort spawn if no valid position is found
     if (!positionValid) {
         std::cerr << "Failed to find valid spawn position!" << std::endl;
         return;
     }
 
-    T* obj = new T(this, gridX, gridY); // Uses template type T
+    // Spawn object if position is valid
+    T* obj = new T(this, gridX, gridY);
     addObject(obj);
 
     // Debug log with timestamp
