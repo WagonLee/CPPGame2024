@@ -1,7 +1,8 @@
 #include "Player.h"
 #include "graphics.h"
 #include "GameState.h"
-#include <iostream> // For debug output
+#include "Enemy.h"   // Added to spawn enemies
+#include <iostream>  // For debug output
 
 const float CELL_SIZE = 50.0f; // Match grid cell size
 
@@ -39,35 +40,45 @@ void Player::init() {
     tail.clear();
 }
 
-// Add a tail segment (Fixed Position)
+// Add a tail segment
 void Player::addTailSegment() {
     int newGridX, newGridY;
     float newX, newY, newTargetX, newTargetY;
 
     if (tail.empty()) {
-        // If no tail exists, spawn the first segment behind the player
-        newGridX = gridX - directionX; // Move opposite to the direction
+        newGridX = gridX - directionX;
         newGridY = gridY - directionY;
-        newX = newGridX * CELL_SIZE + CELL_SIZE / 2;
-        newY = newGridY * CELL_SIZE + CELL_SIZE / 2;
-        newTargetX = newX;
-        newTargetY = newY;
     }
     else {
-        // If tail exists, spawn behind the last segment
         const auto& lastSegment = tail.back();
         newGridX = lastSegment.gridX - directionX;
         newGridY = lastSegment.gridY - directionY;
-        newX = newGridX * CELL_SIZE + CELL_SIZE / 2;
-        newY = newGridY * CELL_SIZE + CELL_SIZE / 2;
-        newTargetX = newX;
-        newTargetY = newY;
     }
 
-    // Add the new segment
-    tail.push_back({ newGridX, newGridY, newX, newY, newTargetX, newTargetY });
+    newX = newGridX * CELL_SIZE + CELL_SIZE / 2;
+    newY = newGridY * CELL_SIZE + CELL_SIZE / 2;
+    newTargetX = newX;
+    newTargetY = newY;
 
-    std::cout << "Tail segment added at: (" << newGridX << ", " << newGridY << "). Total segments: " << tail.size() << std::endl;
+    tail.push_back({ newGridX, newGridY, newX, newY, newTargetX, newTargetY });
+    std::cout << "Tail segment added. Total segments: " << tail.size() << std::endl;
+}
+
+// Shed tail and spawn enemies
+void Player::shedTail() {
+    if (tail.empty()) return; // No tail to shed
+
+    std::cout << "Shedding tail: " << tail.size() << " segments." << std::endl;
+
+    for (const auto& segment : tail) {
+        // Spawn enemies at each tail segment's position
+        Enemy* enemy = new Enemy(GameState::getInstance(), segment.gridX, segment.gridY);
+        GameState::getInstance()->addObject(enemy);
+        std::cout << "Enemy spawned at: (" << segment.gridX << ", " << segment.gridY << ")" << std::endl;
+    }
+
+    // Clear tail after shedding
+    tail.clear();
 }
 
 // Update movement and collisions
@@ -77,6 +88,11 @@ void Player::update(float dt) {
     }
 
     handleInput(); // Handle input for movement
+
+    // Detect space key to shed tail
+    if (graphics::getKeyState(graphics::SCANCODE_SPACE)) {
+        shedTail(); // Trigger shedding mechanic
+    }
 
     // Move smoothly toward the target
     moveToTarget(dt);
@@ -89,7 +105,6 @@ void Player::update(float dt) {
 
     // If reached the target, check for the next move
     if (!moving) {
-        // Update tail positions to smoothly follow the player
         if (!tail.empty()) {
             for (int i = tail.size() - 1; i > 0; --i) {
                 tail[i].gridX = tail[i - 1].gridX;
@@ -97,24 +112,20 @@ void Player::update(float dt) {
                 tail[i].targetX = tail[i - 1].targetX;
                 tail[i].targetY = tail[i - 1].targetY;
             }
-            tail[0].gridX = gridX; // First segment follows player's previous position
+            tail[0].gridX = gridX;
             tail[0].gridY = gridY;
             tail[0].targetX = targetX;
             tail[0].targetY = targetY;
         }
 
-        // Apply buffered direction change at the move step
         directionX = nextDirectionX;
         directionY = nextDirectionY;
 
-        // Calculate new grid position
         gridX += directionX;
         gridY += directionY;
 
-        // Check for collision with edges
         checkCollision();
 
-        // If still alive, set target position for smooth movement
         if (isAlive) {
             targetX = gridX * CELL_SIZE + CELL_SIZE / 2;
             targetY = gridY * CELL_SIZE + CELL_SIZE / 2;
@@ -123,7 +134,7 @@ void Player::update(float dt) {
     }
 }
 
-// Smooth movement to target position
+// Move smoothly toward the target
 void Player::moveToTarget(float dt) {
     if (moving) {
         float dx = targetX - x;
@@ -192,7 +203,6 @@ void Player::draw() {
     brush.fill_opacity = 1.0f;
     graphics::drawRect(x, y, CELL_SIZE, CELL_SIZE, brush);
 
-    // Draw the tail
     brush.fill_color[0] = 1.0f; // Yellow for tail
     brush.fill_color[1] = 1.0f;
     brush.fill_color[2] = 0.0f;
@@ -202,34 +212,17 @@ void Player::draw() {
     }
 }
 
-// Handle keyboard input
 void Player::handleInput() {
-    if (graphics::getKeyState(graphics::SCANCODE_UP) && directionY == 0) {
-        nextDirectionX = 0;
-        nextDirectionY = -1;
-    }
-    if (graphics::getKeyState(graphics::SCANCODE_DOWN) && directionY == 0) {
-        nextDirectionX = 0;
-        nextDirectionY = 1;
-    }
-    if (graphics::getKeyState(graphics::SCANCODE_LEFT) && directionX == 0) {
-        nextDirectionX = -1;
-        nextDirectionY = 0;
-    }
-    if (graphics::getKeyState(graphics::SCANCODE_RIGHT) && directionX == 0) {
-        nextDirectionX = 1;
-        nextDirectionY = 0;
-    }
+    if (graphics::getKeyState(graphics::SCANCODE_UP) && directionY == 0) nextDirectionX = 0, nextDirectionY = -1;
+    else if (graphics::getKeyState(graphics::SCANCODE_DOWN) && directionY == 0) nextDirectionX = 0, nextDirectionY = 1;
+    else if (graphics::getKeyState(graphics::SCANCODE_LEFT) && directionX == 0) nextDirectionX = -1, nextDirectionY = 0;
+    else if (graphics::getKeyState(graphics::SCANCODE_RIGHT) && directionX == 0) nextDirectionX = 1, nextDirectionY = 0;
 }
 
-// Collision check with grid edges
 void Player::checkCollision() {
-    if (gridX < 0 || gridX >= 12 || gridY < 0 || gridY >= 12) {
-        setDead();
-    }
+    if (gridX < 0 || gridX >= 12 || gridY < 0 || gridY >= 12) setDead();
 }
 
-// Death handling
 void Player::setDead() {
     isAlive = false;
     hitEdge = true;

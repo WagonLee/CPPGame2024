@@ -4,8 +4,6 @@
 #include "graphics.h"
 #include <vector> // For tail storage
 
-class GameState; // Forward declaration for friendship
-
 class Player : public GameObject {
 private:
     float x, y;               // Exact position in pixels for smooth movement
@@ -27,7 +25,7 @@ private:
     std::vector<TailSegment> tail; // Tail storage
 
     // Grant GameState access to private members
-    friend class GameState; // Fancy solution!
+    friend class GameState;
 
 public:
     // Constructor
@@ -47,10 +45,11 @@ public:
 
     // Collision handling
     void checkCollision();            // Checks collision with the edge
-    void checkTailCollision();        // NEW: Checks collision with the tail (Fixed Declaration)
+    void checkTailCollision();        // Checks collision with the tail
 
     // Tail-related methods
     void addTailSegment();            // Adds a tail segment to the player
+    void shedTail();                  // NEW: Sheds the tail and spawns enemies
 
     // Position accessors
     int getGridX() const { return gridX; }  // Get X position in grid
