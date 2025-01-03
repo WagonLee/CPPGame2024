@@ -1,7 +1,7 @@
 #include "Player.h"
 #include "graphics.h"
 #include "GameState.h"
-#include "Enemy.h"   // Added to spawn enemies
+#include "MovingEnemy.h"   // Fixed: Use MovingEnemy instead of Enemy
 #include <iostream>  // For debug output
 
 const float CELL_SIZE = 50.0f; // Match grid cell size
@@ -64,22 +64,29 @@ void Player::addTailSegment() {
     std::cout << "Tail segment added. Total segments: " << tail.size() << std::endl;
 }
 
-// Shed tail and spawn enemies
 void Player::shedTail() {
     if (tail.empty()) return; // No tail to shed
 
     std::cout << "Shedding tail: " << tail.size() << " segments." << std::endl;
 
     for (const auto& segment : tail) {
-        // Spawn enemies at each tail segment's position
-        Enemy* enemy = new Enemy(GameState::getInstance(), segment.gridX, segment.gridY);
-        GameState::getInstance()->addObject(enemy);
+        // FIXED: Spawn MovingEnemy instead of abstract Enemy
+        MovingEnemy* enemy = new MovingEnemy(GameState::getInstance(), segment.gridX, segment.gridY);
+
+        // Null check before adding to gameObjects
+        if (!enemy) {
+            std::cerr << "Failed to create enemy!" << std::endl;
+            continue; // Skip this segment if creation failed
+        }
+
+        GameState::getInstance()->addObject(enemy); // Add enemy to game objects
         std::cout << "Enemy spawned at: (" << segment.gridX << ", " << segment.gridY << ")" << std::endl;
     }
 
     // Clear tail after shedding
     tail.clear();
 }
+
 
 // Update movement and collisions
 void Player::update(float dt) {

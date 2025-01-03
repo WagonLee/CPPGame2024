@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="collectible.cpp" />
     <ClCompile Include="enemy.cpp" />
+    <ClCompile Include="movingEnemy.cpp" />
     <ClCompile Include="gameObject.cpp" />
     <ClCompile Include="gameState.cpp" />
     <ClCompile Include="interactiveObject.cpp" />
@@ -32,6 +33,7 @@
   <ItemGroup>
     <ClInclude Include="collectible.h" />
     <ClInclude Include="enemy.h" />
+    <ClInclude Include="movingEnemy.h" />
     <ClInclude Include="gameObject.h" />
     <ClInclude Include="gameState.h" />
     <ClInclude Include="interactiveObject.h" />

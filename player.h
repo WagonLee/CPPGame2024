@@ -48,8 +48,8 @@ public:
     void checkTailCollision();        // Checks collision with the tail
 
     // Tail-related methods
-    void addTailSegment();            // Adds a tail segment to the player
-    void shedTail();                  // NEW: Sheds the tail and spawns enemies
+    void addTailSegment();            // FIXED: Declared function for adding tail segments
+    void shedTail();                  // Sheds the tail and spawns enemies
 
     // Position accessors
     int getGridX() const { return gridX; }  // Get X position in grid

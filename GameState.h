@@ -7,7 +7,7 @@
 #include <chrono>     // For precise timing
 #include "GameObject.h"
 #include "InteractiveObject.h"
-#include "Enemy.h"
+#include "MovingEnemy.h" // Updated to MovingEnemy
 #include "Collectible.h"
 #include "PowerUpBlue.h"
 #include "Player.h" // Include player for tail checks
@@ -33,8 +33,8 @@ private:
     // PowerUp spawn timing
     time_t lastPowerUpSpawnTime;
     double powerUpSpawnInterval;
-    const double powerUpSpawnMin = 1.0;
-    const double powerUpSpawnMax = 2.0;
+    const double powerUpSpawnMin = 10.0;
+    const double powerUpSpawnMax = 20.0;
 
     // Player death state
     bool isGameOver = false;
@@ -57,10 +57,10 @@ public:
     template <typename T>
     void spawnInteractiveObject();
 
-    // NEW: Schedule collectible respawn after a delay
+    // Schedule collectible respawn after a delay
     void scheduleCollectibleRespawn();
 
-    // NEW: Provide read-only access to game objects (Added for Enemy checks)
+    // Provide read-only access to game objects
     const std::vector<std::unique_ptr<GameObject>>& getGameObjects() const {
         return gameObjects;
     }
@@ -72,7 +72,7 @@ public:
 // Template implementation must be in the header file
 template <typename T>
 void GameState::spawnInteractiveObject() {
-    if (isGameOver) return; // Prevent spawning after player death
+    if (isGameOver) return;
 
     int gridX, gridY;
     bool positionValid = false;
@@ -88,24 +88,21 @@ void GameState::spawnInteractiveObject() {
             InteractiveObject* interactive = dynamic_cast<InteractiveObject*>(obj.get());
             if (interactive && interactive->isActive() &&
                 interactive->getGridX() == gridX && interactive->getGridY() == gridY) {
-                std::cout << "Conflict detected at: (" << gridX << ", " << gridY << ")" << std::endl;
-                positionValid = false; // Retry if conflict
+                positionValid = false;
                 break;
             }
         }
 
-        // NEW CHECK: Prevent spawning on player's tail segments
+        // Prevent spawning on player's tail segments
         Player* player = nullptr;
         for (const auto& obj : gameObjects) {
             player = dynamic_cast<Player*>(obj.get());
-            if (player) break; // Found player instance
+            if (player) break;
         }
 
         if (player) {
-            const auto& tail = player->getTailSize(); // Access tail segments
-            for (const auto& segment : player->tail) { // Iterate through tail
+            for (const auto& segment : player->tail) {
                 if (segment.gridX == gridX && segment.gridY == gridY) {
-                    std::cout << "Spawn conflict with tail at: (" << gridX << ", " << gridY << ")" << std::endl;
                     positionValid = false;
                     break;
                 }
@@ -115,15 +112,18 @@ void GameState::spawnInteractiveObject() {
         attempts++;
     }
 
-    // Abort spawn if no valid position is found
-    if (!positionValid) {
-        std::cerr << "Failed to find valid spawn position!" << std::endl;
-        return;
-    }
+    if (!positionValid) return;
 
-    // Spawn object if position is valid
-    T* obj = new T(this, gridX, gridY);
-    addObject(obj);
+    // Correct instantiation for object type
+    if constexpr (std::is_same<T, MovingEnemy>::value) {
+        addObject(new MovingEnemy(this, gridX, gridY));
+    }
+    else if constexpr (std::is_same<T, Collectible>::value) {
+        addObject(new Collectible(this, gridX, gridY));
+    }
+    else if constexpr (std::is_same<T, PowerUpBlue>::value) {
+        addObject(new PowerUpBlue(this, gridX, gridY));
+    }
 
     // Debug log with timestamp
     auto now = std::chrono::system_clock::now();
@@ -141,3 +141,5 @@ void GameState::spawnInteractiveObject() {
     std::cout << typeid(T).name() << " spawned at: (" << gridX << ", " << gridY << ") at time: "
         << timeStr << ":" << ms.count() << " " << (1900 + timeInfo.tm_year) << std::endl;
 }
+
+
