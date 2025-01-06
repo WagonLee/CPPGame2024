@@ -8,6 +8,8 @@
 #include "StationaryEnemy.h"
 #include "Collectible.h"
 #include "PowerUpBlue.h"
+#include "Config.h"
+
 
 GameState* GameState::instance = nullptr;
 
@@ -209,6 +211,33 @@ void GameState::draw() {
         if (obj->isActive()) {
             obj->draw();
         }
+    }
+
+    // Locate the player
+    Player* player = nullptr;
+    for (auto& obj : gameObjects) {
+        player = dynamic_cast<Player*>(obj.get());
+        if (player) break;
+    }
+
+    if (player) {
+        // Set up the font and brush for text
+        graphics::setFont(std::string("assets/Arial.ttf")); // Use Arial font
+        graphics::Brush textBrush;
+        textBrush.fill_color[0] = 1.0f; // Red text
+        textBrush.fill_color[1] = 0.0f;
+        textBrush.fill_color[2] = 0.0f;
+        textBrush.outline_opacity = 0.0f;
+
+        // Generate text to display
+        std::string tailText = "Tail Size: " + std::to_string(player->getTailSize());
+
+        // Position text near the top-center
+        float xPos = (GRID_SIZE * CELL_SIZE) / 2.0f; // Horizontal center
+        float yPos = 30;                             // 30 pixels from the top
+
+        // Draw the text
+        graphics::drawText(xPos, yPos, 30, tailText, textBrush); // Size 30
     }
 }
 
