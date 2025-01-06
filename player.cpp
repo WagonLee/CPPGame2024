@@ -100,16 +100,20 @@ void Player::shedTail() {
         }
     }
 
-    // **Rebuild the tail only with remaining segments**
-    tail = remainingSegments;
+    // **Update tally for deposited segments**
+    GameState::getInstance()->incrementTally(depositedCount);
 
-    // Award points for deposited segments
+    // **Update score for deposits (affects score, not tally logic)**
     GameState::getInstance()->addScore(depositedCount);
+
+    // Replace the tail with only non-deposited segments
+    tail = remainingSegments;
 
     // Debug logs
     std::cout << "Deposited " << depositedCount << " segments." << std::endl;
     std::cout << "Tail shedding complete. Remaining tail size: " << tail.size() << std::endl;
 }
+
 
 // Update movement and collisions
 void Player::update(float dt) {

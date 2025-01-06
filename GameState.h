@@ -56,7 +56,8 @@ private:
     // Private methods
     void spawnDepositZone();  // Handles spawning deposit zones
 
-    int score = 0; // Tracks the score
+    int score = 0;         // Total score
+    int tally = 0;         // Tracks consecutive deposits
 
 public:
     // Singleton pattern
@@ -84,8 +85,14 @@ public:
 
     const std::unique_ptr<DepositZone>& getDepositZone() const { return depositZone; }
 
-    void addScore(int points); // Adds points to the score
+    // Score management
+    void addScore(int points); // Adds points to score (general purpose)
     int getScore() const { return score; } // Getter for score
+
+    // Tally management
+    void incrementTally(int count); // Increments tally (only deposits)
+    int getTally() const { return tally; } // Getter for tally
+    void resetTally(); // Resets tally for power-ups
 
     // Destructor
     ~GameState();

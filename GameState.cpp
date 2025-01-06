@@ -229,16 +229,21 @@ void GameState::draw() {
         textBrush.fill_color[2] = 0.0f;
         textBrush.outline_opacity = 0.0f;
 
-        // Generate text to display
+        // Display tail size
         std::string tailText = "Tail Size: " + std::to_string(player->getTailSize());
-
-        // Position text near the top-center
         float xPos = (GRID_SIZE * CELL_SIZE) / 2.0f; // Horizontal center
         float yPos = 30;                             // 30 pixels from the top
-
-        // Draw the text
         graphics::drawText(xPos, yPos, 30, tailText, textBrush); // Size 30
+
+        // Display score below tail size
+        std::string scoreText = "Score: " + std::to_string(getScore());
+        graphics::drawText(xPos, yPos + 40, 30, scoreText, textBrush); // Offset by 40 pixels
+
+        // Display tally below score
+        std::string tallyText = "Tally: " + std::to_string(getTally());
+        graphics::drawText(xPos, yPos + 80, 30, tallyText, textBrush); // Offset by 80 pixels
     }
+
 }
 
 
@@ -264,8 +269,24 @@ void GameState::init() {
 }
 
 void GameState::addScore(int points) {
-    score += points;
+    score += points; // Increment total score
     std::cout << "Score updated! Current score: " << score << std::endl;
+}
+
+void GameState::incrementTally(int count) {
+    tally += count; // Increment tally by deposits
+    std::cout << "Tally updated! Current tally: " << tally << std::endl;
+
+    // Reset tally if 6 or more deposits
+    if (tally >= 6) {
+        std::cout << "Tally reset! Reached " << tally << " deposits." << std::endl;
+        resetTally(); // Reset tally after triggering power-up
+    }
+}
+
+void GameState::resetTally() {
+    tally = 0; // Reset tally to zero
+    std::cout << "Tally reset to 0." << std::endl;
 }
 
 // Reset game state
