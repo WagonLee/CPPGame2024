@@ -8,10 +8,11 @@
 #include "GameObject.h"
 #include "InteractiveObject.h"
 #include "MovingEnemy.h"
-#include "StationaryEnemy.h" // Added new enemy type
+#include "StationaryEnemy.h"
 #include "Collectible.h"
 #include "PowerUpBlue.h"
-#include "Player.h" // Include player for tail checks
+#include "Player.h"
+#include "DepositZone.h" // Added DepositZone
 
 class GameState {
 private:
@@ -30,6 +31,10 @@ private:
     const double stationarySpawnMin = 10.0;              // Minimum spawn interval
     const double stationarySpawnMax = 20.0;              // Maximum spawn interval
 
+    // Deposit zone variables
+    std::unique_ptr<DepositZone> depositZone; // Single deposit zone
+    const double depositZoneDuration = 10.0; // 10 seconds per zone
+
     // Collectible management
     const int collectibleCount = 2;
 
@@ -47,6 +52,9 @@ private:
     bool isGameOver = false;
 
     GameState();
+
+    // Private methods
+    void spawnDepositZone();  // Handles spawning deposit zones
 
 public:
     // Singleton pattern

@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="collectible.cpp" />
+    <ClCompile Include="depositZone.cpp" />
     <ClCompile Include="enemy.cpp" />
     <ClCompile Include="movingEnemy.cpp" />
     <ClCompile Include="gameObject.cpp" />
@@ -33,6 +34,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="collectible.h" />
+    <ClInclude Include="config.h" />
+    <ClInclude Include="depositZone.h" />
     <ClInclude Include="enemy.h" />
     <ClInclude Include="movingEnemy.h" />
     <ClInclude Include="gameObject.h" />

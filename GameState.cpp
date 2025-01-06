@@ -1,10 +1,11 @@
 #include "GameState.h"
+#include "DepositZone.h"
 #include <iostream>  // Debug output added
 #include <cstdlib>
 #include <ctime>
 #include <chrono>
 #include "MovingEnemy.h"
-#include "StationaryEnemy.h" // Added for stationary enemies
+#include "StationaryEnemy.h"
 #include "Collectible.h"
 #include "PowerUpBlue.h"
 
@@ -36,6 +37,31 @@ void GameState::addObject(GameObject* obj) {
     gameObjects.emplace_back(obj); // Add valid object
 }
 
+// --- Deposit Zone Handling ---
+
+// Spawn deposit zone
+void GameState::spawnDepositZone() {
+    int gridX, gridY;
+    DepositZone::Shape shape;
+
+    // Random position for deposit zone
+    gridX = rand() % 9; // Ensures valid positions for larger shapes
+    gridY = rand() % 9;
+
+    // Random shape
+    int shapeIndex = rand() % 3;
+    switch (shapeIndex) {
+    case 0: shape = DepositZone::Shape::STRAIGHT_LINE; break;
+    case 1: shape = DepositZone::Shape::DONUT; break;
+    case 2: shape = DepositZone::Shape::CIRCLE; break;
+    }
+
+    bool horizontal = rand() % 2 == 0; // Horizontal or vertical line
+
+    // Create new deposit zone
+    depositZone = std::make_unique<DepositZone>(this, gridX, gridY, shape, horizontal);
+}
+
 // Update game state
 void GameState::update(float dt) {
     if (isGameOver) return; // Stop updates after player death
@@ -58,6 +84,28 @@ void GameState::update(float dt) {
         spawnInteractiveObject<StationaryEnemy>();
         lastStationarySpawnTime = currentTime;
         stationaryEnemySpawnInterval = stationarySpawnMin + (rand() / (RAND_MAX / (stationarySpawnMax - stationarySpawnMin)));
+    }
+
+    // --- DEPOSIT ZONE HANDLING ---
+    if (!depositZone) {
+        spawnDepositZone(); // First-time spawn
+    }
+    else {
+        depositZone->update(dt); // Update zone timer
+
+        // Smooth despawn transition when expired
+        if (depositZone->isExpired()) {
+            std::cout << "Deposit zone expired! Respawning..." << std::endl;
+
+            // Log expiration and clear tiles for debugging
+            for (const auto& tile : depositZone->getTiles()) {
+                std::cout << "Tile: (" << tile.first << ", " << tile.second << ")" << std::endl;
+            }
+
+            // Reset and respawn
+            depositZone->resetTimer(); // Reset timer for new zone
+            spawnDepositZone();        // Create a new zone immediately
+        }
     }
 
     // --- COLLECTIBLE RESPAWN MANAGEMENT ---
@@ -95,15 +143,18 @@ void GameState::update(float dt) {
             previousTailSize = currentTailSize;
         }
 
+        if (depositZone) { // Check tail segments in the deposit zone
+            for (const auto& segment : player->tail) {
+                if (depositZone->isTileInZone(segment.gridX, segment.gridY)) {
+                    std::cout << "Tail segment inside deposit zone: (" << segment.gridX << ", " << segment.gridY << ")" << std::endl;
+                }
+            }
+        }
+
         // Check collisions
         for (auto& obj : gameObjects) {
             InteractiveObject* interactive = dynamic_cast<InteractiveObject*>(obj.get());
-
-            // Validate pointer and active state
-            if (!interactive || !interactive->isActive()) continue;
-
-            // Perform collision check
-            if (interactive->checkCollision(*player)) {
+            if (interactive && interactive->isActive() && interactive->checkCollision(*player)) {
                 interactive->handleCollision(*player);
             }
         }
@@ -135,12 +186,8 @@ void GameState::update(float dt) {
 
     // Remove inactive objects safely
     gameObjects.erase(
-        std::remove_if(
-            gameObjects.begin(),
-            gameObjects.end(),
-            [](const std::unique_ptr<GameObject>& obj) {
-                return !obj || !obj->isActive();
-            }),
+        std::remove_if(gameObjects.begin(), gameObjects.end(),
+            [](const std::unique_ptr<GameObject>& obj) { return !obj->isActive(); }),
         gameObjects.end());
 
     // --- Debug Logs ---
@@ -151,12 +198,20 @@ void GameState::update(float dt) {
 
 // Draw all game objects
 void GameState::draw() {
+
+    // Draw deposit zone first (part of the board)
+    if (depositZone) {
+        depositZone->draw();
+    }
+
+    // Draw all other active objects
     for (auto& obj : gameObjects) {
         if (obj->isActive()) {
             obj->draw();
         }
     }
 }
+
 
 // Initialize game state
 void GameState::init() {
@@ -170,6 +225,8 @@ void GameState::init() {
     srand(static_cast<unsigned int>(time(nullptr)));
 
     powerUpSpawnInterval = powerUpSpawnMin + (rand() / (RAND_MAX / (powerUpSpawnMax - powerUpSpawnMin)));
+
+    spawnDepositZone(); // Start with a deposit zone
 
     // Spawn initial collectibles
     for (int i = 0; i < collectibleCount; i++) {
