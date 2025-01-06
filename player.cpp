@@ -71,36 +71,45 @@ void Player::shedTail() {
 
     std::cout << "Shedding tail: " << tail.size() << " segments." << std::endl;
 
-    std::vector<TailSegment> remainingSegments; // Tracks segments NOT turned into enemies
+    // Temporary vector for segments that should be kept
+    std::vector<TailSegment> remainingSegments;
+    int depositedCount = 0; // Count deposited segments
 
-    for (const auto& segment : tail) {
-        // Check if segment is inside the deposit zone
+    // **Clear the tail immediately to avoid reprocessing**
+    std::vector<TailSegment> tempTail = tail; // Make a copy for processing
+    tail.clear(); // Clear the original tail immediately
+
+    // Process each tail segment
+    for (const auto& segment : tempTail) {
+        // Check if the segment is inside the deposit zone
         if (depositZone->isTileInZone(segment.gridX, segment.gridY)) {
             std::cout << "Segment at (" << segment.gridX << ", " << segment.gridY
-                << ") is inside the zone and will NOT become an enemy." << std::endl;
+                << ") is inside the zone and will be DEPOSITED." << std::endl;
 
-            // Keep the segment as it is (don't turn into an enemy)
-            remainingSegments.push_back(segment);
+            // Count this segment as deposited
+            ++depositedCount;
         }
         else {
             std::cout << "Segment at (" << segment.gridX << ", " << segment.gridY
                 << ") will become an enemy." << std::endl;
 
-            // Create an enemy for segments outside the deposit zone
+            // Turn this segment into an enemy immediately
             MovingEnemy* enemy = new MovingEnemy(GameState::getInstance(), segment.gridX, segment.gridY);
             GameState::getInstance()->addObject(enemy);
             std::cout << "Enemy spawned at: (" << segment.gridX << ", " << segment.gridY << ")" << std::endl;
         }
     }
 
-    // Replace the tail with only the segments inside the zone
+    // **Rebuild the tail only with remaining segments**
     tail = remainingSegments;
 
-    // Debug log
+    // Award points for deposited segments
+    GameState::getInstance()->addScore(depositedCount);
+
+    // Debug logs
+    std::cout << "Deposited " << depositedCount << " segments." << std::endl;
     std::cout << "Tail shedding complete. Remaining tail size: " << tail.size() << std::endl;
 }
-
-
 
 // Update movement and collisions
 void Player::update(float dt) {
