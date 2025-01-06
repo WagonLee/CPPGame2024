@@ -7,7 +7,6 @@
 #include "MovingEnemy.h"
 #include "StationaryEnemy.h"
 #include "Collectible.h"
-#include "PowerUpBlue.h"
 #include "Config.h"
 
 
@@ -64,6 +63,30 @@ void GameState::spawnDepositZone() {
     depositZone = std::make_unique<DepositZone>(this, gridX, gridY, shape, horizontal);
 }
 
+void GameState::spawnPowerUp(int level) {
+    if (activePowerUp) return; // Prevent multiple active power-ups
+
+    // Generate random grid position
+    int gridX = rand() % 12;
+    int gridY = rand() % 12;
+
+    // Spawn based on level
+    switch (level) {
+    case 1:
+        activePowerUp = std::make_unique<PowerUpLevel1>(this, gridX, gridY);
+        break;
+    case 2:
+        activePowerUp = std::make_unique<PowerUpLevel2>(this, gridX, gridY);
+        break;
+    case 3:
+        activePowerUp = std::make_unique<PowerUpLevel3>(this, gridX, gridY);
+        break;
+    }
+
+    std::cout << "Power-Up Level " << level << " spawned at (" << gridX << ", " << gridY << ")" << std::endl;
+    addObject(activePowerUp.get()); // Add to game objects
+}
+
 // Update game state
 void GameState::update(float dt) {
     if (isGameOver) return; // Stop updates after player death
@@ -76,14 +99,14 @@ void GameState::update(float dt) {
     // --- MOVING ENEMY SPAWNING ---
     time_t currentTime = time(nullptr);
     if (difftime(currentTime, lastMovingEnemySpawnTime) >= movingEnemySpawnInterval) {
-        spawnInteractiveObject<MovingEnemy>();
+        //spawnInteractiveObject<MovingEnemy>();
         lastMovingEnemySpawnTime = currentTime;
         movingEnemySpawnInterval = movingEnemySpawnMin + (rand() / (RAND_MAX / (movingEnemySpawnMax - movingEnemySpawnMin)));
     }
 
     // --- STATIONARY ENEMY SPAWNING ---
     if (difftime(currentTime, lastStationarySpawnTime) >= stationaryEnemySpawnInterval) {
-        spawnInteractiveObject<StationaryEnemy>();
+        //spawnInteractiveObject<StationaryEnemy>();
         lastStationarySpawnTime = currentTime;
         stationaryEnemySpawnInterval = stationarySpawnMin + (rand() / (RAND_MAX / (stationarySpawnMax - stationarySpawnMin)));
     }
@@ -119,13 +142,6 @@ void GameState::update(float dt) {
         else {
             ++it;
         }
-    }
-
-    // --- POWERUP SPAWNING ---
-    if (difftime(currentTime, lastPowerUpSpawnTime) >= powerUpSpawnInterval) {
-        spawnInteractiveObject<PowerUpBlue>();
-        lastPowerUpSpawnTime = currentTime;
-        powerUpSpawnInterval = powerUpSpawnMin + (rand() / (RAND_MAX / (powerUpSpawnMax - powerUpSpawnMin)));
     }
 
     // --- COLLISION DETECTION ---
@@ -255,10 +271,7 @@ void GameState::init() {
     lastStationarySpawnTime = time(nullptr); // Added for stationary enemies
     stationaryEnemySpawnInterval = stationarySpawnMin + (rand() / (RAND_MAX / (stationarySpawnMax - stationarySpawnMin)));
 
-    lastPowerUpSpawnTime = time(nullptr);
     srand(static_cast<unsigned int>(time(nullptr)));
-
-    powerUpSpawnInterval = powerUpSpawnMin + (rand() / (RAND_MAX / (powerUpSpawnMax - powerUpSpawnMin)));
 
     spawnDepositZone(); // Start with a deposit zone
 

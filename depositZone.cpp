@@ -58,13 +58,13 @@ void DepositZone::createDonut() {
 
 // Create a circle shape
 void DepositZone::createCircle() {
-    const int centerX = gridX + 1;
-    const int centerY = gridY + 1;
-
     for (int x = gridX; x < gridX + 4; ++x) {
         for (int y = gridY; y < gridY + 4; ++y) {
-            if ((x == gridX && y != centerY) || (x == gridX + 3 && y != centerY) ||
-                (y == gridY && x != centerX) || (y == gridY + 3 && x != centerX)) {
+            // Exclude the corners
+            if (!((x == gridX && y == gridY) ||                 // Top-left corner
+                (x == gridX + 3 && y == gridY) ||             // Top-right corner
+                (x == gridX && y == gridY + 3) ||             // Bottom-left corner
+                (x == gridX + 3 && y == gridY + 3))) {        // Bottom-right corner
                 tiles.emplace_back(x, y);
             }
         }

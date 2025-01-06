@@ -28,8 +28,10 @@
     <ClCompile Include="interactiveObject.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="player.cpp" />
-    <ClCompile Include="powerUp.cpp" />
-    <ClCompile Include="powerUpBlue.cpp" />
+    <ClCompile Include="powerUpBase.cpp" />
+    <ClCompile Include="powerUpLevel1.cpp" />
+    <ClCompile Include="powerUpLevel2.cpp" />
+    <ClCompile Include="powerUpLevel3.cpp" />
     <ClCompile Include="stationaryEnemy.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -42,8 +44,10 @@
     <ClInclude Include="gameState.h" />
     <ClInclude Include="interactiveObject.h" />
     <ClInclude Include="player.h" />
-    <ClInclude Include="powerUp.h" />
-    <ClInclude Include="powerUpBlue.h" />
+    <ClInclude Include="powerUpBase.h" />
+    <ClInclude Include="powerUpLevel1.h" />
+    <ClInclude Include="powerUpLevel2.h" />
+    <ClInclude Include="powerUpLevel3.h" />
     <ClInclude Include="stationaryEnemy.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
