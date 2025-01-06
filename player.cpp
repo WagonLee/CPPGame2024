@@ -67,25 +67,39 @@ void Player::addTailSegment() {
 void Player::shedTail() {
     if (tail.empty()) return; // No tail to shed
 
+    auto* depositZone = GameState::getInstance()->getDepositZone().get(); // Access deposit zone
+
     std::cout << "Shedding tail: " << tail.size() << " segments." << std::endl;
 
+    std::vector<TailSegment> remainingSegments; // Tracks segments NOT turned into enemies
+
     for (const auto& segment : tail) {
-        // FIXED: Spawn MovingEnemy instead of abstract Enemy
-        MovingEnemy* enemy = new MovingEnemy(GameState::getInstance(), segment.gridX, segment.gridY);
+        // Check if segment is inside the deposit zone
+        if (depositZone->isTileInZone(segment.gridX, segment.gridY)) {
+            std::cout << "Segment at (" << segment.gridX << ", " << segment.gridY
+                << ") is inside the zone and will NOT become an enemy." << std::endl;
 
-        // Null check before adding to gameObjects
-        if (!enemy) {
-            std::cerr << "Failed to create enemy!" << std::endl;
-            continue; // Skip this segment if creation failed
+            // Keep the segment as it is (don't turn into an enemy)
+            remainingSegments.push_back(segment);
         }
+        else {
+            std::cout << "Segment at (" << segment.gridX << ", " << segment.gridY
+                << ") will become an enemy." << std::endl;
 
-        GameState::getInstance()->addObject(enemy); // Add enemy to game objects
-        std::cout << "Enemy spawned at: (" << segment.gridX << ", " << segment.gridY << ")" << std::endl;
+            // Create an enemy for segments outside the deposit zone
+            MovingEnemy* enemy = new MovingEnemy(GameState::getInstance(), segment.gridX, segment.gridY);
+            GameState::getInstance()->addObject(enemy);
+            std::cout << "Enemy spawned at: (" << segment.gridX << ", " << segment.gridY << ")" << std::endl;
+        }
     }
 
-    // Clear tail after shedding
-    tail.clear();
+    // Replace the tail with only the segments inside the zone
+    tail = remainingSegments;
+
+    // Debug log
+    std::cout << "Tail shedding complete. Remaining tail size: " << tail.size() << std::endl;
 }
+
 
 
 // Update movement and collisions
@@ -140,6 +154,45 @@ void Player::update(float dt) {
         }
     }
 }
+
+void Player::depositTailSegments() {
+    auto* depositZone = GameState::getInstance()->getDepositZone().get(); // Get deposit zone
+
+    std::vector<TailSegment> newTail; // Segments to keep
+    int depositedCount = 0; // Count deposited segments
+
+    std::cout << "Depositing tail segments..." << std::endl;
+
+    // Process a copy of the tail, like GameState.cpp does
+    for (const auto& segment : tail) {
+        std::cout << "Checking tail segment at (" << segment.gridX << ", " << segment.gridY << ")" << std::endl;
+
+        // Detect if segment is in the deposit zone
+        if (depositZone->isTileInZone(segment.gridX, segment.gridY)) {
+            std::cout << "DEPOSIT SUCCESS at (" << segment.gridX << ", " << segment.gridY << ")" << std::endl;
+            ++depositedCount; // Count as deposited
+        }
+        else {
+            // Keep segments outside the zone
+            newTail.push_back(segment);
+            std::cout << "Segment OUTSIDE zone kept at (" << segment.gridX << ", " << segment.gridY << ")" << std::endl;
+        }
+    }
+
+    // Log the tail before and after replacement
+    std::cout << "Old tail size: " << tail.size() << std::endl;
+    tail = newTail; // Replace tail with remaining segments
+    std::cout << "New tail size: " << tail.size() << std::endl;
+
+    // Award points for deposited segments
+    GameState::getInstance()->addScore(depositedCount);
+
+    // Handle remaining segments
+    if (!tail.empty()) {
+        shedTail(); // Process remaining tail outside the zone
+    }
+}
+
 
 // Move smoothly toward the target
 void Player::moveToTarget(float dt) {

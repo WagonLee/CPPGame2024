@@ -263,6 +263,11 @@ void GameState::init() {
     }
 }
 
+void GameState::addScore(int points) {
+    score += points;
+    std::cout << "Score updated! Current score: " << score << std::endl;
+}
+
 // Reset game state
 void GameState::reset() {}
 

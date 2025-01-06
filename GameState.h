@@ -56,6 +56,8 @@ private:
     // Private methods
     void spawnDepositZone();  // Handles spawning deposit zones
 
+    int score = 0; // Tracks the score
+
 public:
     // Singleton pattern
     static GameState* getInstance();
@@ -79,6 +81,11 @@ public:
     const std::vector<std::unique_ptr<GameObject>>& getGameObjects() const {
         return gameObjects;
     }
+
+    const std::unique_ptr<DepositZone>& getDepositZone() const { return depositZone; }
+
+    void addScore(int points); // Adds points to the score
+    int getScore() const { return score; } // Getter for score
 
     // Destructor
     ~GameState();
