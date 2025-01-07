@@ -161,12 +161,17 @@ void GameState::spawnPowerUpAt(int level, int gridX, int gridY) {
 }
 
 void GameState::updatePowerUpTimers(float dt) {
-    const float upgradeTime = 500.0f;
+    const float upgradeTime = 200.0f;
 
-    std::cout << "Updating " << upgradeTimers.size() << " power-up timers" << std::endl;
+    //#ifdef DEBUG
+    //    std::cout << "Updating " << upgradeTimers.size() << " power-up timers" << std::endl;
+    //#endif
 
-    std::sort(upgradeTimers.begin(), upgradeTimers.end());
-    upgradeTimers.erase(std::unique(upgradeTimers.begin(), upgradeTimers.end()), upgradeTimers.end());
+    //#ifdef DEBUG
+    //    std::cout << "Timer for Power-Up Level " << powerUp->getLevel()
+    //        << ": " << elapsedTime << "/" << upgradeTime << " seconds" << std::endl;
+    //#endif
+
 
     for (size_t i = 0; i < upgradeTimers.size(); ++i) {
         size_t index = upgradeTimers[i].first;
@@ -215,11 +220,13 @@ void GameState::updatePowerUpTimers(float dt) {
         }
     }
 
-    std::cout << "Timer update complete. Remaining timers: " << upgradeTimers.size() << std::endl;
+    //#ifdef DEBUG
+    //    std::cout << "Timer update complete. Remaining timers: " << upgradeTimers.size() << std::endl;
+    //#endif
 }
 
 // Update game state
-    void GameState::update(float dt) {
+void GameState::update(float dt) {
 
     if (isGameOver) return; // Stop updates after player death
 
@@ -315,14 +322,6 @@ void GameState::updatePowerUpTimers(float dt) {
             previousTailSize = currentTailSize;
         }
 
-        if (depositZone) { // Check tail segments in the deposit zone
-            for (const auto& segment : player->tail) {
-                if (depositZone->isTileInZone(segment.gridX, segment.gridY)) {
-                    std::cout << "Tail segment inside deposit zone: (" << segment.gridX << ", " << segment.gridY << ")" << std::endl;
-                }
-            }
-        }
-
         // Check collisions
         for (auto& obj : gameObjects) {
             InteractiveObject* interactive = dynamic_cast<InteractiveObject*>(obj.get());
@@ -340,16 +339,16 @@ void GameState::updatePowerUpTimers(float dt) {
         if (obj && obj->isActive()) {
             obj->update(dt);
 
-            // Collect new objects if spawned during update
-            auto movingEnemy = dynamic_cast<MovingEnemy*>(obj.get());
-            if (movingEnemy && movingEnemy->getIsWeak()) {
-                auto newEnemy = std::make_unique<MovingEnemy>(this, movingEnemy->getGridX(), movingEnemy->getGridY());
-                if (newEnemy) {
-                    newObjects.push_back(std::move(newEnemy));
-                }
-            }
-                }
-            }
+            //// Collect new objects if spawned during update
+            //auto movingEnemy = dynamic_cast<MovingEnemy*>(obj.get());
+            //if (movingEnemy && movingEnemy->getIsWeak()) {
+            //    auto newEnemy = std::make_unique<MovingEnemy>(this, movingEnemy->getGridX(), movingEnemy->getGridY());
+            //    if (newEnemy) {
+            //        newObjects.push_back(std::move(newEnemy));
+            //    }
+            //}
+        }
+    }
 
     // Append buffered objects safely
     for (auto& newObj : newObjects) {

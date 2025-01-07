@@ -2,32 +2,41 @@
 
 #include "InteractiveObject.h"
 
-class GameState; // Forward declaration
+class GameState;        // Forward declare GameState
 
 class PowerUpBase : public InteractiveObject {
 private:
-    GameState* state; // Pointer to GameState for accessing timers and other data
+    GameState* state; // Pointer to GameState for accessing timers and data
 
 protected:
-    int level; // Level 1, 2, or 3
+    int level; // Level of the Power-Up (1, 2, or 3)
+
+    // Shared Weakness Effect Variables
+    float weakEffectDuration = 0.0f; // Duration for the weakness effect
+    bool isWeakEffectActive = false; // Tracks if the effect is active
 
 public:
     // Constructor
     PowerUpBase(GameState* state, int x, int y, int level);
 
-    // Abstract method for applying effects
+    // Apply Effect (abstract, overridden in derived classes)
     virtual void applyEffect() = 0;
 
-    // Required overrides from GameObject
-    virtual void update(float dt) override; // Placeholder required by base class
-    virtual void draw() override;           // Placeholder required by base class
-    virtual void init() override;           // Placeholder required by base class
+    // Overrides from GameObject
+    virtual void update(float dt) override;
+    virtual void draw() override;
+    virtual void init() override;
 
-    // Handle collision behavior
-    virtual void handleCollision(Player& player) override;
+    // Weakness Effect Methods (shared across levels)
+    void startWeakEffect(float duration);  // Start the timer for weak effect
+    void updateWeakEffect(float dt);       // Handle timing updates
+    void endWeakEffect();                  // Reset enemies after effect
 
     // Getter for Power-Up level
     int getLevel() const { return level; }
+
+    // Collision handling
+    virtual void handleCollision(Player& player) override;
 
     // Virtual destructor
     virtual ~PowerUpBase() = default;

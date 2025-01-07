@@ -32,7 +32,7 @@ void MovingEnemy::draw() {
     graphics::Brush br;
     br.outline_opacity = 0.0f;
 
-    if (isWeak) {
+    if (isWeak()) { // Add parentheses to call it as a function
         br.fill_color[0] = 0.5f; // Light red for weak state
         br.fill_color[1] = 0.0f;
         br.fill_color[2] = 0.0f;
@@ -133,10 +133,12 @@ void MovingEnemy::randomizeDirection() {
 void MovingEnemy::setWeak(bool weak) {
     isWeakState = weak;
     if (weak) {
-        stopMovement(); // Stop movement when weak
+        stopMovement(); // Stop movement
+        std::cout << "Enemy set to WEAK! Color should change." << std::endl;
     }
     else {
-        startMovement(); // Resume movement when no longer weak
+        startMovement(); // Resume movement
+        std::cout << "Enemy restored to NORMAL! Color should change back." << std::endl;
     }
 }
 
@@ -156,7 +158,7 @@ void MovingEnemy::handleCollision(Player& player) {
     if (isWeak()) {
         std::cout << "Weak enemy killed by player!" << std::endl;
         setActive(false); // Deactivate the enemy
-        player.addScore(10); // Award points for killing weak enemies
+        GameState::getInstance()->addScore(10); // Use GameState for score tracking
     }
     else {
         std::cout << "Player killed by enemy!" << std::endl;
