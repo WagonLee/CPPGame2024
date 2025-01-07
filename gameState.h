@@ -57,7 +57,9 @@ private:
     int tally = 0;         // Tracks consecutive deposits
 
     std::vector<std::unique_ptr<PowerUpBase>> activePowerUps; // Unlimited power-ups
-    std::vector<std::pair<std::unique_ptr<PowerUpBase>*, float>> upgradeTimers; // Tracks timers for upgrades
+    std::vector<std::pair<size_t, float>> upgradeTimers; // Use indices instead of pointers
+
+    void spawnPowerUpAt(int level, int gridX, int gridY);
 
     const int tallyLevel1 = 6; // Tally thresholds
     const int tallyLevel2 = 8;

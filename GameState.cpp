@@ -66,7 +66,6 @@ void GameState::spawnDepositZone() {
 }
 
 void GameState::spawnPowerUp(int level) {
-    std::cout << "spawnPowerUp() called for Level " << level << std::endl; // Debug log
     int gridX, gridY;
     bool positionValid = false;
 
@@ -75,33 +74,29 @@ void GameState::spawnPowerUp(int level) {
         gridX = rand() % 12; // Random X position
         gridY = rand() % 12; // Random Y position
 
-        std::cout << "Attempt " << attempts + 1 << ": Checking (" << gridX << ", " << gridY << ")" << std::endl;
-
+        // Check if position is valid
         positionValid = true;
         for (const auto& obj : gameObjects) {
             InteractiveObject* interactive = dynamic_cast<InteractiveObject*>(obj.get());
             if (interactive && interactive->isActive() &&
                 interactive->getGridX() == gridX && interactive->getGridY() == gridY) {
                 positionValid = false;
-                std::cout << "Position (" << gridX << ", " << gridY << ") is occupied." << std::endl;
                 break;
             }
         }
 
         if (positionValid) {
-            std::cout << "Valid position found: (" << gridX << ", " << gridY << ")" << std::endl;
             break; // Exit loop on valid position
         }
     }
 
-    // If no valid position, force placement at (5, 5)
+    // Abort if no valid position is found
     if (!positionValid) {
-        gridX = 5;
-        gridY = 5;
-        std::cerr << "WARNING: Forced spawn at (5, 5) for Power-Up Level " << level << std::endl;
+        std::cerr << "Failed to find a valid position for Power-Up Level " << level << std::endl;
+        return;
     }
 
-    // Attempt to create the power-up
+    // Create the appropriate power-up
     std::unique_ptr<PowerUpBase> powerUp = nullptr;
     switch (level) {
     case 1:
@@ -115,46 +110,108 @@ void GameState::spawnPowerUp(int level) {
         break;
     }
 
-    // Final validation and object addition
+    // Add the power-up if created successfully
     if (powerUp) {
-        std::cout << "Power-Up object created successfully." << std::endl;
         powerUp->init(); // Initialize the object
         activePowerUps.push_back(std::move(powerUp));
         addObject(activePowerUps.back().get());
-        std::cout << "Spawned Power-Up Level " << level << " at (" << gridX << ", " << gridY << ")" << std::endl;
+
+        // Add the index (not pointer) to timers
+        size_t index = activePowerUps.size() - 1;
+        upgradeTimers.emplace_back(index, 0.0f);
+
+        std::cout << "Added Power-Up Level " << level << " at index " << index << " to timers." << std::endl;
     }
     else {
         std::cerr << "Failed to create Power-Up Level " << level << std::endl;
     }
 }
 
+void GameState::spawnPowerUpAt(int level, int gridX, int gridY) {
+    std::unique_ptr<PowerUpBase> powerUp = nullptr;
+
+    switch (level) {
+    case 1:
+        powerUp = std::make_unique<PowerUpLevel1>(this, gridX, gridY);
+        break;
+    case 2:
+        powerUp = std::make_unique<PowerUpLevel2>(this, gridX, gridY);
+        break;
+    case 3:
+        powerUp = std::make_unique<PowerUpLevel3>(this, gridX, gridY);
+        break;
+    }
+
+    if (powerUp) {
+        powerUp->init();
+        activePowerUps.push_back(std::move(powerUp));
+        addObject(activePowerUps.back().get());
+
+        // Add the new Power-Up to timers
+        size_t index = activePowerUps.size() - 1;
+        upgradeTimers.emplace_back(index, 0.0f); // Use index instead of pointer
+        std::cout << "Upgraded Power-Up Level " << level << " added to timers at ("
+            << gridX << ", " << gridY << ")" << std::endl;
+    }
+    else {
+        std::cerr << "Failed to create upgraded Power-Up Level " << level << std::endl;
+    }
+}
+
 void GameState::updatePowerUpTimers(float dt) {
+    const float upgradeTime = 900.0f; // Upgrade time
+
+    std::cout << "Updating " << upgradeTimers.size() << " power-up timers" << std::endl;
+
+    std::vector<std::pair<size_t, float>> newTimers;
+
     for (auto& timer : upgradeTimers) {
-        timer.second += dt; // Increment timer
+        size_t index = timer.first;
+        float& elapsedTime = timer.second;
 
-        PowerUpBase* powerUp = timer.first->get();
+        if (index >= activePowerUps.size() || !activePowerUps[index]->isActive()) {
+            continue; // Skip invalid or inactive Power-Ups
+        }
 
-        // Upgrade when time exceeds threshold
-        if (timer.second >= upgradeTime && powerUp->isActive()) {
+        PowerUpBase* powerUp = dynamic_cast<PowerUpBase*>(activePowerUps[index].get());
+
+        if (!powerUp->isActive()) {
+            std::cout << "Removing inactive Power-Up timer at index " << index << std::endl;
+            continue; // Skip this timer, do not process further
+        }
+
+        elapsedTime += dt / 60.0f; // Scale dt for real-time
+
+        std::cout << "Timer for Power-Up Level " << powerUp->getLevel()
+            << ": " << elapsedTime << "/" << upgradeTime << " seconds" << std::endl;
+
+        // Upgrade check
+        if (elapsedTime >= upgradeTime && powerUp->isActive()) {
             int newLevel = powerUp->getLevel() + 1;
 
-            if (newLevel <= 3) { // Upgrade only if level < 3
-                std::cout << "Upgrading Power-Up to Level " << newLevel << std::endl;
+            if (newLevel <= 3) { // Upgrade only to Level 3 max
+                std::cout << "Auto-upgrading Power-Up at (" << powerUp->getGridX()
+                    << ", " << powerUp->getGridY() << ") to Level " << newLevel << std::endl;
 
-                // Replace with new upgraded power-up
-                spawnPowerUp(newLevel);
-                powerUp->setActive(false); // Deactivate old power-up
+                // Replace with upgraded Power-Up at same position
+                spawnPowerUpAt(newLevel, powerUp->getGridX(), powerUp->getGridY());
+                powerUp->setActive(false);
             }
-            timer.second = 0.0f; // Reset timer for upgraded power-up
+
+            elapsedTime = 0.0f; // Reset timer
+        }
+
+        // Keep valid timers
+        if (powerUp->isActive()) {
+            newTimers.push_back(timer);
         }
     }
 
-    // Remove timers for inactive power-ups
-    upgradeTimers.erase(
-        std::remove_if(upgradeTimers.begin(), upgradeTimers.end(),
-            [](const std::pair<std::unique_ptr<PowerUpBase>*, float>& t) { return !t.first->get()->isActive(); }),
-        upgradeTimers.end());
+    upgradeTimers = std::move(newTimers); // Replace with updated timers
+
+    std::cout << "Timer cleanup complete. Remaining timers: " << upgradeTimers.size() << std::endl;
 }
+
 
 // Update game state
     void GameState::update(float dt) {
@@ -214,6 +271,9 @@ void GameState::updatePowerUpTimers(float dt) {
         }
     }
 
+    // --- POWER-UP AUTO-UPGRADE TIMERS ---
+    updatePowerUpTimers(dt);
+
     if (tally >= tallyLevel3) {
         std::cout << "Condition met for Level 3 Power-Up. Tally = " << tally << std::endl;
         spawnPowerUp(3);
@@ -232,9 +292,6 @@ void GameState::updatePowerUpTimers(float dt) {
         std::cout << "Tally reset! Reached " << tally << " deposits." << std::endl;
         resetTally();
     }
-
-    // --- POWER-UP AUTO-UPGRADE TIMERS ---
-    updatePowerUpTimers(dt);
 
     // --- COLLISION DETECTION ---
     Player* player = nullptr;
