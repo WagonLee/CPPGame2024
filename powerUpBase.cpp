@@ -31,7 +31,6 @@ void PowerUpBase::handleCollision(Player& player) {
     std::cout << "Timer removed for collected Power-Up Level " << level << std::endl;
 }
 
-
 // Weak Effect: Start Timer
 void PowerUpBase::startWeakEffect(float duration) {
     weakEffectDuration = duration;
@@ -39,14 +38,25 @@ void PowerUpBase::startWeakEffect(float duration) {
 
     std::cout << "Weak effect started for " << duration << " seconds." << std::endl;
 
-    // Apply effect to all MovingEnemies
+    // Apply effect based on Power-Up level
     for (auto& obj : state->getGameObjects()) {
-        MovingEnemy* enemy = dynamic_cast<MovingEnemy*>(obj.get());
-        if (enemy && enemy->isActive()) {
-            enemy->setWeak(true);    // Weaken the enemy
-            enemy->stopMovement();  // Stop its movement
-            std::cout << "Enemy at (" << enemy->getGridX() << ", "
-                << enemy->getGridY() << ") is now weak!" << std::endl;
+        // Handle MovingEnemies (applies to ALL levels)
+        MovingEnemy* movingEnemy = dynamic_cast<MovingEnemy*>(obj.get());
+        if (movingEnemy && movingEnemy->isActive()) {
+            movingEnemy->setWeak(true);    // Weaken the enemy
+            movingEnemy->stopMovement();  // Stop its movement
+            std::cout << "MovingEnemy at (" << movingEnemy->getGridX() << ", "
+                << movingEnemy->getGridY() << ") is now weak!" << std::endl;
+        }
+
+        // Handle StationaryEnemies (ONLY for Level 2 and Level 3)
+        if (level >= 2) { // NEW: Check level before applying effect
+            StationaryEnemy* stationaryEnemy = dynamic_cast<StationaryEnemy*>(obj.get());
+            if (stationaryEnemy && stationaryEnemy->isActive()) {
+                stationaryEnemy->setWeak(true);  // Weaken the stationary enemy
+                std::cout << "StationaryEnemy at (" << stationaryEnemy->getGridX() << ", "
+                    << stationaryEnemy->getGridY() << ") is now weak!" << std::endl;
+            }
         }
     }
 }

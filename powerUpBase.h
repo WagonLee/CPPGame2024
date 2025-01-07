@@ -5,10 +5,9 @@
 class GameState;        // Forward declare GameState
 
 class PowerUpBase : public InteractiveObject {
-private:
+protected:
     GameState* state; // Pointer to GameState for accessing timers and data
 
-protected:
     int level; // Level of the Power-Up (1, 2, or 3)
 
     // Shared Weakness Effect Variables

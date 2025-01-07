@@ -8,7 +8,10 @@ PowerUpLevel2::PowerUpLevel2(GameState* state, int x, int y)
 
 // Apply effect
 void PowerUpLevel2::applyEffect() {
-    std::cout << "Level 2 Power-Up effect applied!" << std::endl;
+    std::cout << "Level 2 Power-Up effect applied! Weakening Moving and Stationary Enemies for 15 seconds." << std::endl;
+
+    // Use the centralized weakness logic in PowerUpBase
+    startWeakEffect(150.0f); // Updated to 15 seconds
 }
 
 // Draw
@@ -17,7 +20,7 @@ void PowerUpLevel2::draw() {
     br.outline_opacity = 0.0f;
 
     // Dark Green for Level 2
-    br.fill_color[0] = 0.0f;
+    br.fill_color[0] = 0.0f;   // Dark Green
     br.fill_color[1] = 0.39f;
     br.fill_color[2] = 0.0f;
 

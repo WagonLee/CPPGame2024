@@ -8,10 +8,10 @@ PowerUpLevel1::PowerUpLevel1(GameState* state, int x, int y)
 
 // Apply effect
 void PowerUpLevel1::applyEffect() {
-    std::cout << "Level 1 Power-Up effect applied! Weakening MovingEnemies for 6 seconds." << std::endl;
+    std::cout << "Level 1 Power-Up effect applied! Weakening MovingEnemies for 10 seconds." << std::endl;
 
     // Use the centralized weakness logic in PowerUpBase
-    startWeakEffect(6.0f); // Apply weak effect for 6 seconds
+    startWeakEffect(100.0f); // Updated to 10 seconds
 }
 
 // Draw

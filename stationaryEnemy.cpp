@@ -21,7 +21,7 @@ void StationaryEnemy::draw() {
     if (isWeak) {
         br.fill_color[0] = 0.5f; // Light cyan for weak state
         br.fill_color[1] = 1.0f;
-        br.fill_color[2] = 1.0f;
+        br.fill_color[2] = 0.0f;
     }
     else {
         br.fill_color[0] = 0.0f; // Cyan for strong state
