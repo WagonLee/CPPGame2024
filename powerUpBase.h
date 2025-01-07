@@ -2,24 +2,31 @@
 
 #include "InteractiveObject.h"
 
+class GameState; // Forward declaration
+
 class PowerUpBase : public InteractiveObject {
+private:
+    GameState* state; // Pointer to GameState for accessing timers and other data
+
 protected:
     int level; // Level 1, 2, or 3
 
 public:
+    // Constructor
     PowerUpBase(GameState* state, int x, int y, int level);
 
-    virtual void applyEffect() = 0; // Abstract method for effects
+    // Abstract method for applying effects
+    virtual void applyEffect() = 0;
 
-    // Fully implemented virtual methods
-    virtual void update(float dt) override; // REQUIRED by GameObject
-    virtual void draw() override;           // REQUIRED by GameObject
-    virtual void init() override;           // REQUIRED by GameObject
+    // Required overrides from GameObject
+    virtual void update(float dt) override; // Placeholder required by base class
+    virtual void draw() override;           // Placeholder required by base class
+    virtual void init() override;           // Placeholder required by base class
 
-    // Handle collision
+    // Handle collision behavior
     virtual void handleCollision(Player& player) override;
 
-    // Getter for level
+    // Getter for Power-Up level
     int getLevel() const { return level; }
 
     // Virtual destructor

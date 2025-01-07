@@ -8,6 +8,7 @@
 #include "StationaryEnemy.h"
 #include "Collectible.h"
 #include "Config.h"
+#include "PowerUpBase.h"
 #include "PowerUpLevel1.h" // Include Level 1 Power-Up
 #include "PowerUpLevel2.h" // Include Level 2 Power-Up
 #include "PowerUpLevel3.h" // Include Level 3 Power-Up
@@ -159,27 +160,33 @@ void GameState::spawnPowerUpAt(int level, int gridX, int gridY) {
 }
 
 void GameState::updatePowerUpTimers(float dt) {
-    const float upgradeTime = 900.0f; // Upgrade time
+    const float upgradeTime = 50.0f; // Adjusted upgrade time
 
     std::cout << "Updating " << upgradeTimers.size() << " power-up timers" << std::endl;
 
-    std::vector<std::pair<size_t, float>> newTimers;
+    // Process timers in-place instead of rebuilding the list
+    for (size_t i = 0; i < upgradeTimers.size(); ++i) {
+        size_t index = upgradeTimers[i].first; // Get the index
+        float& elapsedTime = upgradeTimers[i].second; // Get the timer
 
-    for (auto& timer : upgradeTimers) {
-        size_t index = timer.first;
-        float& elapsedTime = timer.second;
-
+        // Validate the index before proceeding
         if (index >= activePowerUps.size() || !activePowerUps[index]->isActive()) {
-            continue; // Skip invalid or inactive Power-Ups
+            std::cout << "Removing invalid or inactive timer at index " << index << std::endl;
+            upgradeTimers.erase(upgradeTimers.begin() + i); // Remove invalid timers
+            --i; // Adjust loop index after removal
+            continue; // Skip further processing
         }
 
+        // Access the Power-Up
         PowerUpBase* powerUp = dynamic_cast<PowerUpBase*>(activePowerUps[index].get());
 
+        // Skip inactive Power-Ups
         if (!powerUp->isActive()) {
-            std::cout << "Removing inactive Power-Up timer at index " << index << std::endl;
-            continue; // Skip this timer, do not process further
+            std::cout << "Skipping inactive Power-Up timer at index " << index << std::endl;
+            continue;
         }
 
+        // Increment the timer
         elapsedTime += dt / 60.0f; // Scale dt for real-time
 
         std::cout << "Timer for Power-Up Level " << powerUp->getLevel()
@@ -189,27 +196,43 @@ void GameState::updatePowerUpTimers(float dt) {
         if (elapsedTime >= upgradeTime && powerUp->isActive()) {
             int newLevel = powerUp->getLevel() + 1;
 
-            if (newLevel <= 3) { // Upgrade only to Level 3 max
-                std::cout << "Auto-upgrading Power-Up at (" << powerUp->getGridX()
-                    << ", " << powerUp->getGridY() << ") to Level " << newLevel << std::endl;
+            // Prevent Level 3 Power-Ups from upgrading
+            if (newLevel > 3) {
+                std::cout << "Level 3 Power-Up at (" << powerUp->getGridX() << ", "
+                    << powerUp->getGridY() << ") cannot be upgraded further." << std::endl;
 
-                // Replace with upgraded Power-Up at same position
-                spawnPowerUpAt(newLevel, powerUp->getGridX(), powerUp->getGridY());
-                powerUp->setActive(false);
+                continue; // Skip further processing
             }
 
-            elapsedTime = 0.0f; // Reset timer
+            std::cout << "Auto-upgrading Power-Up at (" << powerUp->getGridX()
+                << ", " << powerUp->getGridY() << ") to Level " << newLevel << std::endl;
+
+            // Replace with upgraded Power-Up at the same position
+            spawnPowerUpAt(newLevel, powerUp->getGridX(), powerUp->getGridY());
+
+            // Mark the old Power-Up as inactive
+            powerUp->setActive(false);
+
+            // Replace the timer instead of adding a duplicate
+            size_t newIndex = activePowerUps.size() - 1;
+            upgradeTimers[i] = { newIndex, 0.0f }; // Replace the old timer with the new Power-Up
+
+            std::cout << "Replaced timer for upgraded Power-Up Level " << newLevel
+                << " at index " << newIndex << std::endl;
         }
 
-        // Keep valid timers
-        if (powerUp->isActive()) {
-            newTimers.push_back(timer);
-        }
     }
 
-    upgradeTimers = std::move(newTimers); // Replace with updated timers
+    // Step 3: Cleanup invalid timers after loop
+    upgradeTimers.erase(
+        std::remove_if(upgradeTimers.begin(), upgradeTimers.end(),
+            [this](const std::pair<size_t, float>& timer) {
+                size_t index = timer.first;
+    return index >= activePowerUps.size() || !activePowerUps[index]->isActive();
+            }),
+        upgradeTimers.end());
 
-    std::cout << "Timer cleanup complete. Remaining timers: " << upgradeTimers.size() << std::endl;
+    std::cout << "Timer update complete. Remaining timers: " << upgradeTimers.size() << std::endl;
 }
 
 

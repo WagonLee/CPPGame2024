@@ -1,6 +1,6 @@
 #pragma once
 
-#include "PowerUpBase.h"
+#include "PowerUpBase.h" // Include the base class explicitly
 
 class PowerUpLevel2 : public PowerUpBase {
 public:

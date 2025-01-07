@@ -10,12 +10,13 @@
 #include "MovingEnemy.h"
 #include "StationaryEnemy.h"
 #include "Collectible.h"
-#include "PowerUpBase.h"
 #include "PowerUpLevel1.h" // Include Level 1 Power-Up
 #include "PowerUpLevel2.h" // Include Level 2 Power-Up
 #include "PowerUpLevel3.h" // Include Level 3 Power-Up
 #include "Player.h"
 #include "DepositZone.h" // Added DepositZone
+
+class PowerUpBase; // Forward declare PowerUpBase
 
 class GameState {
 private:
@@ -56,8 +57,9 @@ private:
     int score = 0;         // Total score
     int tally = 0;         // Tracks consecutive deposits
 
+    // Power-Up Management
     std::vector<std::unique_ptr<PowerUpBase>> activePowerUps; // Unlimited power-ups
-    std::vector<std::pair<size_t, float>> upgradeTimers; // Use indices instead of pointers
+    std::vector<std::pair<size_t, float>> upgradeTimers;      // Use indices instead of pointers
 
     void spawnPowerUpAt(int level, int gridX, int gridY);
 
@@ -65,7 +67,7 @@ private:
     const int tallyLevel2 = 8;
     const int tallyLevel3 = 10;
 
-    const float upgradeTime = 9.0f; // Time for auto-upgrade
+    const float upgradeTime = 400.0f; // Time for auto-upgrade
 
 public:
     // Singleton pattern
@@ -106,9 +108,20 @@ public:
     void spawnPowerUp(int level);       // Spawns a power-up of a specific level
     void updatePowerUpTimers(float dt); // Handles auto-upgrading of power-ups
 
+    // Getter for upgradeTimers
+    std::vector<std::pair<size_t, float>>& getUpgradeTimers() {
+        return upgradeTimers;
+    }
+
+    // Getter for activePowerUps
+    std::vector<std::unique_ptr<PowerUpBase>>& getActivePowerUps() {
+        return activePowerUps;
+    }
+
     // Destructor
     ~GameState();
 };
+
 
 // Template implementation must be in the header file
 template <typename T>

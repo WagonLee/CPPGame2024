@@ -47,7 +47,7 @@ void init() {
     // Initialize player at the center of the grid
     int startX = GRID_SIZE / 2;
     int startY = GRID_SIZE / 2;
-    Player* player = new Player(gameState, startX, startY, 0.002f); // Slow speed
+    Player* player = new Player(gameState, startX, startY, 0.004f); // Slow speed
     gameState->addObject(player);
 }
 
