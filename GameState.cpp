@@ -8,7 +8,9 @@
 #include "StationaryEnemy.h"
 #include "Collectible.h"
 #include "Config.h"
-
+#include "PowerUpLevel1.h" // Include Level 1 Power-Up
+#include "PowerUpLevel2.h" // Include Level 2 Power-Up
+#include "PowerUpLevel3.h" // Include Level 3 Power-Up
 
 GameState* GameState::instance = nullptr;
 
@@ -64,31 +66,99 @@ void GameState::spawnDepositZone() {
 }
 
 void GameState::spawnPowerUp(int level) {
-    if (activePowerUp) return; // Prevent multiple active power-ups
+    std::cout << "spawnPowerUp() called for Level " << level << std::endl; // Debug log
+    int gridX, gridY;
+    bool positionValid = false;
 
-    // Generate random grid position
-    int gridX = rand() % 12;
-    int gridY = rand() % 12;
+    // Attempt to find a valid position
+    for (int attempts = 0; attempts < 100; ++attempts) {
+        gridX = rand() % 12; // Random X position
+        gridY = rand() % 12; // Random Y position
 
-    // Spawn based on level
+        std::cout << "Attempt " << attempts + 1 << ": Checking (" << gridX << ", " << gridY << ")" << std::endl;
+
+        positionValid = true;
+        for (const auto& obj : gameObjects) {
+            InteractiveObject* interactive = dynamic_cast<InteractiveObject*>(obj.get());
+            if (interactive && interactive->isActive() &&
+                interactive->getGridX() == gridX && interactive->getGridY() == gridY) {
+                positionValid = false;
+                std::cout << "Position (" << gridX << ", " << gridY << ") is occupied." << std::endl;
+                break;
+            }
+        }
+
+        if (positionValid) {
+            std::cout << "Valid position found: (" << gridX << ", " << gridY << ")" << std::endl;
+            break; // Exit loop on valid position
+        }
+    }
+
+    // If no valid position, force placement at (5, 5)
+    if (!positionValid) {
+        gridX = 5;
+        gridY = 5;
+        std::cerr << "WARNING: Forced spawn at (5, 5) for Power-Up Level " << level << std::endl;
+    }
+
+    // Attempt to create the power-up
+    std::unique_ptr<PowerUpBase> powerUp = nullptr;
     switch (level) {
     case 1:
-        activePowerUp = std::make_unique<PowerUpLevel1>(this, gridX, gridY);
+        powerUp = std::make_unique<PowerUpLevel1>(this, gridX, gridY);
         break;
     case 2:
-        activePowerUp = std::make_unique<PowerUpLevel2>(this, gridX, gridY);
+        powerUp = std::make_unique<PowerUpLevel2>(this, gridX, gridY);
         break;
     case 3:
-        activePowerUp = std::make_unique<PowerUpLevel3>(this, gridX, gridY);
+        powerUp = std::make_unique<PowerUpLevel3>(this, gridX, gridY);
         break;
     }
 
-    std::cout << "Power-Up Level " << level << " spawned at (" << gridX << ", " << gridY << ")" << std::endl;
-    addObject(activePowerUp.get()); // Add to game objects
+    // Final validation and object addition
+    if (powerUp) {
+        std::cout << "Power-Up object created successfully." << std::endl;
+        powerUp->init(); // Initialize the object
+        activePowerUps.push_back(std::move(powerUp));
+        addObject(activePowerUps.back().get());
+        std::cout << "Spawned Power-Up Level " << level << " at (" << gridX << ", " << gridY << ")" << std::endl;
+    }
+    else {
+        std::cerr << "Failed to create Power-Up Level " << level << std::endl;
+    }
+}
+
+void GameState::updatePowerUpTimers(float dt) {
+    for (auto& timer : upgradeTimers) {
+        timer.second += dt; // Increment timer
+
+        PowerUpBase* powerUp = timer.first->get();
+
+        // Upgrade when time exceeds threshold
+        if (timer.second >= upgradeTime && powerUp->isActive()) {
+            int newLevel = powerUp->getLevel() + 1;
+
+            if (newLevel <= 3) { // Upgrade only if level < 3
+                std::cout << "Upgrading Power-Up to Level " << newLevel << std::endl;
+
+                // Replace with new upgraded power-up
+                spawnPowerUp(newLevel);
+                powerUp->setActive(false); // Deactivate old power-up
+            }
+            timer.second = 0.0f; // Reset timer for upgraded power-up
+        }
+    }
+
+    // Remove timers for inactive power-ups
+    upgradeTimers.erase(
+        std::remove_if(upgradeTimers.begin(), upgradeTimers.end(),
+            [](const std::pair<std::unique_ptr<PowerUpBase>*, float>& t) { return !t.first->get()->isActive(); }),
+        upgradeTimers.end());
 }
 
 // Update game state
-void GameState::update(float dt) {
+    void GameState::update(float dt) {
+
     if (isGameOver) return; // Stop updates after player death
 
     // --- Preallocate memory to avoid resizing ---
@@ -144,6 +214,28 @@ void GameState::update(float dt) {
         }
     }
 
+    if (tally >= tallyLevel3) {
+        std::cout << "Condition met for Level 3 Power-Up. Tally = " << tally << std::endl;
+        spawnPowerUp(3);
+    }
+    else if (tally >= tallyLevel2) {
+        std::cout << "Condition met for Level 2 Power-Up. Tally = " << tally << std::endl;
+        spawnPowerUp(2);
+    }
+    else if (tally >= tallyLevel1) {
+        std::cout << "Condition met for Level 1 Power-Up. Tally = " << tally << std::endl;
+        spawnPowerUp(1);
+    }
+
+    // Reset Tally AFTER checking ALL conditions
+    if (tally >= tallyLevel1) { // Only reset if a Power-Up was attempted
+        std::cout << "Tally reset! Reached " << tally << " deposits." << std::endl;
+        resetTally();
+    }
+
+    // --- POWER-UP AUTO-UPGRADE TIMERS ---
+    updatePowerUpTimers(dt);
+
     // --- COLLISION DETECTION ---
     Player* player = nullptr;
 
@@ -194,8 +286,8 @@ void GameState::update(float dt) {
                     newObjects.push_back(std::move(newEnemy));
                 }
             }
-        }
-    }
+                }
+            }
 
     // Append buffered objects safely
     for (auto& newObj : newObjects) {
@@ -212,7 +304,7 @@ void GameState::update(float dt) {
 #ifdef DEBUG
     std::cout << "Active objects after update: " << gameObjects.size() << std::endl;
 #endif
-}
+        }
 
 // Draw all game objects
 void GameState::draw() {
@@ -287,15 +379,10 @@ void GameState::addScore(int points) {
 }
 
 void GameState::incrementTally(int count) {
-    tally += count; // Increment tally by deposits
+    tally += count; // Increment the tally
     std::cout << "Tally updated! Current tally: " << tally << std::endl;
-
-    // Reset tally if 6 or more deposits
-    if (tally >= 6) {
-        std::cout << "Tally reset! Reached " << tally << " deposits." << std::endl;
-        resetTally(); // Reset tally after triggering power-up
-    }
 }
+
 
 void GameState::resetTally() {
     tally = 0; // Reset tally to zero

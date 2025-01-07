@@ -1,11 +1,29 @@
 #include "PowerUpLevel2.h"
+#include "graphics.h"
 #include <iostream>
 
 // Constructor
 PowerUpLevel2::PowerUpLevel2(GameState* state, int x, int y)
     : PowerUpBase(state, x, y, 2) {}
 
-// Placeholder effect
+// Apply effect
 void PowerUpLevel2::applyEffect() {
     std::cout << "Level 2 Power-Up effect applied!" << std::endl;
+}
+
+// Draw
+void PowerUpLevel2::draw() {
+    graphics::Brush br;
+    br.outline_opacity = 0.0f;
+
+    // Dark Green for Level 2
+    br.fill_color[0] = 0.0f;
+    br.fill_color[1] = 0.39f;
+    br.fill_color[2] = 0.0f;
+
+    float cellSize = 50.0f;
+    float xPos = gridX * cellSize + cellSize / 2.0f;
+    float yPos = gridY * cellSize + cellSize / 2.0f;
+
+    graphics::drawRect(xPos, yPos, cellSize, cellSize, br);
 }

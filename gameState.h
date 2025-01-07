@@ -11,6 +11,9 @@
 #include "StationaryEnemy.h"
 #include "Collectible.h"
 #include "PowerUpBase.h"
+#include "PowerUpLevel1.h" // Include Level 1 Power-Up
+#include "PowerUpLevel2.h" // Include Level 2 Power-Up
+#include "PowerUpLevel3.h" // Include Level 3 Power-Up
 #include "Player.h"
 #include "DepositZone.h" // Added DepositZone
 
@@ -53,16 +56,14 @@ private:
     int score = 0;         // Total score
     int tally = 0;         // Tracks consecutive deposits
 
-    // Add a pointer for the active power-up
-    std::unique_ptr<PowerUpBase> activePowerUp = nullptr;
+    std::vector<std::unique_ptr<PowerUpBase>> activePowerUps; // Unlimited power-ups
+    std::vector<std::pair<std::unique_ptr<PowerUpBase>*, float>> upgradeTimers; // Tracks timers for upgrades
 
-    // Power-up spawning thresholds
-    const int tallyLevel1 = 6;
+    const int tallyLevel1 = 6; // Tally thresholds
     const int tallyLevel2 = 8;
     const int tallyLevel3 = 10;
 
-    // Power-up spawn handler
-    void spawnPowerUp(int level);
+    const float upgradeTime = 9.0f; // Time for auto-upgrade
 
 public:
     // Singleton pattern
@@ -98,6 +99,10 @@ public:
     void incrementTally(int count); // Increments tally (only deposits)
     int getTally() const { return tally; } // Getter for tally
     void resetTally(); // Resets tally for power-ups
+
+    // Power-Up Management
+    void spawnPowerUp(int level);       // Spawns a power-up of a specific level
+    void updatePowerUpTimers(float dt); // Handles auto-upgrading of power-ups
 
     // Destructor
     ~GameState();
