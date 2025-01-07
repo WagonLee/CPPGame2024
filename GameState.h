@@ -10,9 +10,13 @@
 #include "MovingEnemy.h"
 #include "StationaryEnemy.h"
 #include "Collectible.h"
-#include "PowerUpBlue.h"
+#include "PowerUpLevel1.h" // Include Level 1 Power-Up
+#include "PowerUpLevel2.h" // Include Level 2 Power-Up
+#include "PowerUpLevel3.h" // Include Level 3 Power-Up
 #include "Player.h"
 #include "DepositZone.h" // Added DepositZone
+
+class PowerUpBase; // Forward declare PowerUpBase
 
 class GameState {
 private:
@@ -42,12 +46,6 @@ private:
     std::vector<std::pair<time_t, time_t>> collectibleRespawnTimers; // Tracks respawn timers
     const double collectibleRespawnDelay = 0.1; // Delay in seconds before respawn
 
-    // PowerUp spawn timing
-    time_t lastPowerUpSpawnTime;
-    double powerUpSpawnInterval;
-    const double powerUpSpawnMin = 10.0;
-    const double powerUpSpawnMax = 20.0;
-
     // Player death state
     bool isGameOver = false;
 
@@ -58,6 +56,18 @@ private:
 
     int score = 0;         // Total score
     int tally = 0;         // Tracks consecutive deposits
+
+    // Power-Up Management
+    std::vector<std::unique_ptr<PowerUpBase>> activePowerUps; // Unlimited power-ups
+    std::vector<std::pair<size_t, float>> upgradeTimers;      // Use indices instead of pointers
+
+    void spawnPowerUpAt(int level, int gridX, int gridY);
+
+    const int tallyLevel1 = 6; // Tally thresholds
+    const int tallyLevel2 = 8;
+    const int tallyLevel3 = 10;
+
+    const float upgradeTime = 400.0f; // Time for auto-upgrade
 
 public:
     // Singleton pattern
@@ -94,9 +104,24 @@ public:
     int getTally() const { return tally; } // Getter for tally
     void resetTally(); // Resets tally for power-ups
 
+    // Power-Up Management
+    void spawnPowerUp(int level);       // Spawns a power-up of a specific level
+    void updatePowerUpTimers(float dt); // Handles auto-upgrading of power-ups
+
+    // Getter for upgradeTimers
+    std::vector<std::pair<size_t, float>>& getUpgradeTimers() {
+        return upgradeTimers;
+    }
+
+    // Getter for activePowerUps
+    std::vector<std::unique_ptr<PowerUpBase>>& getActivePowerUps() {
+        return activePowerUps;
+    }
+
     // Destructor
     ~GameState();
 };
+
 
 // Template implementation must be in the header file
 template <typename T>
@@ -153,8 +178,14 @@ void GameState::spawnInteractiveObject() {
     else if constexpr (std::is_same<T, Collectible>::value) {
         addObject(new Collectible(this, gridX, gridY));
     }
-    else if constexpr (std::is_same<T, PowerUpBlue>::value) {
-        addObject(new PowerUpBlue(this, gridX, gridY));
+    else if constexpr (std::is_same<T, PowerUpLevel1>::value) { // Level 1 Power-Up
+        addObject(new PowerUpLevel1(this, gridX, gridY));
+    }
+    else if constexpr (std::is_same<T, PowerUpLevel2>::value) { // Level 2 Power-Up
+        addObject(new PowerUpLevel2(this, gridX, gridY));
+    }
+    else if constexpr (std::is_same<T, PowerUpLevel3>::value) { // Level 3 Power-Up
+        addObject(new PowerUpLevel3(this, gridX, gridY));
     }
 
     // Debug log with timestamp

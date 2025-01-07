@@ -48,7 +48,11 @@ void MovingEnemy::draw() {
 
 // Update behavior
 void MovingEnemy::update(float dt) {
-    moveToTarget(dt); // Smooth movement
+    if (isWeak()) { // Don't move if weak
+        return;
+    }
+
+    moveToTarget(dt); // Smooth movement logic
 
     auto now = std::chrono::high_resolution_clock::now();
     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastMoveTime).count();
@@ -124,3 +128,39 @@ void MovingEnemy::randomizeDirection() {
     case 3: directionX = 1; directionY = 0; break;
     }
 }
+
+// Set Weak State
+void MovingEnemy::setWeak(bool weak) {
+    isWeakState = weak;
+    if (weak) {
+        stopMovement(); // Stop movement when weak
+    }
+    else {
+        startMovement(); // Resume movement when no longer weak
+    }
+}
+
+// Stop Movement
+void MovingEnemy::stopMovement() {
+    stopped = true;  // Mark as stopped
+    moving = false;  // Prevent further movement
+}
+
+// Start Movement
+void MovingEnemy::startMovement() {
+    stopped = false; // Allow movement again
+}
+
+// Collision Handling
+void MovingEnemy::handleCollision(Player& player) {
+    if (isWeak()) {
+        std::cout << "Weak enemy killed by player!" << std::endl;
+        setActive(false); // Deactivate the enemy
+        player.addScore(10); // Award points for killing weak enemies
+    }
+    else {
+        std::cout << "Player killed by enemy!" << std::endl;
+        player.setDead(); // Kill the player if enemy is strong
+    }
+}
+

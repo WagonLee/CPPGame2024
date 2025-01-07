@@ -27,3 +27,34 @@ void PowerUpLevel1::draw() {
 
     graphics::drawRect(xPos, yPos, cellSize, cellSize, br);
 }
+
+// Start the Weak Effect Timer
+void GameState::startWeakEffectTimer(float duration) {
+    weakEffectTimer = duration;
+    isWeakEffectActive = true;
+    std::cout << "Weak effect timer started for " << duration << " seconds." << std::endl;
+}
+
+// Update the Weak Effect Timer
+void GameState::updateWeakEffect(float dt) {
+    if (!isWeakEffectActive) return; // Skip if the effect is not active
+
+    weakEffectTimer -= dt / 60.0f; // Scale time correctly
+
+    if (weakEffectTimer <= 0.0f) {
+        std::cout << "Weak effect ended! Restoring enemy states." << std::endl;
+
+        // Reset all enemies to normal state
+        for (auto& obj : gameObjects) {
+            MovingEnemy* enemy = dynamic_cast<MovingEnemy*>(obj.get());
+            if (enemy && enemy->isActive()) {
+                enemy->setWeak(false);  // Restore strength
+                enemy->startMovement(); // Allow movement again
+                std::cout << "Enemy at (" << enemy->getGridX()
+                    << ", " << enemy->getGridY() << ") restored!" << std::endl;
+            }
+        }
+
+        isWeakEffectActive = false; // Disable the effect
+    }
+}

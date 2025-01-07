@@ -23,9 +23,23 @@ private:
     void moveToTarget(float dt); // Smooth movement logic
     bool canMoveTo(int x, int y) const; // Checks if the move is valid
 
+    bool isWeakState = false; // Tracks if the enemy is weak
+    bool stopped = false;     // Tracks if movement is stopped while weak
+
 public:
     MovingEnemy(GameState* state, int x, int y);
     void draw() override;
     void update(float dt) override;
     void init() override;
+
+    // Set and check weak state
+    void setWeak(bool weak);
+    bool isWeak() const { return isWeakState; }
+
+    // Control movement when weak
+    void stopMovement();
+    void startMovement();
+
+    // Collision handling (override base)
+    void handleCollision(Player& player) override;
 };
