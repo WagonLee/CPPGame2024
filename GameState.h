@@ -84,6 +84,8 @@ public:
     void reset();
     void endGame(); // Handles stopping all activity on player death
 
+    void replaceDepositZone(); // Replaces the deposit zone immediately
+
     // Template method for spawning InteractiveObjects
     template <typename T>
     void spawnInteractiveObject();
@@ -101,6 +103,8 @@ public:
     // Score management
     void addScore(int points); // Adds points to score (general purpose)
     int getScore() const { return score; } // Getter for score
+
+    bool isPowerUpUpgrading(PowerUpBase* powerup) const; // Check if a power-up has an active upgrade timer
 
     // Tally management
     void incrementTally(int count); // Increments tally (only deposits)

@@ -1,11 +1,10 @@
 #include "Player.h"
 #include "graphics.h"
 #include "GameState.h"
-#include "MovingEnemy.h"   // Fixed: Use MovingEnemy instead of Enemy
-#include <iostream>  // For debug output
+#include "MovingEnemy.h"
+#include <iostream>
 
 const float CELL_SIZE = 50.0f; // Match grid cell size
-
 // Constructor
 Player::Player(GameState* gs, int startX, int startY, float speed)
     : GameObject(gs, "Player"), gridX(startX), gridY(startY), directionX(0), directionY(-1),
@@ -14,14 +13,12 @@ Player::Player(GameState* gs, int startX, int startY, float speed)
     y = startY * CELL_SIZE + CELL_SIZE / 2;
     targetX = x;
     targetY = y;
-
     // Player starts with no tail
 }
-
 // Initialize/reset player
 void Player::init() {
     directionX = 0;
-    directionY = -1; // Start moving up
+    directionY = -1;
     nextDirectionX = 0;
     nextDirectionY = -1;
     moving = false;
@@ -43,7 +40,6 @@ void Player::init() {
 // Add a tail segment
 void Player::addTailSegment() {
     int newGridX, newGridY;
-    float newX, newY, newTargetX, newTargetY;
 
     if (tail.empty()) {
         newGridX = gridX - directionX;
@@ -55,87 +51,58 @@ void Player::addTailSegment() {
         newGridY = lastSegment.gridY - directionY;
     }
 
-    newX = newGridX * CELL_SIZE + CELL_SIZE / 2;
-    newY = newGridY * CELL_SIZE + CELL_SIZE / 2;
-    newTargetX = newX;
-    newTargetY = newY;
+    float newX = newGridX * CELL_SIZE + CELL_SIZE / 2;
+    float newY = newGridY * CELL_SIZE + CELL_SIZE / 2;
 
-    tail.push_back({ newGridX, newGridY, newX, newY, newTargetX, newTargetY });
+    tail.push_back({ newGridX, newGridY, newX, newY, newX, newY });
     std::cout << "Tail segment added. Total segments: " << tail.size() << std::endl;
 }
 
 void Player::shedTail() {
     if (tail.empty()) return; // No tail to shed
 
-    auto* depositZone = GameState::getInstance()->getDepositZone().get(); // Access deposit zone
+    auto* depositZone = GameState::getInstance()->getDepositZone().get();
+    std::cout << "Processing tail: " << tail.size() << " segments." << std::endl;
 
-    std::cout << "Shedding tail: " << tail.size() << " segments." << std::endl;
+    std::vector<TailSegment> tempTail = tail;
+    tail.clear();
+    int depositedCount = 0;
 
-    // Temporary vector for segments that should be kept
-    std::vector<TailSegment> remainingSegments;
-    int depositedCount = 0; // Count deposited segments
-
-    // **Clear the tail immediately to avoid reprocessing**
-    std::vector<TailSegment> tempTail = tail; // Make a copy for processing
-    tail.clear(); // Clear the original tail immediately
-
-    // Process each tail segment
     for (const auto& segment : tempTail) {
-        // Check if the segment is inside the deposit zone
         if (depositZone->isTileInZone(segment.gridX, segment.gridY)) {
-            std::cout << "Segment at (" << segment.gridX << ", " << segment.gridY
-                << ") is inside the zone and will be DEPOSITED." << std::endl;
-
-            // Count this segment as deposited
-            ++depositedCount;
-            std::cout << "Forcing deposit zone respawn immediately!" << std::endl;
-            GameState::getInstance()->replaceDepositZone(); // Use the new method
+            std::cout << "Segment at (" << segment.gridX << ", " << segment.gridY << ") deposited." << std::endl;
+            depositedCount++;
+            GameState::getInstance()->replaceDepositZone();
         }
         else {
-            std::cout << "Segment at (" << segment.gridX << ", " << segment.gridY
-                << ") will become an enemy." << std::endl;
-
-            // Turn this segment into an enemy immediately
+            std::cout << "Segment at (" << segment.gridX << ", " << segment.gridY << ") -> enemy" << std::endl;
             MovingEnemy* enemy = new MovingEnemy(GameState::getInstance(), segment.gridX, segment.gridY);
             GameState::getInstance()->addObject(enemy);
-            std::cout << "Enemy spawned at: (" << segment.gridX << ", " << segment.gridY << ")" << std::endl;
         }
     }
 
-    // **Update tally for deposited segments**
-    GameState::getInstance()->incrementTally(depositedCount);
+    if (depositedCount > 0) {
+        GameState::getInstance()->incrementTally(depositedCount);
+        GameState::getInstance()->addScore(depositedCount);
+    }
 
-    // **Update score for deposits (affects score, not tally logic)**
-    GameState::getInstance()->addScore(depositedCount);
-
-    // Replace the tail with only non-deposited segments
-    tail = remainingSegments;
-
-    // Debug logs
-    std::cout << "Deposited " << depositedCount << " segments." << std::endl;
-    std::cout << "Tail shedding complete. Remaining tail size: " << tail.size() << std::endl;
+    std::cout << "Tail processing complete. Deposited: " << depositedCount << std::endl;
 }
-
 
 // Update movement and collisions
 void Player::update(float dt) {
-    if (!isAlive) {
-        return; // Stop updating if player is dead
-    }
+    if (!isAlive) return;
 
-    handleInput(); // Handle input for movement
+    handleInput();
 
-    // Detect space key to shed tail
     if (graphics::getKeyState(graphics::SCANCODE_SPACE)) {
-        shedTail(); // Trigger shedding mechanic
+        shedTail();
     }
 
     // Move smoothly toward the target
     moveToTarget(dt);
-
+    updateTail(dt);
     // Smooth tail movement
-    updateTail(dt); // Update tail with smooth movement
-
     // Check for self-collision with tail
     checkTailCollision();
 
@@ -156,10 +123,8 @@ void Player::update(float dt) {
 
         directionX = nextDirectionX;
         directionY = nextDirectionY;
-
         gridX += directionX;
         gridY += directionY;
-
         checkCollision();
 
         if (isAlive) {
@@ -169,47 +134,6 @@ void Player::update(float dt) {
         }
     }
 }
-
-void Player::depositTailSegments() {
-    auto* depositZone = GameState::getInstance()->getDepositZone().get(); // Get deposit zone
-
-    std::vector<TailSegment> newTail; // Segments to keep
-    int depositedCount = 0; // Count deposited segments
-
-    std::cout << "Depositing tail segments..." << std::endl;
-
-    // Process a copy of the tail, like GameState.cpp does
-    for (const auto& segment : tail) {
-        std::cout << "Checking tail segment at (" << segment.gridX << ", " << segment.gridY << ")" << std::endl;
-
-        // Detect if segment is in the deposit zone
-        if (depositZone->isTileInZone(segment.gridX, segment.gridY)) {
-            std::cout << "DEPOSIT SUCCESS at (" << segment.gridX << ", " << segment.gridY << ")" << std::endl;
-            ++depositedCount; // Count as deposited
-            // NEW: Replace zone immediately after deposit
-
-        }
-        else {
-            // Keep segments outside the zone
-            newTail.push_back(segment);
-            std::cout << "Segment OUTSIDE zone kept at (" << segment.gridX << ", " << segment.gridY << ")" << std::endl;
-        }
-    }
-
-    // Log the tail before and after replacement
-    std::cout << "Old tail size: " << tail.size() << std::endl;
-    tail = newTail; // Replace tail with remaining segments
-    std::cout << "New tail size: " << tail.size() << std::endl;
-
-    // Award points for deposited segments
-    GameState::getInstance()->addScore(depositedCount);
-
-    // Handle remaining segments
-    if (!tail.empty()) {
-        shedTail(); // Process remaining tail outside the zone
-    }
-}
-
 
 // Move smoothly toward the target
 void Player::moveToTarget(float dt) {
@@ -233,9 +157,7 @@ void Player::moveToTarget(float dt) {
 
 // Smooth tail movement
 void Player::updateTail(float dt) {
-    for (size_t i = 0; i < tail.size(); ++i) {
-        TailSegment& segment = tail[i];
-
+    for (auto& segment : tail) {
         float dx = segment.targetX - segment.x;
         float dy = segment.targetY - segment.y;
         float dist = sqrt(dx * dx + dy * dy);
@@ -256,7 +178,7 @@ void Player::updateTail(float dt) {
 void Player::checkTailCollision() {
     for (const auto& segment : tail) {
         if (segment.gridX == gridX && segment.gridY == gridY) {
-            setDead(); // Player dies if colliding with its own tail
+            setDead();
             break;
         }
     }
@@ -278,9 +200,11 @@ void Player::draw() {
     }
 
     brush.fill_opacity = 1.0f;
+
     graphics::drawRect(x, y, CELL_SIZE, CELL_SIZE, brush);
 
-    brush.fill_color[0] = 1.0f; // Yellow for tail
+    // Yellow tail
+    brush.fill_color[0] = 1.0f;
     brush.fill_color[1] = 1.0f;
     brush.fill_color[2] = 0.0f;
 

@@ -61,8 +61,4 @@ public:
     // Death handling
     void setDead();                    // Sets player as dead and stops activity
     bool getIsAlive() const;           // Checks if player is alive
-
-    // Deposit-related methods
-    void depositTailSegments(); // Deposits tail segments into the zone
-
 };
