@@ -88,6 +88,8 @@ void Player::shedTail() {
 
             // Count this segment as deposited
             ++depositedCount;
+            std::cout << "Forcing deposit zone respawn immediately!" << std::endl;
+            GameState::getInstance()->replaceDepositZone(); // Use the new method
         }
         else {
             std::cout << "Segment at (" << segment.gridX << ", " << segment.gridY
@@ -184,6 +186,8 @@ void Player::depositTailSegments() {
         if (depositZone->isTileInZone(segment.gridX, segment.gridY)) {
             std::cout << "DEPOSIT SUCCESS at (" << segment.gridX << ", " << segment.gridY << ")" << std::endl;
             ++depositedCount; // Count as deposited
+            // NEW: Replace zone immediately after deposit
+
         }
         else {
             // Keep segments outside the zone

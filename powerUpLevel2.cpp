@@ -16,6 +16,9 @@ void PowerUpLevel2::applyEffect() {
 
 // Draw
 void PowerUpLevel2::draw() {
+
+    if (!visible) return;
+
     graphics::Brush br;
     br.outline_opacity = 0.0f;
 

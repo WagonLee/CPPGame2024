@@ -446,6 +446,16 @@ void GameState::init() {
     }
 }
 
+void GameState::replaceDepositZone() {
+    std::cout << "Replacing deposit zone immediately!" << std::endl;
+
+    // Clear old zone
+    depositZone.reset();
+
+    // Spawn new zone
+    spawnDepositZone(); // Use existing spawn logic
+}
+
 void GameState::addScore(int points) {
     score += points; // Increment total score
     std::cout << "Score updated! Current score: " << score << std::endl;

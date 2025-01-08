@@ -84,6 +84,8 @@ public:
     void reset();
     void endGame(); // Handles stopping all activity on player death
 
+    void replaceDepositZone(); // Replaces the deposit zone immediately
+
     // Template method for spawning InteractiveObjects
     template <typename T>
     void spawnInteractiveObject();
