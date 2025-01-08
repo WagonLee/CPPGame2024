@@ -102,6 +102,8 @@ public:
     void addScore(int points); // Adds points to score (general purpose)
     int getScore() const { return score; } // Getter for score
 
+    bool isPowerUpUpgrading(PowerUpBase* powerup) const; // Check if a power-up has an active upgrade timer
+
     // Tally management
     void incrementTally(int count); // Increments tally (only deposits)
     int getTally() const { return tally; } // Getter for tally

@@ -11,11 +11,14 @@ void PowerUpLevel1::applyEffect() {
     std::cout << "Level 1 Power-Up effect applied! Weakening MovingEnemies for 10 seconds." << std::endl;
 
     // Use the centralized weakness logic in PowerUpBase
-    startWeakEffect(100.0f); // Updated to 10 seconds
+    startWeakEffect(10000.0f); // Updated to 10 seconds
 }
 
 // Draw
 void PowerUpLevel1::draw() {
+
+    if (!visible) return;
+
     graphics::Brush br;
     br.outline_opacity = 0.0f;
 

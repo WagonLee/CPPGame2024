@@ -10,13 +10,17 @@ protected:
 
     int level; // Level of the Power-Up (1, 2, or 3)
 
-    // Shared Weakness Effect Variables
-    float weakEffectDuration = 0.0f; // Duration for the weakness effect
-    bool isWeakEffectActive = false; // Tracks if the effect is active
+    bool isCollectible = true;         // Can be collected by player
+    bool visible = true;               // Visual representation
+    bool isWeakEffectActive = false;   // Tracks weak effect timer
+    float weakEffectDuration = 0.0f;   // Duration for weak effect
 
 public:
     // Constructor
     PowerUpBase(GameState* state, int x, int y, int level);
+
+    bool canCollide() const { return isCollectible && isActive(); }
+    bool isEffectRunning() const { return isWeakEffectActive; }
 
     // Apply Effect (abstract, overridden in derived classes)
     virtual void applyEffect() = 0;

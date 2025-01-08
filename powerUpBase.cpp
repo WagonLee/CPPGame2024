@@ -1,35 +1,29 @@
 #include "PowerUpBase.h"
-#include "GameState.h" // Include here for full definition
+#include "GameState.h"
 #include "graphics.h"
 #include <iostream>
-#include <algorithm> // Required for std::remove_if
-#include "MovingEnemy.h" // For handling enemies during weak effect
+#include "MovingEnemy.h"
+#include "StationaryEnemy.h"
 
 // Constructor
 PowerUpBase::PowerUpBase(GameState* state, int x, int y, int level)
-    : InteractiveObject(state, x, y, "PowerUp"), state(state), level(level) {} // Initialize state and level
+    : InteractiveObject(state, x, y, "PowerUp"), state(state), level(level) {}
 
 // Handle collision
 void PowerUpBase::handleCollision(Player& player) {
+    if (!canCollide()) return; // Prevent duplicate collisions
+
     std::cout << "PowerUp Level " << level << " collected!" << std::endl;
-    setActive(false); // Deactivate Power-Up
 
-    // Apply the effect when collected
-    applyEffect(); // CALL THIS!
+    // Mark as collected
+    isCollectible = false;
+    visible = false;        // Hide visually but keep active for effect
+    setActive(true);       // Remains active for timers
 
-    // Remove the power-up timer
-    auto& timers = state->getUpgradeTimers();
-    auto& activePowerUps = state->getActivePowerUps();
-    timers.erase(
-        std::remove_if(timers.begin(), timers.end(),
-            [this, &activePowerUps](const std::pair<size_t, float>& t) {
-                size_t index = t.first;
-    return index >= activePowerUps.size() || activePowerUps[index].get() == this;
-            }),
-        timers.end());
-
-    std::cout << "Timer removed for collected Power-Up Level " << level << std::endl;
+    // Apply the effect
+    applyEffect();
 }
+
 
 // Weak Effect: Start Timer
 void PowerUpBase::startWeakEffect(float duration) {
@@ -38,24 +32,22 @@ void PowerUpBase::startWeakEffect(float duration) {
 
     std::cout << "Weak effect started for " << duration << " seconds." << std::endl;
 
-    // Apply effect based on Power-Up level
+    // Apply effect to MovingEnemies and StationaryEnemies
     for (auto& obj : state->getGameObjects()) {
-        // Handle MovingEnemies (applies to ALL levels)
         MovingEnemy* movingEnemy = dynamic_cast<MovingEnemy*>(obj.get());
         if (movingEnemy && movingEnemy->isActive()) {
-            movingEnemy->setWeak(true);    // Weaken the enemy
-            movingEnemy->stopMovement();  // Stop its movement
-            std::cout << "MovingEnemy at (" << movingEnemy->getGridX() << ", "
-                << movingEnemy->getGridY() << ") is now weak!" << std::endl;
+            movingEnemy->setWeak(true);
+            movingEnemy->stopMovement();
+            std::cout << "MovingEnemy weakened at (" << movingEnemy->getGridX()
+                << ", " << movingEnemy->getGridY() << ")" << std::endl;
         }
 
-        // Handle StationaryEnemies (ONLY for Level 2 and Level 3)
-        if (level >= 2) { // NEW: Check level before applying effect
+        if (level >= 2) {
             StationaryEnemy* stationaryEnemy = dynamic_cast<StationaryEnemy*>(obj.get());
             if (stationaryEnemy && stationaryEnemy->isActive()) {
-                stationaryEnemy->setWeak(true);  // Weaken the stationary enemy
-                std::cout << "StationaryEnemy at (" << stationaryEnemy->getGridX() << ", "
-                    << stationaryEnemy->getGridY() << ") is now weak!" << std::endl;
+                stationaryEnemy->setWeak(true);
+                std::cout << "StationaryEnemy weakened at (" << stationaryEnemy->getGridX()
+                    << ", " << stationaryEnemy->getGridY() << ")" << std::endl;
             }
         }
     }
@@ -63,13 +55,16 @@ void PowerUpBase::startWeakEffect(float duration) {
 
 // Weak Effect: Update Timer
 void PowerUpBase::updateWeakEffect(float dt) {
-    if (!isWeakEffectActive) return; // Skip if effect is not active
+    if (!isWeakEffectActive) return; // Skip if not active
 
-    weakEffectDuration -= dt / 60.0f; // Adjust based on frame rate
+    // Clamp timer to prevent negative values
+    weakEffectDuration = std::max(0.0f, weakEffectDuration - dt);
+
+    // Log remaining time
+    std::cout << "Weak effect time left: " << weakEffectDuration << " seconds." << std::endl;
 
     if (weakEffectDuration <= 0.0f) {
-        std::cout << "Weak effect ended! Restoring enemy states." << std::endl;
-        endWeakEffect(); // Reset enemies when the timer expires
+        endWeakEffect(); // End the effect
     }
 }
 
@@ -77,41 +72,45 @@ void PowerUpBase::updateWeakEffect(float dt) {
 void PowerUpBase::endWeakEffect() {
     isWeakEffectActive = false;
 
-    // Restore all MovingEnemies
+    // Restore MovingEnemies
     for (auto& obj : state->getGameObjects()) {
-        MovingEnemy* enemy = dynamic_cast<MovingEnemy*>(obj.get());
-        if (enemy && enemy->isActive()) {
-            enemy->setWeak(false);     // Restore strength
-            enemy->startMovement();   // Enable movement again
-            std::cout << "Enemy at (" << enemy->getGridX() << ", "
-                << enemy->getGridY() << ") restored!" << std::endl;
+        MovingEnemy* movingEnemy = dynamic_cast<MovingEnemy*>(obj.get());
+        if (movingEnemy && movingEnemy->isActive()) {
+            movingEnemy->setWeak(false);
+            movingEnemy->startMovement();
+            std::cout << "MovingEnemy restored at (" << movingEnemy->getGridX()
+                << ", " << movingEnemy->getGridY() << ")" << std::endl;
         }
+
+        if (level >= 2) {
+            StationaryEnemy* stationaryEnemy = dynamic_cast<StationaryEnemy*>(obj.get());
+            if (stationaryEnemy && stationaryEnemy->isActive()) {
+                stationaryEnemy->setWeak(false);
+                std::cout << "StationaryEnemy restored at (" << stationaryEnemy->getGridX()
+                    << ", " << stationaryEnemy->getGridY() << ")" << std::endl;
+            }
+        }
+    }
+
+    // Fully deactivate only if not upgrading
+    if (!state->isPowerUpUpgrading(this)) {
+        setActive(false);
+        std::cout << "Power-up Level " << level << " fully deactivated." << std::endl;
     }
 }
 
-// Dummy update() (to satisfy GameObject requirement)
+// Update (keeps timer running)
 void PowerUpBase::update(float dt) {
-    updateWeakEffect(dt); // Keep updating weak effect timer
+    if (isWeakEffectActive) {
+        updateWeakEffect(dt); // Update timer and effects
+    }
 }
 
-// Default draw (should be overridden by subclasses)
+// Draw (for override)
 void PowerUpBase::draw() {
-    graphics::Brush br;
-    br.outline_opacity = 0.0f;
-
-    // Default white square
-    br.fill_color[0] = 1.0f; // White color
-    br.fill_color[1] = 1.0f;
-    br.fill_color[2] = 1.0f;
-
-    float cellSize = 50.0f;
-    float xPos = gridX * cellSize + cellSize / 2.0f;
-    float yPos = gridY * cellSize + cellSize / 2.0f;
-
-    graphics::drawRect(xPos, yPos, cellSize, cellSize, br);
 }
 
-// Default init() implementation
+// Default init
 void PowerUpBase::init() {
     std::cout << "PowerUpBase initialized at Level " << level << std::endl;
 }
