@@ -235,10 +235,22 @@ void Player::draw() {
 }
 
 void Player::handleInput() {
-    if (graphics::getKeyState(graphics::SCANCODE_UP) && directionY == 0) nextDirectionX = 0, nextDirectionY = -1;
-    else if (graphics::getKeyState(graphics::SCANCODE_DOWN) && directionY == 0) nextDirectionX = 0, nextDirectionY = 1;
-    else if (graphics::getKeyState(graphics::SCANCODE_LEFT) && directionX == 0) nextDirectionX = -1, nextDirectionY = 0;
-    else if (graphics::getKeyState(graphics::SCANCODE_RIGHT) && directionX == 0) nextDirectionX = 1, nextDirectionY = 0;
+    if ((graphics::getKeyState(graphics::SCANCODE_UP) || graphics::getKeyState(graphics::SCANCODE_W)) && directionY == 0) {
+        nextDirectionX = 0;
+        nextDirectionY = -1;
+    }
+    else if ((graphics::getKeyState(graphics::SCANCODE_DOWN) || graphics::getKeyState(graphics::SCANCODE_S)) && directionY == 0) {
+        nextDirectionX = 0;
+        nextDirectionY = 1;
+    }
+    else if ((graphics::getKeyState(graphics::SCANCODE_LEFT) || graphics::getKeyState(graphics::SCANCODE_A)) && directionX == 0) {
+        nextDirectionX = -1;
+        nextDirectionY = 0;
+    }
+    else if ((graphics::getKeyState(graphics::SCANCODE_RIGHT) || graphics::getKeyState(graphics::SCANCODE_D)) && directionX == 0) {
+        nextDirectionX = 1;
+        nextDirectionY = 0;
+    }
 }
 
 void Player::checkCollision() {

@@ -23,6 +23,7 @@
     <ClCompile Include="depositZone.cpp" />
     <ClCompile Include="enemy.cpp" />
     <ClCompile Include="menu.cpp" />
+    <ClCompile Include="menuUtils.cpp" />
     <ClCompile Include="movingEnemy.cpp" />
     <ClCompile Include="gameObject.cpp" />
     <ClCompile Include="gameState.cpp" />
@@ -41,6 +42,7 @@
     <ClInclude Include="depositZone.h" />
     <ClInclude Include="enemy.h" />
     <ClInclude Include="menu.h" />
+    <ClInclude Include="menuUtils.h" />
     <ClInclude Include="movingEnemy.h" />
     <ClInclude Include="gameObject.h" />
     <ClInclude Include="gameState.h" />

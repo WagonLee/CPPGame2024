@@ -12,6 +12,7 @@
 #include "PowerUpLevel1.h" // Include Level 1 Power-Up
 #include "PowerUpLevel2.h" // Include Level 2 Power-Up
 #include "PowerUpLevel3.h" // Include Level 3 Power-Up
+#include "MenuUtils.h"
 #include <algorithm>
 
 GameState* GameState::instance = nullptr;
@@ -242,13 +243,24 @@ void GameState::update(float dt) {
 
     // Handle pre-game pause ("READY?" state)
     if (isPreGamePaused()) {
-        if (graphics::getKeyState(graphics::SCANCODE_UP) ||
-            graphics::getKeyState(graphics::SCANCODE_DOWN) ||
-            graphics::getKeyState(graphics::SCANCODE_LEFT) ||
-            graphics::getKeyState(graphics::SCANCODE_RIGHT)) {
-            setPreGamePause(false); // Start the game when movement key is pressed
+        if (graphics::getKeyState(graphics::SCANCODE_UP) || graphics::getKeyState(graphics::SCANCODE_W) ||
+            graphics::getKeyState(graphics::SCANCODE_DOWN) || graphics::getKeyState(graphics::SCANCODE_S) ||
+            graphics::getKeyState(graphics::SCANCODE_LEFT) || graphics::getKeyState(graphics::SCANCODE_A) ||
+            graphics::getKeyState(graphics::SCANCODE_RIGHT) || graphics::getKeyState(graphics::SCANCODE_D)) {
+            setPreGamePause(false); // Start the game when a movement key is pressed
         }
         return; // Skip updates during the "READY?" state
+    }
+
+    // Handle pause state
+    if (paused) {
+        updatePauseMenu(); // Update pause menu logic
+        return; // Skip gameplay updates
+    }
+
+    // Allow toggling pause with ESCAPE
+    if (graphics::getKeyState(graphics::SCANCODE_P)) {
+        setPaused(!isPaused()); // Toggle pause state
     }
 
     // Handle general pause state (future implementation)
@@ -430,6 +442,18 @@ void GameState::draw() {
         graphics::drawText(WINDOW_WIDTH / 2 - 100, WINDOW_HEIGHT / 2, 40, "READY?", textBrush);
     }
 
+    if (paused) {
+        drawPauseMenu(); // Draw the pause menu
+        return;          // Skip other rendering
+    }
+
+    // Draw all game objects
+    for (auto& obj : gameObjects) {
+        if (obj->isActive()) {
+            obj->draw();
+        }
+    }
+
     // Locate the player
     Player* player = nullptr;
     for (auto& obj : gameObjects) {
@@ -594,6 +618,60 @@ void GameState::setPreGamePause(bool preGame) {
 // Check if the game is in the pre-game pause state
 bool GameState::isPreGamePaused() const {
     return preGamePaused; // Return the pre-game pause state
+}
+
+void GameState::updatePauseMenu() {
+    static bool selectTriggered = false;
+
+    // Update pause menu selection
+    pauseMenuSelection = handleMenuInput(PAUSE_MENU_OPTIONS, pauseMenuSelection, selectTriggered);
+
+    // Handle option selection
+    if (selectTriggered) {
+        switch (pauseMenuSelection) {
+        case 0: // RESUME
+            setPaused(false); // Unpause the game
+            break;
+        case 1: // RESTART
+            resetGameStates();
+            init();
+            setPaused(false); // Resume the game after restarting
+            break;
+        case 2: // MAIN MENU
+            extern bool inMenu;
+            inMenu = true; // Transition back to the main menu
+            break;
+        case 3: // EXIT
+            graphics::stopMessageLoop(); // Exit the game
+            break;
+        }
+    }
+}
+
+void GameState::drawPauseMenu() {
+    graphics::Brush br;
+    br.outline_opacity = 0.0f;
+
+    // Draw pause menu background
+    br.texture = "assets/menu_background.png";
+    graphics::drawRect(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, WINDOW_WIDTH, WINDOW_HEIGHT, br);
+
+    // Draw menu options
+    for (size_t i = 0; i < PAUSE_MENU_OPTIONS.size(); ++i) {
+        br.fill_color[0] = 1.0f;
+        br.fill_color[1] = 1.0f;
+        br.fill_color[2] = 1.0f;
+
+        if (i == pauseMenuSelection) {
+            br.fill_color[0] = 0.0f; // Highlighted color (green)
+            br.fill_color[1] = 1.0f;
+            br.fill_color[2] = 0.0f;
+        }
+
+        float x = WINDOW_WIDTH / 2 - 100;
+        float y = WINDOW_HEIGHT / 2 + (i - PAUSE_MENU_OPTIONS.size() / 2) * 50;
+        graphics::drawText(x, y, 30, PAUSE_MENU_OPTIONS[i], br);
+    }
 }
 
 // Reset all game states

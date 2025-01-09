@@ -79,6 +79,7 @@ private:
 
     bool preGamePaused = true; // Tracks if the game is in the "READY?" state
     bool paused = false;       // Tracks if the game is paused during gameplay
+    int pauseMenuSelection = 0; // Tracks the current option in the pause menu
 
 public:
     // Singleton pattern
@@ -148,6 +149,8 @@ public:
     // Pause management
     void setPaused(bool paused);         // Set the game to paused or unpaused
     bool isPaused() const;               // Check if the game is paused
+    void updatePauseMenu();   // Handles navigation and selection for the pause menu
+    void drawPauseMenu();     // Renders the pause menu
 
     // Pre-game pause ("READY?" state)
     void setPreGamePause(bool preGame);  // Enable or disable the pre-game pause

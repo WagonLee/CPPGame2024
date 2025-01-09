@@ -4,7 +4,6 @@
 
 class Menu {
 private:
-    std::vector<std::string> options = { "PLAY", "HIGH SCORES", "TUTORIAL", "EXIT" };
     int selectedOption = 0; // Tracks the currently highlighted option
 
 public:

@@ -3,6 +3,7 @@
 #include "Menu.h"
 #include "GameState.h" // To initialize the game
 #include <string>
+#include "MenuUtils.h"
 
 void Menu::init() {
     graphics::setFont(std::string("assets/Arial.ttf")); // Simplified asset path
@@ -14,57 +15,32 @@ bool keyDownPressed = false;
 bool keySelectPressed = false;
 
 void Menu::update() {
-    // Handle DOWN key with debounce
-    if (graphics::getKeyState(graphics::SCANCODE_DOWN)) {
-        if (!keyDownPressed) {
-            selectedOption = (selectedOption + 1) % options.size(); // Move down
-            keyDownPressed = true; // Mark key as pressed
-        }
-    }
-    else {
-        keyDownPressed = false; // Reset key state when released
-    }
+    static bool selectTriggered = false;
 
-    // Handle UP key with debounce
-    if (graphics::getKeyState(graphics::SCANCODE_UP)) {
-        if (!keyUpPressed) {
-            selectedOption = (selectedOption - 1 + options.size()) % options.size(); // Move up
-            keyUpPressed = true; // Mark key as pressed
-        }
-    }
-    else {
-        keyUpPressed = false; // Reset key state when released
-    }
+    // Update menu selection using MAIN_MENU_OPTIONS
+    selectedOption = handleMenuInput(MAIN_MENU_OPTIONS, selectedOption, selectTriggered);
 
-    // Handle selection with ENTER or SPACE
-    if (graphics::getKeyState(graphics::SCANCODE_RETURN) || graphics::getKeyState(graphics::SCANCODE_SPACE)) {
-        if (!keySelectPressed) {
-            switch (selectedOption) {
-            case 0: { // PLAY
-                // Properly transition to gameplay
-                extern bool inMenu; // Access the global menu flag
-                inMenu = false;     // Exit the menu
+    // Get game state instance
+    GameState* gameState = GameState::getInstance();
 
-                GameState* gameState = GameState::getInstance();
-                gameState->resetGameStates(); // Reset game state flags
-                gameState->init();            // Initialize the game
-                break;
-            }
-            case 1: // HIGH SCORES
-                // Implement high score logic
-                break;
-            case 2: // TUTORIAL
-                // Implement tutorial logic
-                break;
-            case 3: // EXIT
-                graphics::stopMessageLoop(); // Gracefully stop the SGG message loop
-                break;
-            }
-            keySelectPressed = true; // Mark key as pressed
+    // Handle option selection
+    if (selectTriggered) {
+        switch (selectedOption) {
+        case 0: // PLAY
+            inMenu = false;
+            gameState->resetGameStates();
+            gameState->init();
+            break;
+        case 1: // HIGH SCORES
+            // Implement high score logic
+            break;
+        case 2: // TUTORIAL
+            // Implement tutorial logic
+            break;
+        case 3: // EXIT
+            graphics::stopMessageLoop();
+            break;
         }
-    }
-    else {
-        keySelectPressed = false; // Reset key state when released
     }
 }
 
@@ -78,7 +54,7 @@ void Menu::draw() {
 
     // Draw menu options
     const float charWidth = 15.0f; // Approximate width per character for size 30 font
-    for (size_t i = 0; i < options.size(); ++i) {
+    for (size_t i = 0; i < MAIN_MENU_OPTIONS.size(); ++i) {
         br.fill_color[0] = 1.0f; // Default white color
         br.fill_color[1] = 1.0f;
         br.fill_color[2] = 1.0f;
@@ -89,10 +65,10 @@ void Menu::draw() {
             br.fill_color[2] = 0.0f;
         }
 
-        float textWidth = options[i].size() * charWidth; // Approximate text width
+        float textWidth = MAIN_MENU_OPTIONS[i].size() * charWidth; // Approximate text width
         float x = (WINDOW_WIDTH - textWidth) / 2; // Center horizontally
-        float y = WINDOW_HEIGHT / 2 + (i - options.size() / 2) * 50; // Vertical alignment
+        float y = WINDOW_HEIGHT / 2 + (i - MAIN_MENU_OPTIONS.size() / 2) * 50; // Vertical alignment
 
-        graphics::drawText(x, y, 30, options[i], br);
+        graphics::drawText(x, y, 30, MAIN_MENU_OPTIONS[i], br);
     }
 }
