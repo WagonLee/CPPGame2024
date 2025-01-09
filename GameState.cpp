@@ -170,7 +170,6 @@ bool GameState::isPowerUpUpgrading(PowerUpBase* powerup) const {
     return false;
 }
 
-
 void GameState::updatePowerUpTimers(float dt) {
     const float upgradeTime = 200.0f; // Time required for auto-upgrade
 
@@ -236,11 +235,24 @@ void GameState::updatePowerUpTimers(float dt) {
     }
 }
 
-
 // Update game state
 void GameState::update(float dt) {
 
     if (isGameOver) return; // Stop updates after player death
+
+    // Handle pre-game pause ("READY?" state)
+    if (isPreGamePaused()) {
+        if (graphics::getKeyState(graphics::SCANCODE_UP) ||
+            graphics::getKeyState(graphics::SCANCODE_DOWN) ||
+            graphics::getKeyState(graphics::SCANCODE_LEFT) ||
+            graphics::getKeyState(graphics::SCANCODE_RIGHT)) {
+            setPreGamePause(false); // Start the game when movement key is pressed
+        }
+        return; // Skip updates during the "READY?" state
+    }
+
+    // Handle general pause state (future implementation)
+    if (isPaused()) return;
 
     setProcessingUpdates(true);
 
@@ -407,6 +419,17 @@ void GameState::draw() {
         }
     }
 
+    // Show "READY?" during pre-game pause
+    if (isPreGamePaused()) {
+        graphics::Brush textBrush;
+        textBrush.fill_color[0] = 0.0f; // Green
+        textBrush.fill_color[1] = 1.0f;
+        textBrush.fill_color[2] = 0.0f;
+        textBrush.outline_opacity = 1.0f;
+
+        graphics::drawText(WINDOW_WIDTH / 2 - 100, WINDOW_HEIGHT / 2, 40, "READY?", textBrush);
+    }
+
     // Locate the player
     Player* player = nullptr;
     for (auto& obj : gameObjects) {
@@ -440,23 +463,30 @@ void GameState::draw() {
 
 }
 
-
 // Initialize game state
 void GameState::init() {
+    // Initialize timers for spawning enemies
     lastMovingEnemySpawnTime = time(nullptr);
     movingEnemySpawnInterval = movingEnemySpawnMin + (rand() / (RAND_MAX / (movingEnemySpawnMax - movingEnemySpawnMin)));
 
-    lastStationarySpawnTime = time(nullptr); // Added for stationary enemies
+    lastStationarySpawnTime = time(nullptr);
     stationaryEnemySpawnInterval = stationarySpawnMin + (rand() / (RAND_MAX / (stationarySpawnMax - stationarySpawnMin)));
 
     srand(static_cast<unsigned int>(time(nullptr)));
 
-    spawnDepositZone(); // Start with a deposit zone
+    // Spawn a deposit zone
+    spawnDepositZone();
 
     // Spawn initial collectibles
     for (int i = 0; i < collectibleCount; i++) {
         spawnInteractiveObject<Collectible>();
     }
+
+    // Initialize the player
+    int startX = GRID_SIZE / 2; // Center of the grid
+    int startY = GRID_SIZE / 2;
+    Player* player = new Player(this, startX, startY, 0.004f); // Adjust speed as needed
+    addObject(player); // Add the player to gameObjects
 }
 
 void GameState::replaceDepositZone() {
@@ -541,10 +571,36 @@ void GameState::incrementTally(int count) {
     std::cout << "Tally updated! Current tally: " << tally << std::endl;
 }
 
-
 void GameState::resetTally() {
     tally = 0; // Reset tally to zero
     std::cout << "Tally reset to 0." << std::endl;
+}
+
+// Set the paused state
+void GameState::setPaused(bool paused) {
+    this->paused = paused; // Update the paused variable
+}
+
+// Check if the game is paused
+bool GameState::isPaused() const {
+    return paused; // Return the paused state
+}
+
+// Set the pre-game pause state
+void GameState::setPreGamePause(bool preGame) {
+    preGamePaused = preGame; // Update the pre-game pause variable
+}
+
+// Check if the game is in the pre-game pause state
+bool GameState::isPreGamePaused() const {
+    return preGamePaused; // Return the pre-game pause state
+}
+
+// Reset all game states
+void GameState::resetGameStates() {
+    paused = false;         // Reset paused state
+    preGamePaused = true;   // Start with pre-game pause
+    isGameOver = false;     // Reset game over flag
 }
 
 // Reset game state

@@ -1,6 +1,7 @@
 #include "graphics.h"
 #include "config.h"
 #include "Menu.h"
+#include "GameState.h" // To initialize the game
 #include <string>
 
 void Menu::init() {
@@ -10,6 +11,7 @@ void Menu::init() {
 // State to track key presses
 bool keyUpPressed = false;
 bool keyDownPressed = false;
+bool keySelectPressed = false;
 
 void Menu::update() {
     // Handle DOWN key with debounce
@@ -34,23 +36,35 @@ void Menu::update() {
         keyUpPressed = false; // Reset key state when released
     }
 
-    // Handle ENTER key
-    if (graphics::getKeyState(graphics::SCANCODE_RETURN)) {
-        switch (selectedOption) {
-        case 0:
-            // Start the game (implement transition to gameplay)
-            break;
-        case 1:
-            // Show high scores (implement transition to high scores screen)
-            break;
-        case 2:
-            // Show tutorial (implement transition to tutorial screen)
-            break;
-        case 3:
-            // Exit the game
-            graphics::destroyWindow();
-            break;
+    // Handle selection with ENTER or SPACE
+    if (graphics::getKeyState(graphics::SCANCODE_RETURN) || graphics::getKeyState(graphics::SCANCODE_SPACE)) {
+        if (!keySelectPressed) {
+            switch (selectedOption) {
+            case 0: { // PLAY
+                // Properly transition to gameplay
+                extern bool inMenu; // Access the global menu flag
+                inMenu = false;     // Exit the menu
+
+                GameState* gameState = GameState::getInstance();
+                gameState->resetGameStates(); // Reset game state flags
+                gameState->init();            // Initialize the game
+                break;
+            }
+            case 1: // HIGH SCORES
+                // Implement high score logic
+                break;
+            case 2: // TUTORIAL
+                // Implement tutorial logic
+                break;
+            case 3: // EXIT
+                graphics::stopMessageLoop(); // Gracefully stop the SGG message loop
+                break;
+            }
+            keySelectPressed = true; // Mark key as pressed
         }
+    }
+    else {
+        keySelectPressed = false; // Reset key state when released
     }
 }
 
@@ -63,6 +77,7 @@ void Menu::draw() {
     graphics::drawRect(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, WINDOW_WIDTH, WINDOW_HEIGHT, br);
 
     // Draw menu options
+    const float charWidth = 15.0f; // Approximate width per character for size 30 font
     for (size_t i = 0; i < options.size(); ++i) {
         br.fill_color[0] = 1.0f; // Default white color
         br.fill_color[1] = 1.0f;
@@ -74,8 +89,10 @@ void Menu::draw() {
             br.fill_color[2] = 0.0f;
         }
 
-        float x = WINDOW_WIDTH / 2;
-        float y = WINDOW_HEIGHT / 2 + (i - options.size() / 2) * 50;
-        graphics::drawText(x - 50, y, 30, options[i], br);
+        float textWidth = options[i].size() * charWidth; // Approximate text width
+        float x = (WINDOW_WIDTH - textWidth) / 2; // Center horizontally
+        float y = WINDOW_HEIGHT / 2 + (i - options.size() / 2) * 50; // Vertical alignment
+
+        graphics::drawText(x, y, 30, options[i], br);
     }
 }
