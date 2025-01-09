@@ -7,7 +7,7 @@
 const float CELL_SIZE = 50.0f; // Match grid cell size
 
 // Constructor
-MovingEnemy::MovingEnemy(GameState* state, int x, int y)
+MovingEnemy::MovingEnemy(GameState* state, int x, int y, bool weak)
     : Enemy(state, x, y, "MovingEnemy"), directionX(0), directionY(0), moveInterval(1500 + rand() % 2500) {
     lastMoveTime = std::chrono::high_resolution_clock::now();
 
@@ -20,6 +20,11 @@ MovingEnemy::MovingEnemy(GameState* state, int x, int y)
     speed = 0.002f; // Match the player's speed
 
     randomizeDirection(); // Set initial random direction
+
+    // Initialize as weak if specified
+    if (weak) {
+        setWeak(true); // Set to weak state
+    }
 }
 
 // Initialize behavior

@@ -27,7 +27,9 @@ private:
     bool stopped = false;     // Tracks if movement is stopped while weak
 
 public:
-    MovingEnemy(GameState* state, int x, int y);
+    // Constructor with weak state initialization
+    MovingEnemy(GameState* state, int x, int y, bool weak = false);
+
     void draw() override;
     void update(float dt) override;
     void init() override;
