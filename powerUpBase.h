@@ -37,7 +37,6 @@ public:
         return isWeakEffectActive && !isMarkedForRemoval(); // Only active if effect is running and not marked for removal
     }
 
-
     // Apply Effect (abstract, overridden in derived classes)
     virtual void applyEffect() = 0;
 

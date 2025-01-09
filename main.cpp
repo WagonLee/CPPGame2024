@@ -1,10 +1,18 @@
 #include "graphics.h"
 #include "GameState.h"
 #include "Player.h"
+#include "Menu.h" // Include the new Menu class
 
 const int GRID_SIZE = 12;
 const float CELL_SIZE = 50.0f; // 50 pixels per cell
 
+// Global flag for toggling between the menu and gameplay
+bool inMenu = true;
+
+// Menu instance
+Menu menu;
+
+// Function to draw the game grid
 void drawGrid() {
     graphics::Brush brush;
 
@@ -31,16 +39,29 @@ void drawGrid() {
     }
 }
 
+// Updated draw function
 void draw() {
-    drawGrid(); // Draw the alternating grid
-    GameState::getInstance()->draw(); // Draw all game objects
+    if (inMenu) {
+        menu.draw(); // Draw the menu
+    }
+    else {
+        drawGrid();                       // Draw the alternating grid
+        GameState::getInstance()->draw(); // Draw all game objects
+    }
 }
 
+// Updated update function
 void update(float dt) {
-    GameState::getInstance()->update(dt); // Update game objects
+    if (inMenu) {
+        menu.update(); // Update the menu
+    }
+    else {
+        GameState::getInstance()->update(dt); // Update game objects
+    }
 }
 
-void init() {
+// Initialize game objects
+void initGame() {
     GameState* gameState = GameState::getInstance();
     gameState->init();
 
@@ -51,11 +72,22 @@ void init() {
     gameState->addObject(player);
 }
 
+// Updated main function
 int main() {
-    graphics::createWindow(GRID_SIZE * CELL_SIZE, GRID_SIZE * CELL_SIZE, "Snake Game Prototype");
+    graphics::createWindow(GRID_SIZE * CELL_SIZE, GRID_SIZE * CELL_SIZE, "Snake Game");
+
+    // Initialize the menu
+    menu.init();
+
     graphics::setDrawFunction(draw);
     graphics::setUpdateFunction(update);
-    init(); // Initialize game objects
+
+    // Add a key listener for switching from menu to gameplay
+    if (inMenu && graphics::getKeyState(graphics::SCANCODE_RETURN)) {
+        inMenu = false;   // Switch to gameplay
+        initGame();       // Initialize the game when starting from the menu
+    }
+
     graphics::startMessageLoop();
     graphics::destroyWindow();
     return 0;

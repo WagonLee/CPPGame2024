@@ -26,8 +26,6 @@ void DepositZone::init() {
     case Shape::CIRCLE:
         createCircle();
         break;
-    default:
-        std::cerr << "Unknown shape type!" << std::endl;
     }
 }
 
@@ -90,7 +88,6 @@ void DepositZone::update(float dt) {
         timer -= dt; // Decrement timer based on safe dt
     }
 }
-
 
 // Draw the deposit zone
 void DepositZone::draw() {
