@@ -653,23 +653,26 @@ void GameState::drawPauseMenu() {
     br.outline_opacity = 0.0f;
 
     // Draw pause menu background
-    br.texture = "assets/menu_background.png";
+    br.texture = "assets/menu_background.png"; // Same as main menu background
     graphics::drawRect(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, WINDOW_WIDTH, WINDOW_HEIGHT, br);
 
     // Draw menu options
+    const float charWidth = 15.0f; // Approximate width per character for size 30 font
     for (size_t i = 0; i < PAUSE_MENU_OPTIONS.size(); ++i) {
-        br.fill_color[0] = 1.0f;
+        br.fill_color[0] = 1.0f; // Default white color
         br.fill_color[1] = 1.0f;
         br.fill_color[2] = 1.0f;
 
         if (i == pauseMenuSelection) {
-            br.fill_color[0] = 0.0f; // Highlighted color (green)
+            br.fill_color[0] = 0.0f; // Highlight selected option in green
             br.fill_color[1] = 1.0f;
             br.fill_color[2] = 0.0f;
         }
 
-        float x = WINDOW_WIDTH / 2 - 100;
-        float y = WINDOW_HEIGHT / 2 + (i - PAUSE_MENU_OPTIONS.size() / 2) * 50;
+        float textWidth = PAUSE_MENU_OPTIONS[i].size() * charWidth; // Approximate text width
+        float x = (WINDOW_WIDTH - textWidth) / 2; // Center horizontally
+        float y = WINDOW_HEIGHT / 2 + (i - PAUSE_MENU_OPTIONS.size() / 2) * 50; // Vertical alignment
+
         graphics::drawText(x, y, 30, PAUSE_MENU_OPTIONS[i], br);
     }
 }
