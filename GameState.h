@@ -77,6 +77,9 @@ private:
 
     const float upgradeTime = 400.0f; // Time for auto-upgrade
 
+    bool preGamePaused = true; // Tracks if the game is in the "READY?" state
+    bool paused = false;       // Tracks if the game is paused during gameplay
+
 public:
     // Singleton pattern
     static GameState* getInstance();
@@ -141,6 +144,17 @@ public:
     void cleanupMarkedPowerUps();
     bool hasPendingRemovals() const { return isPowerUpRemovalPending; }
     void setProcessingUpdates(bool processing) { isProcessingUpdates = processing; }
+
+    // Pause management
+    void setPaused(bool paused);         // Set the game to paused or unpaused
+    bool isPaused() const;               // Check if the game is paused
+
+    // Pre-game pause ("READY?" state)
+    void setPreGamePause(bool preGame);  // Enable or disable the pre-game pause
+    bool isPreGamePaused() const;        // Check if the game is in the pre-game pause
+
+    // Reset states for new game
+    void resetGameStates();              // Reset all flags to their default state
 
     // Destructor
     ~GameState();
