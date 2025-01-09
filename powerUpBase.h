@@ -14,13 +14,29 @@ protected:
     bool visible = true;               // Visual representation
     bool isWeakEffectActive = false;   // Tracks weak effect timer
     float weakEffectDuration = 0.0f;   // Duration for weak effect
+    
+    // new
+    bool markedForRemoval = false; // Track if marked for removal
+    bool inCleanup = false;        // Prevent recursive cleanup
 
 public:
     // Constructor
     PowerUpBase(GameState* state, int x, int y, int level);
 
+    // Getter for removal state
+    bool isMarkedForRemoval() const { return markedForRemoval; }
+    void markForRemoval() { markedForRemoval = true; }
+
+    // Getter and setter for cleanup state
+    bool isInCleanupProcess() const { return inCleanup; }
+    void setInCleanup(bool cleanup) { inCleanup = cleanup; }
+
     bool canCollide() const { return isCollectible && isActive(); }
-    bool isEffectRunning() const { return isWeakEffectActive; }
+
+    bool isEffectRunning() const {
+        return isWeakEffectActive && !isMarkedForRemoval(); // Only active if effect is running and not marked for removal
+    }
+
 
     // Apply Effect (abstract, overridden in derived classes)
     virtual void applyEffect() = 0;

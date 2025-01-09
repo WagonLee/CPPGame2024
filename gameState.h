@@ -23,6 +23,9 @@ class PowerUpLevel3;    // Forward declare Level 3
 
 class GameState {
 private:
+
+    GameState();
+
     static GameState* instance;
     std::vector<std::unique_ptr<GameObject>> gameObjects;
 
@@ -52,7 +55,9 @@ private:
     // Player death state
     bool isGameOver = false;
 
-    GameState();
+    std::vector<PowerUpBase*> powerUpsToRemove; // Track power-ups marked for removal
+    bool isPowerUpRemovalPending = false;      // Flag for pending removal
+    bool isProcessingUpdates = false;          // Track if in update loop
 
     // Private methods
     void spawnDepositZone();  // Handles spawning deposit zones
@@ -93,9 +98,18 @@ public:
     // Schedule collectible respawn after a delay
     void scheduleCollectibleRespawn();
 
-    // Provide read-only access to game objects
+    // Getter for gameObjects
+    std::vector<std::unique_ptr<GameObject>>& getGameObjects() {
+        return gameObjects; // Allows writable access
+    }
+
+    // Read-only getter for gameObjects
     const std::vector<std::unique_ptr<GameObject>>& getGameObjects() const {
-        return gameObjects;
+        return gameObjects; // Provides read-only access
+    }
+    // Getter for activePowerUps
+    std::vector<std::unique_ptr<PowerUpBase>>& getActivePowerUps() {
+        return activePowerUps;
     }
 
     const std::unique_ptr<DepositZone>& getDepositZone() const { return depositZone; }
@@ -120,10 +134,13 @@ public:
         return upgradeTimers;
     }
 
-    // Getter for activePowerUps
-    std::vector<std::unique_ptr<PowerUpBase>>& getActivePowerUps() {
-        return activePowerUps;
-    }
+    bool isAnyPowerUpActive() const; // Checks if any power-up effect is active
+
+    // new shit hope it works
+    void markPowerUpForRemoval(PowerUpBase* powerUp);
+    void cleanupMarkedPowerUps();
+    bool hasPendingRemovals() const { return isPowerUpRemovalPending; }
+    void setProcessingUpdates(bool processing) { isProcessingUpdates = processing; }
 
     // Destructor
     ~GameState();

@@ -242,21 +242,24 @@ void GameState::update(float dt) {
 
     if (isGameOver) return; // Stop updates after player death
 
+    setProcessingUpdates(true);
+
     // --- Preallocate memory to avoid resizing ---
     if (gameObjects.capacity() < 100) {
         gameObjects.reserve(100);
     }
 
+    time_t currentTime = time(nullptr); // declaration
+
     // --- MOVING ENEMY SPAWNING ---
-    time_t currentTime = time(nullptr);
-    if (difftime(currentTime, lastMovingEnemySpawnTime) >= movingEnemySpawnInterval) {
+    if (!isAnyPowerUpActive() && difftime(currentTime, lastMovingEnemySpawnTime) >= movingEnemySpawnInterval) {
         spawnInteractiveObject<MovingEnemy>();
         lastMovingEnemySpawnTime = currentTime;
         movingEnemySpawnInterval = movingEnemySpawnMin + (rand() / (RAND_MAX / (movingEnemySpawnMax - movingEnemySpawnMin)));
     }
 
     // --- STATIONARY ENEMY SPAWNING ---
-    if (difftime(currentTime, lastStationarySpawnTime) >= stationaryEnemySpawnInterval) {
+    if (!isAnyPowerUpActive() && difftime(currentTime, lastStationarySpawnTime) >= stationaryEnemySpawnInterval) {
         spawnInteractiveObject<StationaryEnemy>();
         lastStationarySpawnTime = currentTime;
         stationaryEnemySpawnInterval = stationarySpawnMin + (rand() / (RAND_MAX / (stationarySpawnMax - stationarySpawnMin)));
@@ -350,16 +353,26 @@ void GameState::update(float dt) {
     for (auto& obj : gameObjects) {
         if (obj && obj->isActive()) {
             obj->update(dt);
-
-            //// Collect new objects if spawned during update
-            //auto movingEnemy = dynamic_cast<MovingEnemy*>(obj.get());
-            //if (movingEnemy && movingEnemy->getIsWeak()) {
-            //    auto newEnemy = std::make_unique<MovingEnemy>(this, movingEnemy->getGridX(), movingEnemy->getGridY());
-            //    if (newEnemy) {
-            //        newObjects.push_back(std::move(newEnemy));
-            //    }
-            //}
         }
+    }
+
+    // Remove inactive objects
+    gameObjects.erase(
+        std::remove_if(
+            gameObjects.begin(),
+            gameObjects.end(),
+            [](const std::unique_ptr<GameObject>& obj) {
+                return !obj || !obj->isActive();
+            }),
+        gameObjects.end()
+                );
+
+    setProcessingUpdates(false);
+
+    setProcessingUpdates(false);
+
+    if (isPowerUpRemovalPending) {
+        cleanupMarkedPowerUps();
     }
 
     // Append buffered objects safely
@@ -374,9 +387,9 @@ void GameState::update(float dt) {
         gameObjects.end());
 
     // --- Debug Logs ---
-#ifdef DEBUG
+    #ifdef DEBUG
     std::cout << "Active objects after update: " << gameObjects.size() << std::endl;
-#endif
+    #endif
         }
 
 // Draw all game objects
@@ -454,6 +467,68 @@ void GameState::replaceDepositZone() {
 
     // Spawn new zone
     spawnDepositZone(); // Use existing spawn logic
+}
+
+bool GameState::isAnyPowerUpActive() const {
+    for (const auto& powerUp : activePowerUps) {
+        if (powerUp->isEffectRunning()) {
+            return true; // Active effect detected
+        }
+    }
+    return false; // No active effects
+}
+
+void GameState::markPowerUpForRemoval(PowerUpBase* powerUp) {
+    if (!powerUp || powerUp->isMarkedForRemoval()) return;
+
+    if (std::find(powerUpsToRemove.begin(), powerUpsToRemove.end(), powerUp) == powerUpsToRemove.end()) {
+        powerUpsToRemove.push_back(powerUp);
+        isPowerUpRemovalPending = true;
+        std::cout << "Power-up marked for future removal" << std::endl;
+    }
+}
+
+void GameState::cleanupMarkedPowerUps() {
+    if (!isPowerUpRemovalPending || isProcessingUpdates) return;
+
+    std::cout << "Starting power-up cleanup process..." << std::endl;
+
+    // Mark power-ups for cleanup
+    for (auto* powerUp : powerUpsToRemove) {
+        if (powerUp) {
+            powerUp->setInCleanup(true); // Prevent recursive cleanup
+        }
+    }
+
+    // Remove from activePowerUps
+    activePowerUps.erase(
+        std::remove_if(
+            activePowerUps.begin(),
+            activePowerUps.end(),
+            [](const std::unique_ptr<PowerUpBase>& powerUp) {
+                return powerUp && powerUp->isMarkedForRemoval(); // Corrected call
+            }),
+        activePowerUps.end()
+                );
+
+    // Remove from gameObjects
+    gameObjects.erase(
+        std::remove_if(
+            gameObjects.begin(),
+            gameObjects.end(),
+            [](const std::unique_ptr<GameObject>& obj) {
+                if (auto* powerUp = dynamic_cast<PowerUpBase*>(obj.get())) {
+                    return powerUp->isMarkedForRemoval(); // Corrected call
+                }
+    return false;
+            }),
+        gameObjects.end()
+                );
+
+    powerUpsToRemove.clear();
+    isPowerUpRemovalPending = false;
+
+    std::cout << "Power-up cleanup complete." << std::endl;
 }
 
 void GameState::addScore(int points) {

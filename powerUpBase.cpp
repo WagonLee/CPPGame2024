@@ -53,6 +53,12 @@ void PowerUpBase::startWeakEffect(float duration) {
     }
 }
 
+void PowerUpBase::update(float dt) {
+    if (isWeakEffectActive) {
+        updateWeakEffect(dt); // Continue updating the weak effect timer
+    }
+}
+
 // Weak Effect: Update Timer
 void PowerUpBase::updateWeakEffect(float dt) {
     if (!isWeakEffectActive) return; // Skip if not active
@@ -70,39 +76,43 @@ void PowerUpBase::updateWeakEffect(float dt) {
 
 // Weak Effect: End Effect
 void PowerUpBase::endWeakEffect() {
+    if (!isWeakEffectActive || isInCleanupProcess() || isMarkedForRemoval()) {
+        return; // Prevent recursive or duplicate cleanup
+    }
+
     isWeakEffectActive = false;
 
-    // Restore MovingEnemies
-    for (auto& obj : state->getGameObjects()) {
-        MovingEnemy* movingEnemy = dynamic_cast<MovingEnemy*>(obj.get());
-        if (movingEnemy && movingEnemy->isActive()) {
+    // Restore enemies
+    auto& objects = state->getGameObjects();
+    for (const auto& obj : objects) {
+        if (!obj || !obj->isActive()) continue;
+
+        // Restore MovingEnemies
+        if (auto* movingEnemy = dynamic_cast<MovingEnemy*>(obj.get())) {
             movingEnemy->setWeak(false);
             movingEnemy->startMovement();
-            std::cout << "MovingEnemy restored at (" << movingEnemy->getGridX()
-                << ", " << movingEnemy->getGridY() << ")" << std::endl;
+            std::cout << "MovingEnemy restored at ("
+                << movingEnemy->getGridX() << ", "
+                << movingEnemy->getGridY() << ")" << std::endl;
         }
 
+        // Restore StationaryEnemies (for level >= 2)
         if (level >= 2) {
-            StationaryEnemy* stationaryEnemy = dynamic_cast<StationaryEnemy*>(obj.get());
-            if (stationaryEnemy && stationaryEnemy->isActive()) {
+            if (auto* stationaryEnemy = dynamic_cast<StationaryEnemy*>(obj.get())) {
                 stationaryEnemy->setWeak(false);
-                std::cout << "StationaryEnemy restored at (" << stationaryEnemy->getGridX()
-                    << ", " << stationaryEnemy->getGridY() << ")" << std::endl;
+                std::cout << "StationaryEnemy restored at ("
+                    << stationaryEnemy->getGridX() << ", "
+                    << stationaryEnemy->getGridY() << ")" << std::endl;
             }
         }
     }
 
-    // Fully deactivate only if not upgrading
+    // Mark for removal if not upgrading
     if (!state->isPowerUpUpgrading(this)) {
         setActive(false);
-        std::cout << "Power-up Level " << level << " fully deactivated." << std::endl;
-    }
-}
-
-// Update (keeps timer running)
-void PowerUpBase::update(float dt) {
-    if (isWeakEffectActive) {
-        updateWeakEffect(dt); // Update timer and effects
+        markForRemoval();
+        state->markPowerUpForRemoval(this);
+        std::cout << "Power-up marked for removal and deactivated." << std::endl;
     }
 }
 

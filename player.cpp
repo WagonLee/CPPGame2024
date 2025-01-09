@@ -65,29 +65,38 @@ void Player::shedTail() {
     std::cout << "Processing tail: " << tail.size() << " segments." << std::endl;
 
     std::vector<TailSegment> tempTail = tail;
-    tail.clear();
+    tail.clear(); // Clear tail immediately to avoid reprocessing
     int depositedCount = 0;
 
     for (const auto& segment : tempTail) {
+        // Check if segment is inside the zone
         if (depositZone->isTileInZone(segment.gridX, segment.gridY)) {
-            std::cout << "Segment at (" << segment.gridX << ", " << segment.gridY << ") deposited." << std::endl;
+            std::cout << "Segment at (" << segment.gridX << ", " << segment.gridY
+                << ") deposited." << std::endl;
             depositedCount++;
-            GameState::getInstance()->replaceDepositZone();
         }
         else {
-            std::cout << "Segment at (" << segment.gridX << ", " << segment.gridY << ") -> enemy" << std::endl;
+            // Spawn enemy for non-deposited segment
+            std::cout << "Segment at (" << segment.gridX << ", " << segment.gridY
+                << ") -> enemy" << std::endl;
             MovingEnemy* enemy = new MovingEnemy(GameState::getInstance(), segment.gridX, segment.gridY);
             GameState::getInstance()->addObject(enemy);
         }
     }
 
+    // Update tally and score AFTER processing all segments
     if (depositedCount > 0) {
         GameState::getInstance()->incrementTally(depositedCount);
         GameState::getInstance()->addScore(depositedCount);
+
+        // Force respawn AFTER processing all deposits
+        std::cout << "Forcing deposit zone respawn immediately!" << std::endl;
+        GameState::getInstance()->replaceDepositZone();
     }
 
     std::cout << "Tail processing complete. Deposited: " << depositedCount << std::endl;
 }
+
 
 // Update movement and collisions
 void Player::update(float dt) {
