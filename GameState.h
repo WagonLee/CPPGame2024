@@ -15,6 +15,7 @@
 #include "PowerUpLevel3.h" // Include Level 3 Power-Up
 #include "Player.h"
 #include "DepositZone.h" // Added DepositZone
+#include "config.h"
 
 class PowerUpBase;      // Forward declare PowerUpBase
 class PowerUpLevel1;    // Forward declare Level 1
@@ -163,7 +164,6 @@ public:
     ~GameState();
 };
 
-
 // Template implementation must be in the header file
 template <typename T>
 void GameState::spawnInteractiveObject() {
@@ -174,8 +174,10 @@ void GameState::spawnInteractiveObject() {
     int attempts = 0;
 
     while (!positionValid && attempts < 100) {
-        gridX = rand() % 12;
-        gridY = rand() % 12;
+        // Adjust spawn range to the playable area
+        gridX = 1 + (rand() % PLAYABLE_COLUMNS); // Shift by 1 for left column
+        gridY = UI_ROWS_ABOVE + (rand() % PLAYABLE_ROWS); // Shift by UI_ROWS_ABOVE for top rows
+
         positionValid = true;
 
         // Check for conflicts with other active objects

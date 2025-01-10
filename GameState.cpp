@@ -51,15 +51,15 @@ void GameState::spawnDepositZone() {
     DepositZone::Shape shape;
 
     // Random position for deposit zone
-    gridX = rand() % 9; // Ensures valid positions for larger shapes
-    gridY = rand() % 9;
+    gridX = 1 + (rand() % (PLAYABLE_COLUMNS - 4)); // Ensure space for horizontal lines
+    gridY = UI_ROWS_ABOVE + 1 + (rand() % (PLAYABLE_ROWS - 4)); // Ensure space for vertical lines
 
     // Random shape
     int shapeIndex = rand() % 3;
     switch (shapeIndex) {
-    case 0: shape = DepositZone::Shape::STRAIGHT_LINE; break;
-    case 1: shape = DepositZone::Shape::DONUT; break;
-    case 2: shape = DepositZone::Shape::CIRCLE; break;
+        case 0: shape = DepositZone::Shape::STRAIGHT_LINE; break;
+        case 1: shape = DepositZone::Shape::DONUT; break;
+        case 2: shape = DepositZone::Shape::CIRCLE; break;
     }
 
     bool horizontal = rand() % 2 == 0; // Horizontal or vertical line
@@ -67,6 +67,7 @@ void GameState::spawnDepositZone() {
     // Create new deposit zone
     depositZone = std::make_unique<DepositZone>(this, gridX, gridY, shape, horizontal);
 }
+
 
 void GameState::spawnPowerUp(int level) {
     int gridX, gridY;
@@ -624,7 +625,8 @@ void GameState::updatePauseMenu() {
     if (selectTriggered) {
         switch (pauseMenuSelection) {
         case 0: // RESUME
-            setPaused(false); // Unpause the game
+            setPaused(false);       // Unpause the game
+            setPreGamePause(true);  // Enter the "READY?" state
             break;
         case 1: // RESTART
             resetGameStates();

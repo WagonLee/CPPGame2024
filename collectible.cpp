@@ -21,7 +21,7 @@ void Collectible::draw() {
     float yPos = gridY * CELL_SIZE + CELL_SIZE / 2.0f;
 
     // Draw the collectible, slightly smaller than a full cell for aesthetics
-    graphics::drawRect(xPos, yPos, CELL_SIZE, CELL_SIZE, br);
+    graphics::drawRect(xPos, yPos, CELL_SIZE * 0.8f, CELL_SIZE * 0.8f, br);
 }
 
 

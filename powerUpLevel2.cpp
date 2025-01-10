@@ -1,6 +1,7 @@
 #include "PowerUpLevel2.h"
 #include "graphics.h"
 #include <iostream>
+#include "config.h"
 
 // Constructor
 PowerUpLevel2::PowerUpLevel2(GameState* state, int x, int y)
@@ -27,9 +28,10 @@ void PowerUpLevel2::draw() {
     br.fill_color[1] = 0.39f;
     br.fill_color[2] = 0.0f;
 
-    float cellSize = 50.0f;
-    float xPos = gridX * cellSize + cellSize / 2.0f;
-    float yPos = gridY * cellSize + cellSize / 2.0f;
+    // Use CELL_SIZE for proper alignment
+    float xPos = gridX * CELL_SIZE + CELL_SIZE / 2.0f;
+    float yPos = gridY * CELL_SIZE + CELL_SIZE / 2.0f;
 
-    graphics::drawRect(xPos, yPos, cellSize, cellSize, br);
+    // Draw the power-up, slightly smaller than a full cell for aesthetics
+    graphics::drawRect(xPos, yPos, CELL_SIZE * 0.8f, CELL_SIZE * 0.8f, br);
 }

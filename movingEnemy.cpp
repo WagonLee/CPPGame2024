@@ -46,7 +46,7 @@ void MovingEnemy::draw() {
         br.fill_color[2] = 0.0f;
     }
 
-    graphics::drawRect(xPos, yPos, CELL_SIZE, CELL_SIZE, br);
+    graphics::drawRect(xPos, yPos, CELL_SIZE * 0.8f, CELL_SIZE * 0.8f, br);
 }
 
 // Update behavior
@@ -62,7 +62,7 @@ void MovingEnemy::update(float dt) {
 
     if (!moving && elapsed >= moveInterval) {
         lastMoveTime = now; // Reset timer
-        moveInterval = 1500 + rand() % 2500; // Randomize next interval (1.5�4s)
+        moveInterval = 1500 + rand() % 2500; // Randomize next interval (1.5–4s)
 
         randomizeDirection();
 
@@ -81,7 +81,7 @@ void MovingEnemy::update(float dt) {
                 << moveInterval << "ms." << std::endl;
         }
         else {
-            randomizeDirection();
+            randomizeDirection(); // Re-randomize if move is invalid
         }
     }
 }
@@ -108,14 +108,16 @@ void MovingEnemy::moveToTarget(float dt) {
 
 // Check valid move
 bool MovingEnemy::canMoveTo(int x, int y) const {
-    if (x < 0 || x >= 12 || y < 0 || y >= 12) {
-        return false;
+    // Adjusted to respect grid boundaries
+    if (x < 1 || x > PLAYABLE_COLUMNS || y < UI_ROWS_ABOVE || y >= UI_ROWS_ABOVE + PLAYABLE_ROWS) {
+        return false; // Out of bounds
     }
+
     for (const auto& obj : GameState::getInstance()->getGameObjects()) {
         InteractiveObject* interactive = dynamic_cast<InteractiveObject*>(obj.get());
         if (interactive && interactive->isActive() &&
             interactive->getGridX() == x && interactive->getGridY() == y) {
-            return false;
+            return false; // Tile is occupied
         }
     }
     return true;
@@ -125,10 +127,10 @@ bool MovingEnemy::canMoveTo(int x, int y) const {
 void MovingEnemy::randomizeDirection() {
     int dir = rand() % 4;
     switch (dir) {
-    case 0: directionX = 0; directionY = -1; break;
-    case 1: directionX = 0; directionY = 1; break;
-    case 2: directionX = -1; directionY = 0; break;
-    case 3: directionX = 1; directionY = 0; break;
+    case 0: directionX = 0; directionY = -1; break; // Up
+    case 1: directionX = 0; directionY = 1; break; // Down
+    case 2: directionX = -1; directionY = 0; break; // Left
+    case 3: directionX = 1; directionY = 0; break; // Right
     }
 }
 

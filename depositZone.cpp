@@ -31,12 +31,12 @@ void DepositZone::init() {
 // Create a straight line (horizontal or vertical)
 void DepositZone::createStraightLine() {
     if (horizontal) { // Horizontal line
-        for (int x = 0; x < 12; ++x) {
+        for (int x = 1; x < 13; ++x) { // Start from column 1 to align properly
             tiles.emplace_back(x, gridY);
         }
     }
     else { // Vertical line
-        for (int y = 0; y < 12; ++y) {
+        for (int y = UI_ROWS_ABOVE + 0; y < UI_ROWS_ABOVE + 12; ++y) { // Start from row UI_ROWS_ABOVE + 1 to align
             tiles.emplace_back(gridX, y);
         }
     }
@@ -44,9 +44,13 @@ void DepositZone::createStraightLine() {
 
 // Create a donut shape
 void DepositZone::createDonut() {
-    for (int x = gridX; x < gridX + 4; ++x) {
-        for (int y = gridY; y < gridY + 4; ++y) {
-            if ((x == gridX || x == gridX + 3) || (y == gridY || y == gridY + 3)) {
+    // Ensure the shape fits within the playable grid
+    int adjustedGridX = std::min(gridX, 1 + PLAYABLE_COLUMNS - 4); // Adjust for right bound
+    int adjustedGridY = std::min(gridY, UI_ROWS_ABOVE + PLAYABLE_ROWS - 4); // Adjust for bottom bound
+
+    for (int x = adjustedGridX; x < adjustedGridX + 4; ++x) {
+        for (int y = adjustedGridY; y < adjustedGridY + 4; ++y) {
+            if ((x == adjustedGridX || x == adjustedGridX + 3) || (y == adjustedGridY || y == adjustedGridY + 3)) {
                 tiles.emplace_back(x, y);
             }
         }
@@ -55,13 +59,17 @@ void DepositZone::createDonut() {
 
 // Create a circle shape
 void DepositZone::createCircle() {
-    for (int x = gridX; x < gridX + 4; ++x) {
-        for (int y = gridY; y < gridY + 4; ++y) {
+    // Ensure the shape fits within the playable grid
+    int adjustedGridX = std::min(gridX, 1 + PLAYABLE_COLUMNS - 4); // Adjust for right bound
+    int adjustedGridY = std::min(gridY, UI_ROWS_ABOVE + PLAYABLE_ROWS - 4); // Adjust for bottom bound
+
+    for (int x = adjustedGridX; x < adjustedGridX + 4; ++x) {
+        for (int y = adjustedGridY; y < adjustedGridY + 4; ++y) {
             // Exclude the corners
-            if (!((x == gridX && y == gridY) ||                 // Top-left corner
-                (x == gridX + 3 && y == gridY) ||             // Top-right corner
-                (x == gridX && y == gridY + 3) ||             // Bottom-left corner
-                (x == gridX + 3 && y == gridY + 3))) {        // Bottom-right corner
+            if (!((x == adjustedGridX && y == adjustedGridY) ||                 // Top-left corner
+                (x == adjustedGridX + 3 && y == adjustedGridY) ||             // Top-right corner
+                (x == adjustedGridX && y == adjustedGridY + 3) ||             // Bottom-left corner
+                (x == adjustedGridX + 3 && y == adjustedGridY + 3))) {        // Bottom-right corner
                 tiles.emplace_back(x, y);
             }
         }
