@@ -123,7 +123,7 @@ void Player::update(float dt) {
     // Move smoothly toward the target
     moveToTarget(dt);
     updateTail(dt);
-    // Smooth tail movement
+
     // Check for self-collision with tail
     checkTailCollision();
 
