@@ -3,8 +3,7 @@
 #include "GameState.h"
 #include <cstdlib>   // For rand()
 #include <iostream>  // For debug logs
-
-const float CELL_SIZE = 50.0f; // Match grid cell size
+#include "config.h"
 
 // Constructor
 MovingEnemy::MovingEnemy(GameState* state, int x, int y, bool weak)

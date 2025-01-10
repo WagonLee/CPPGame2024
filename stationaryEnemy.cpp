@@ -1,8 +1,7 @@
 #include "StationaryEnemy.h"
 #include "GameState.h"
 #include <iostream>
-
-const float CELL_SIZE = 50.0f; // Match grid cell size
+#include "config.h"
 
 // Constructor
 StationaryEnemy::StationaryEnemy(GameState* state, int x, int y)

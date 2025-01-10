@@ -1,13 +1,11 @@
 #include "graphics.h"
 #include "GameState.h"
 #include "Player.h"
-#include "Menu.h" // Include the new Menu class
+#include "Menu.h"
+#include "config.h"
+#include <iostream> // For debug output
 
-const int GRID_SIZE = 12;
-const float CELL_SIZE = 50.0f; // 50 pixels per cell
-
-// Global flag for toggling between the menu and gameplay
-bool inMenu = true;
+bool inMenu = true;         // Default menu state
 
 // Menu instance
 Menu menu;
@@ -32,6 +30,7 @@ void drawGrid() {
 
             brush.fill_opacity = 1.0f;
 
+            // Use CELL_SIZE for consistent positioning
             float x = col * CELL_SIZE + CELL_SIZE / 2;
             float y = row * CELL_SIZE + CELL_SIZE / 2;
             graphics::drawRect(x, y, CELL_SIZE, CELL_SIZE, brush);
@@ -39,7 +38,7 @@ void drawGrid() {
     }
 }
 
-// Updated draw function
+// Draw function
 void draw() {
     if (inMenu) {
         menu.draw(); // Draw the menu
@@ -50,7 +49,7 @@ void draw() {
     }
 }
 
-// Updated update function
+// Update function
 void update(float dt) {
     if (inMenu) {
         menu.update(); // Update the menu
@@ -60,7 +59,7 @@ void update(float dt) {
     }
 }
 
-// Initialize game objects
+// Initialize the game
 void initGame() {
     GameState* gameState = GameState::getInstance();
     gameState->init();
@@ -70,25 +69,34 @@ void initGame() {
     int startY = GRID_SIZE / 2;
     Player* player = new Player(gameState, startX, startY, 0.004f); // Slow speed
     gameState->addObject(player);
+
+    std::cout << "Game initialized with player at (" << startX << ", " << startY << ")." << std::endl;
 }
 
-// Updated main function
+// Main function
 int main() {
-    graphics::createWindow(GRID_SIZE * CELL_SIZE, GRID_SIZE * CELL_SIZE, "Snake Game");
+    // Create the window with default size
+    graphics::createWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Snake Game");
+
+    // Set logical canvas size and scaling mode
+    graphics::setCanvasSize(CANVAS_WIDTH, CANVAS_HEIGHT); // Logical size for a square grid
+    graphics::setCanvasScaleMode(graphics::CANVAS_SCALE_FIT); // Maintain aspect ratio with black bars
 
     // Initialize the menu
     menu.init();
 
+    // Set callbacks for drawing and updating
     graphics::setDrawFunction(draw);
     graphics::setUpdateFunction(update);
 
-    // Add a key listener for switching from menu to gameplay
-    if (inMenu && graphics::getKeyState(graphics::SCANCODE_RETURN)) {
-        inMenu = false;   // Switch to gameplay
-        initGame();       // Initialize the game when starting from the menu
-    }
+    // Initialize the game
+    initGame();
 
+    // Start the game loop
     graphics::startMessageLoop();
+
+    // Destroy the window on exit
     graphics::destroyWindow();
+
     return 0;
 }
