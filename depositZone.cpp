@@ -1,7 +1,8 @@
 #include "DepositZone.h"
 #include "graphics.h"
 #include <iostream>
-#include "config.h"
+
+const float CELL_SIZE = 50.0f; // Match grid cell size
 
 // Constructor
 DepositZone::DepositZone(GameState* state, int x, int y, Shape shape, bool horizontal)

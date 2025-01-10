@@ -5,6 +5,7 @@
 #include <iostream>
 
 const float CELL_SIZE = 50.0f; // Match grid cell size
+
 // Constructor
 Player::Player(GameState* gs, int startX, int startY, float speed)
     : GameObject(gs, "Player"), gridX(startX), gridY(startY), directionX(0), directionY(-1),

@@ -103,9 +103,6 @@ int main() {
     graphics::setDrawFunction(draw);
     graphics::setUpdateFunction(update);
 
-    // Initialize the game
-    initGame();
-
     // Start the game loop
     graphics::startMessageLoop();
 

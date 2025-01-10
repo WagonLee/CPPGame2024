@@ -1,9 +1,10 @@
-#include "MovingEnemy.h"
+ï»¿#include "MovingEnemy.h"
 #include "graphics.h"
 #include "GameState.h"
 #include <cstdlib>   // For rand()
 #include <iostream>  // For debug logs
-#include "config.h"
+
+const float CELL_SIZE = 50.0f; // Match grid cell size
 
 // Constructor
 MovingEnemy::MovingEnemy(GameState* state, int x, int y, bool weak)
@@ -63,7 +64,7 @@ void MovingEnemy::update(float dt) {
 
     if (!moving && elapsed >= moveInterval) {
         lastMoveTime = now; // Reset timer
-        moveInterval = 1500 + rand() % 2500; // Randomize next interval (1.5–4s)
+        moveInterval = 1500 + rand() % 2500; // Randomize next interval (1.5ï¿½4s)
 
         randomizeDirection();
 
@@ -169,4 +170,3 @@ void MovingEnemy::handleCollision(Player& player) {
         player.setDead(); // Kill the player if enemy is strong
     }
 }
-

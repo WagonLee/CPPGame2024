@@ -411,10 +411,10 @@ void GameState::update(float dt) {
         gameObjects.end());
 
     // --- Debug Logs ---
-    #ifdef DEBUG
+#ifdef DEBUG
     std::cout << "Active objects after update: " << gameObjects.size() << std::endl;
-    #endif
-        }
+#endif
+}
 
 // Draw all game objects
 void GameState::draw() {
