@@ -13,18 +13,17 @@ Menu menu;
 // Function to draw the game grid
 void drawGrid() {
     graphics::Brush brush;
-
     for (int row = 0; row < GRID_HEIGHT; ++row) {
         for (int col = 0; col < GRID_WIDTH; ++col) {
-            // Determine color based on row
-            if (row < UI_ROWS_ABOVE) {
-                // UI rows above (blue)
+            // Determine color based on position
+            if (col == 0 || col == GRID_WIDTH - 1) {
+                // Left and right columns (blue)
                 brush.fill_color[0] = 0.0f; // Blue
                 brush.fill_color[1] = 0.0f;
                 brush.fill_color[2] = 1.0f;
             }
-            else if (row >= UI_ROWS_ABOVE + PLAYABLE_ROWS) {
-                // UI rows below (blue)
+            else if (row < UI_ROWS_ABOVE || row >= UI_ROWS_ABOVE + PLAYABLE_ROWS) {
+                // Rows above or below (blue)
                 brush.fill_color[0] = 0.0f; // Blue
                 brush.fill_color[1] = 0.0f;
                 brush.fill_color[2] = 1.0f;

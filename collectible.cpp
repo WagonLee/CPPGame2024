@@ -16,12 +16,14 @@ void Collectible::draw() {
     br.fill_color[1] = 1.0f;
     br.fill_color[2] = 0.0f;
 
-    float cellSize = 50.0f;
-    float xPos = gridX * cellSize + cellSize / 2.0f;
-    float yPos = gridY * cellSize + cellSize / 2.0f;
+    // Use CELL_SIZE from config.h for consistent alignment
+    float xPos = gridX * CELL_SIZE + CELL_SIZE / 2.0f;
+    float yPos = gridY * CELL_SIZE + CELL_SIZE / 2.0f;
 
-    graphics::drawRect(xPos, yPos, cellSize, cellSize, br);
+    // Draw the collectible, slightly smaller than a full cell for aesthetics
+    graphics::drawRect(xPos, yPos, CELL_SIZE, CELL_SIZE, br);
 }
+
 
 // Update behavior
 void Collectible::update(float dt) {}

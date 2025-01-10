@@ -1,12 +1,11 @@
 #include "DepositZone.h"
 #include "graphics.h"
 #include <iostream>
-
-const float CELL_SIZE = 50.0f; // Match grid cell size
+#include "config.h"
 
 // Constructor
 DepositZone::DepositZone(GameState* state, int x, int y, Shape shape, bool horizontal)
-    : GameObject(state, "DepositZone"), gridX(x), gridY(y), shape(shape), horizontal(horizontal) {
+    : GameObject(state, "DepositZone"), gridX(x + 1), gridY(y + UI_ROWS_ABOVE), shape(shape), horizontal(horizontal) {
     duration = 185.0f;  // 10 seconds active time
     timer = duration;
     init(); // Calculate zone tiles

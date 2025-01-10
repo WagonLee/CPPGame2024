@@ -3,8 +3,7 @@
 #include "GameState.h"
 #include "MovingEnemy.h"
 #include <iostream>
-
-const float CELL_SIZE = 50.0f; // Match grid cell size
+#include "config.h"
 
 // Constructor
 Player::Player(GameState* gs, int startX, int startY, float speed)
@@ -243,7 +242,10 @@ void Player::handleInput() {
 }
 
 void Player::checkCollision() {
-    if (gridX < 0 || gridX >= 12 || gridY < 0 || gridY >= 12) setDead();
+    // Adjust boundaries to account for the shifted playable area
+    if (gridX < 1 || gridX >= 1 + PLAYABLE_COLUMNS || gridY < UI_ROWS_ABOVE || gridY >= UI_ROWS_ABOVE + PLAYABLE_ROWS) {
+        setDead();
+    }
 }
 
 void Player::setDead() {

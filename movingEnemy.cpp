@@ -4,8 +4,6 @@
 #include <cstdlib>   // For rand()
 #include <iostream>  // For debug logs
 
-const float CELL_SIZE = 50.0f; // Match grid cell size
-
 // Constructor
 MovingEnemy::MovingEnemy(GameState* state, int x, int y, bool weak)
     : Enemy(state, x, y, "MovingEnemy"), directionX(0), directionY(0), moveInterval(1500 + rand() % 2500) {
