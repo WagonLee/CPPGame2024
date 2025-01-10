@@ -14,23 +14,37 @@ Menu menu;
 void drawGrid() {
     graphics::Brush brush;
 
-    for (int row = 0; row < GRID_SIZE; ++row) {
-        for (int col = 0; col < GRID_SIZE; ++col) {
-            // Alternate colors
-            if ((row + col) % 2 == 0) {
-                brush.fill_color[0] = 0.0f; // Black
+    for (int row = 0; row < GRID_HEIGHT; ++row) {
+        for (int col = 0; col < GRID_WIDTH; ++col) {
+            // Determine color based on row
+            if (row < UI_ROWS_ABOVE) {
+                // UI rows above (blue)
+                brush.fill_color[0] = 0.0f; // Blue
                 brush.fill_color[1] = 0.0f;
-                brush.fill_color[2] = 0.0f;
-            }
-            else {
-                brush.fill_color[0] = 1.0f; // White
-                brush.fill_color[1] = 1.0f;
                 brush.fill_color[2] = 1.0f;
             }
+            else if (row >= UI_ROWS_ABOVE + PLAYABLE_ROWS) {
+                // UI rows below (blue)
+                brush.fill_color[0] = 0.0f; // Blue
+                brush.fill_color[1] = 0.0f;
+                brush.fill_color[2] = 1.0f;
+            }
+            else {
+                // Playable rows (alternating black and white)
+                if ((row + col) % 2 == 0) {
+                    brush.fill_color[0] = 0.0f; // Black
+                    brush.fill_color[1] = 0.0f;
+                    brush.fill_color[2] = 0.0f;
+                }
+                else {
+                    brush.fill_color[0] = 1.0f; // White
+                    brush.fill_color[1] = 1.0f;
+                    brush.fill_color[2] = 1.0f;
+                }
+            }
 
+            // Draw the cell
             brush.fill_opacity = 1.0f;
-
-            // Use CELL_SIZE for consistent positioning
             float x = col * CELL_SIZE + CELL_SIZE / 2;
             float y = row * CELL_SIZE + CELL_SIZE / 2;
             graphics::drawRect(x, y, CELL_SIZE, CELL_SIZE, brush);
@@ -64,9 +78,9 @@ void initGame() {
     GameState* gameState = GameState::getInstance();
     gameState->init();
 
-    // Initialize player at the center of the grid
-    int startX = GRID_SIZE / 2;
-    int startY = GRID_SIZE / 2;
+    // Initialize player at the center of the playable grid
+    int startX = GRID_WIDTH / 2; // Horizontal center
+    int startY = UI_ROWS_ABOVE + (PLAYABLE_ROWS / 2); // Vertical center of the playable rows
     Player* player = new Player(gameState, startX, startY, 0.004f); // Slow speed
     gameState->addObject(player);
 
@@ -76,7 +90,7 @@ void initGame() {
 // Main function
 int main() {
     // Create the window with default size
-    graphics::createWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Snake Game");
+    graphics::createWindow(CANVAS_WIDTH, CANVAS_HEIGHT, "DATAMINER");
 
     // Set logical canvas size and scaling mode
     graphics::setCanvasSize(CANVAS_WIDTH, CANVAS_HEIGHT); // Logical size for a square grid

@@ -439,19 +439,12 @@ void GameState::draw() {
         textBrush.fill_color[2] = 0.0f;
         textBrush.outline_opacity = 1.0f;
 
-        graphics::drawText(WINDOW_WIDTH / 2 - 100, WINDOW_HEIGHT / 2, 40, "READY?", textBrush);
+        graphics::drawText(CANVAS_WIDTH / 2 - 100, CANVAS_HEIGHT / 2, 40, "READY?", textBrush);
     }
 
     if (paused) {
         drawPauseMenu(); // Draw the pause menu
         return;          // Skip other rendering
-    }
-
-    // Draw all game objects
-    for (auto& obj : gameObjects) {
-        if (obj->isActive()) {
-            obj->draw();
-        }
     }
 
     // Locate the player
@@ -472,7 +465,7 @@ void GameState::draw() {
 
         // Display tail size
         std::string tailText = "Tail Size: " + std::to_string(player->getTailSize());
-        float xPos = (GRID_SIZE * CELL_SIZE) / 2.0f; // Horizontal center
+        float xPos = (GRID_WIDTH * CELL_SIZE) / 2.0f; // Horizontal center
         float yPos = 30;                             // 30 pixels from the top
         graphics::drawText(xPos, yPos, 30, tailText, textBrush); // Size 30
 
@@ -507,10 +500,11 @@ void GameState::init() {
     }
 
     // Initialize the player
-    int startX = GRID_SIZE / 2; // Center of the grid
-    int startY = GRID_SIZE / 2;
+    int startX = GRID_WIDTH / 2; // Center of the grid horizontally
+    int startY = UI_ROWS_ABOVE + (PLAYABLE_ROWS / 2); // Center of the playable area vertically
     Player* player = new Player(this, startX, startY, 0.004f); // Adjust speed as needed
     addObject(player); // Add the player to gameObjects
+
 }
 
 void GameState::replaceDepositZone() {
@@ -653,27 +647,32 @@ void GameState::drawPauseMenu() {
     br.outline_opacity = 0.0f;
 
     // Draw pause menu background
-    br.texture = "assets/menu_background.png"; // Same as main menu background
-    graphics::drawRect(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, WINDOW_WIDTH, WINDOW_HEIGHT, br);
+    br.texture = "assets/menu_background.png"; // Same background as main menu
+    graphics::drawRect(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, CANVAS_WIDTH, CANVAS_HEIGHT, br);
 
-    // Draw menu options
-    const float charWidth = 15.0f; // Approximate width per character for size 30 font
+    // Draw pause menu options
+    const float fontSize = 30.0f; // Font size
+    const float spacing = 50.0f;  // Vertical spacing between options
+    const float charWidth = 15.0f; // Approximate width per character for font size 30
+
     for (size_t i = 0; i < PAUSE_MENU_OPTIONS.size(); ++i) {
         br.fill_color[0] = 1.0f; // Default white color
         br.fill_color[1] = 1.0f;
         br.fill_color[2] = 1.0f;
 
         if (i == pauseMenuSelection) {
-            br.fill_color[0] = 0.0f; // Highlight selected option in green
+            br.fill_color[0] = 0.0f; // Highlighted color (green)
             br.fill_color[1] = 1.0f;
             br.fill_color[2] = 0.0f;
         }
 
+        // Calculate horizontal and vertical positioning
         float textWidth = PAUSE_MENU_OPTIONS[i].size() * charWidth; // Approximate text width
-        float x = (WINDOW_WIDTH - textWidth) / 2; // Center horizontally
-        float y = WINDOW_HEIGHT / 2 + (i - PAUSE_MENU_OPTIONS.size() / 2) * 50; // Vertical alignment
+        float x = (CANVAS_WIDTH - textWidth) / 2; // Center horizontally
+        float y = (CANVAS_HEIGHT / 2) + (i - PAUSE_MENU_OPTIONS.size() / 2.0f) * spacing; // Vertical alignment
 
-        graphics::drawText(x, y, 30, PAUSE_MENU_OPTIONS[i], br);
+        // Draw the pause menu option
+        graphics::drawText(x, y, fontSize, PAUSE_MENU_OPTIONS[i], br);
     }
 }
 

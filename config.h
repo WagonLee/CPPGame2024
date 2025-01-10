@@ -3,12 +3,14 @@
 // Global toggle for menu state
 extern bool inMenu; // Declare inMenu as external
 
-// Grid and Cell Size
-const int GRID_SIZE = 12;                    // 12x12 grid
-const float CANVAS_WIDTH = 600.0f;           // Logical canvas width
-const float CANVAS_HEIGHT = 600.0f;          // Logical canvas height
-const float CELL_SIZE = CANVAS_WIDTH / GRID_SIZE; // Fixed cell size based on canvas dimensions
+// Grid Dimensions
+const int GRID_WIDTH = 12;       // Grid columns
+const int PLAYABLE_ROWS = 12;    // Rows accessible to the player
+const int UI_ROWS_ABOVE = 0;     // Rows above the playable grid (for UI or flavor)
+const int UI_ROWS_BELOW = 4;     // Rows below the playable grid (for UI or flavor)
+const int GRID_HEIGHT = PLAYABLE_ROWS + UI_ROWS_ABOVE + UI_ROWS_BELOW; // Total rows
 
-// Window Size (Optional: Match Canvas Dimensions)
-const int WINDOW_WIDTH = 600;                // Default window width
-const int WINDOW_HEIGHT = 600;               // Default window height
+// Canvas Dimensions
+const float CANVAS_WIDTH = 600.0f;          // Logical canvas width
+const float CELL_SIZE = CANVAS_WIDTH / GRID_WIDTH; // Consistent cell size
+const float CANVAS_HEIGHT = GRID_HEIGHT * CELL_SIZE; // Logical canvas height based on rows

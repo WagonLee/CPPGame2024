@@ -50,10 +50,13 @@ void Menu::draw() {
 
     // Draw background
     br.texture = "assets/menu_background.png"; // Simplified asset path
-    graphics::drawRect(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, WINDOW_WIDTH, WINDOW_HEIGHT, br);
+    graphics::drawRect(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, CANVAS_WIDTH, CANVAS_HEIGHT, br);
 
     // Draw menu options
-    const float charWidth = 15.0f; // Approximate width per character for size 30 font
+    const float fontSize = 30.0f; // Font size
+    const float spacing = 50.0f;  // Vertical spacing between options
+    const float charWidth = 15.0f; // Approximate width per character for font size 30
+
     for (size_t i = 0; i < MAIN_MENU_OPTIONS.size(); ++i) {
         br.fill_color[0] = 1.0f; // Default white color
         br.fill_color[1] = 1.0f;
@@ -65,10 +68,12 @@ void Menu::draw() {
             br.fill_color[2] = 0.0f;
         }
 
+        // Calculate horizontal and vertical positioning
         float textWidth = MAIN_MENU_OPTIONS[i].size() * charWidth; // Approximate text width
-        float x = (WINDOW_WIDTH - textWidth) / 2; // Center horizontally
-        float y = WINDOW_HEIGHT / 2 + (i - MAIN_MENU_OPTIONS.size() / 2) * 50; // Vertical alignment
+        float x = (CANVAS_WIDTH - textWidth) / 2; // Center horizontally
+        float y = (CANVAS_HEIGHT / 2) + (i - MAIN_MENU_OPTIONS.size() / 2.0f) * spacing; // Vertical alignment
 
-        graphics::drawText(x, y, 30, MAIN_MENU_OPTIONS[i], br);
+        // Draw the menu option
+        graphics::drawText(x, y, fontSize, MAIN_MENU_OPTIONS[i], br);
     }
 }
