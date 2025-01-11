@@ -35,6 +35,7 @@
     <ClCompile Include="powerUpLevel1.cpp" />
     <ClCompile Include="powerUpLevel2.cpp" />
     <ClCompile Include="powerUpLevel3.cpp" />
+    <ClCompile Include="powerUpLevel4.cpp" />
     <ClCompile Include="stationaryEnemy.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -54,6 +55,7 @@
     <ClInclude Include="powerUpLevel1.h" />
     <ClInclude Include="powerUpLevel2.h" />
     <ClInclude Include="powerUpLevel3.h" />
+    <ClInclude Include="powerUpLevel4.h" />
     <ClInclude Include="stationaryEnemy.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

@@ -1,7 +1,7 @@
 #include "PowerUpLevel3.h"
 #include "graphics.h"
 #include <iostream>
-#include "GameState.h" // Required for collectible spawning
+#include "GameState.h" // MULTI MAYBE?
 #include "config.h"
 
 // Constructor
@@ -15,9 +15,6 @@ void PowerUpLevel3::applyEffect() {
     // Use the centralized weakness logic in PowerUpBase
     startWeakEffect(17000.0f); // Updated to 17 seconds
 
-    // Spawn 1 additional collectible immediately
-    std::cout << "Spawning 1 additional collectible as part of Level 3 effect." << std::endl;
-    state->spawnInteractiveObject<Collectible>();
 }
 
 // Draw

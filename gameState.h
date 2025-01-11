@@ -73,8 +73,10 @@ private:
     void spawnPowerUpAt(int level, int gridX, int gridY);
 
     const int tallyLevel1 = 6; // Tally thresholds
-    const int tallyLevel2 = 8;
-    const int tallyLevel3 = 10;
+    const int tallyLevel2 = 7;
+    const int tallyLevel3 = 8;
+    const int tallyLevel4 = 9;
+
 
     const float upgradeTime = 400.0f; // Time for auto-upgrade
 

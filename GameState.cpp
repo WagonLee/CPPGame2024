@@ -12,6 +12,7 @@
 #include "PowerUpLevel1.h" // Include Level 1 Power-Up
 #include "PowerUpLevel2.h" // Include Level 2 Power-Up
 #include "PowerUpLevel3.h" // Include Level 3 Power-Up
+#include "PowerUpLevel4.h" // Include Level 4 Power-Up
 #include "MenuUtils.h"
 #include <algorithm>
 
@@ -68,15 +69,14 @@ void GameState::spawnDepositZone() {
     depositZone = std::make_unique<DepositZone>(this, gridX, gridY, shape, horizontal);
 }
 
-
 void GameState::spawnPowerUp(int level) {
     int gridX, gridY;
     bool positionValid = false;
 
     // Attempt to find a valid position
     for (int attempts = 0; attempts < 100; ++attempts) {
-        gridX = rand() % 12; // Random X position
-        gridY = rand() % 12; // Random Y position
+        gridX = rand() % PLAYABLE_COLUMNS; // Random X position within playable area
+        gridY = UI_ROWS_ABOVE + (rand() % PLAYABLE_ROWS); // Random Y position within playable rows
 
         // Check if position is valid
         positionValid = true;
@@ -112,6 +112,12 @@ void GameState::spawnPowerUp(int level) {
     case 3:
         powerUp = std::make_unique<PowerUpLevel3>(this, gridX, gridY);
         break;
+    case 4: // Support for the fourth power-up
+        powerUp = std::make_unique<PowerUpLevel4>(this, gridX, gridY);
+        break;
+    default:
+        std::cerr << "Invalid power-up level: " << level << std::endl;
+        return;
     }
 
     // Add the power-up if created successfully
@@ -143,6 +149,9 @@ void GameState::spawnPowerUpAt(int level, int gridX, int gridY) {
         break;
     case 3:
         powerUp = std::make_unique<PowerUpLevel3>(this, gridX, gridY);
+        break;
+    case 4:
+        powerUp = std::make_unique<PowerUpLevel4>(this, gridX, gridY);
         break;
     }
 
@@ -197,7 +206,7 @@ void GameState::updatePowerUpTimers(float dt) {
         }
 
         // Skip upgrade for Level 3 (max level)
-        if (powerUp->getLevel() >= 3) {
+        if (powerUp->getLevel() >= 4) {
             std::cout << "Removing timer for max-level Power-Up at index " << index << std::endl;
             upgradeTimers.erase(upgradeTimers.begin() + i);
             --i;
@@ -227,7 +236,7 @@ void GameState::updatePowerUpTimers(float dt) {
             --i;
 
             // Add a new timer for the upgraded power-up (if not max level)
-            if (newLevel < 3) {
+            if (newLevel < 4) {
                 size_t newIndex = activePowerUps.size() - 1;
                 upgradeTimers.emplace_back(newIndex, 0.0f);
                 std::cout << "Added timer for upgraded Power-Up Level " << newLevel
@@ -326,7 +335,11 @@ void GameState::update(float dt) {
     // --- POWER-UP AUTO-UPGRADE TIMERS ---
     updatePowerUpTimers(dt);
 
-    if (tally >= tallyLevel3) {
+    if (tally >= tallyLevel4) {
+        std::cout << "Condition met for Level 4 Power-Up. Tally = " << tally << std::endl;
+        spawnPowerUp(4);
+    }
+    else if (tally >= tallyLevel3) {
         std::cout << "Condition met for Level 3 Power-Up. Tally = " << tally << std::endl;
         spawnPowerUp(3);
     }
