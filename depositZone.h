@@ -17,6 +17,10 @@ private:
     float duration;                // Active duration (seconds)
     float timer;                   // Tracks remaining time
 
+    void drawStraightLine();
+    void drawDonut();
+    void drawCircle();
+
 public:
     // Constructor
     DepositZone(GameState* state, int x, int y, Shape shape, bool horizontal = true);
