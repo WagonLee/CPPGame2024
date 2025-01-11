@@ -9,56 +9,57 @@ std::vector<std::vector<Tile>> gridState(GRID_HEIGHT, std::vector<Tile>(GRID_WID
 void initGrid() {
     for (int row = 0; row < GRID_HEIGHT; ++row) {
         for (int col = 0; col < GRID_WIDTH; ++col) {
-            gridState[row][col] = Tile(1.0f, 1.0f, 1.0f); // Default to white for testing
-            // --- Handle Specific Tile Types ---
 
-            // 1. Top-most row (individually addressable tiles)
+            // Default all tiles to white initially
+            gridState[row][col] = Tile(1.0f, 1.0f, 1.0f);
+
+            // 1. Top-most row
             if (row == 0) {
                 if (col == 0) {
                     gridState[row][col] = Tile(1.0f, 0.0f, 0.0f); // Top-left corner (Red)
                 }
                 else if (col == 1) {
-                    gridState[row][col] = Tile(0.9f, 0.1f, 0.1f); // Tile at (0, 1)
+                    gridState[row][col] = Tile(0.9f, 0.1f, 0.1f);
                 }
                 else if (col == 2) {
-                    gridState[row][col] = Tile(0.8f, 0.2f, 0.2f); // Tile at (0, 2)
+                    gridState[row][col] = Tile(0.8f, 0.2f, 0.2f);
                 }
                 else if (col == 3) {
-                    gridState[row][col] = Tile(0.7f, 0.3f, 0.3f); // Tile at (0, 3)
+                    gridState[row][col] = Tile(0.7f, 0.3f, 0.3f);
                 }
                 else if (col == 4) {
-                    gridState[row][col] = Tile(0.6f, 0.4f, 0.4f); // Tile at (0, 4)
+                    gridState[row][col] = Tile(0.6f, 0.4f, 0.4f);
                 }
                 else if (col == 5) {
-                    gridState[row][col] = Tile(0.5f, 0.5f, 0.5f); // Tile at (0, 5)
+                    gridState[row][col] = Tile(0.5f, 0.5f, 0.5f);
                 }
                 else if (col == 6) {
-                    gridState[row][col] = Tile(0.4f, 0.6f, 0.6f); // Tile at (0, 6)
+                    gridState[row][col] = Tile(0.4f, 0.6f, 0.6f);
                 }
                 else if (col == 7) {
-                    gridState[row][col] = Tile(0.3f, 0.7f, 0.7f); // Tile at (0, 7)
+                    gridState[row][col] = Tile(0.3f, 0.7f, 0.7f);
                 }
                 else if (col == 8) {
-                    gridState[row][col] = Tile(0.2f, 0.8f, 0.8f); // Tile at (0, 8)
+                    gridState[row][col] = Tile(0.2f, 0.8f, 0.8f);
                 }
                 else if (col == 9) {
-                    gridState[row][col] = Tile(0.1f, 0.9f, 0.9f); // Tile at (0, 9)
+                    gridState[row][col] = Tile(0.1f, 0.9f, 0.9f);
                 }
                 else if (col == 10) {
-                    gridState[row][col] = Tile(0.2f, 0.9f, 0.1f); // Tile at (0, 10)
+                    gridState[row][col] = Tile(0.2f, 0.9f, 0.1f);
                 }
                 else if (col == 11) {
-                    gridState[row][col] = Tile(0.3f, 0.2f, 0.9f); // Tile at (0, 11)
+                    gridState[row][col] = Tile(0.3f, 0.2f, 0.9f);
                 }
                 else if (col == 12) {
-                    gridState[row][col] = Tile(1.0f, 0.2f, 1.0f); // Tile at (0, 12)
+                    gridState[row][col] = Tile(1.0f, 0.2f, 1.0f);
                 }
                 else if (col == GRID_WIDTH - 1) {
                     gridState[row][col] = Tile(0.0f, 1.0f, 0.0f); // Top-right corner (Green)
                 }
             }
 
-            // 2. Corners of the entire window (excluding top row tiles)
+            // 2. Bottom corners of the entire window
             else if (row == GRID_HEIGHT - 1 && col == 0) {
                 gridState[row][col] = Tile(1.0f, 0.5f, 0.0f); // Bottom-left corner (Orange)
             }
@@ -66,7 +67,154 @@ void initGrid() {
                 gridState[row][col] = Tile(1.0f, 1.0f, 0.0f); // Bottom-right corner (Yellow)
             }
 
-            // 3. Bottom corners of the grid border
+            // 3. Entire last row (if not corners)
+            else if (row == GRID_HEIGHT - 1) {
+                gridState[row][col] = Tile(0.2f, 0.0f, 0.5f); // Blue
+            }
+
+            // 4. Additional rows well below the playable grid
+            else if (row >= UI_ROWS_ABOVE + PLAYABLE_ROWS + 1) {
+                int relativeRow = row - (UI_ROWS_ABOVE + PLAYABLE_ROWS + 1);
+
+                switch (relativeRow) {
+                case 0:
+                    if (col == 0) {
+                        gridState[row][col] = Tile(0.7f, 0.7f, 0.2f);
+                    }
+                    else if (col == 1) {
+                        gridState[row][col] = Tile(0.5f, 0.0f, 0.9f);
+                    }
+                    else if (col == 2) {
+                        gridState[row][col] = Tile(0.0f, 0.5f, 0.9f);
+                    }
+                    else if (col == 3) {
+                        gridState[row][col] = Tile(0.6f, 0.3f, 0.8f);
+                    }
+                    else if (col == 4) {
+                        gridState[row][col] = Tile(0.4f, 0.8f, 0.1f);
+                    }
+                    else if (col == 5) {
+                        gridState[row][col] = Tile(0.3f, 0.2f, 0.6f);
+                    }
+                    else if (col == 6) {
+                        gridState[row][col] = Tile(0.2f, 0.9f, 0.2f);
+                    }
+                    else if (col == 7) {
+                        gridState[row][col] = Tile(0.5f, 0.1f, 0.9f);
+                    }
+                    else if (col == 8) {
+                        gridState[row][col] = Tile(0.1f, 0.5f, 0.3f);
+                    }
+                    else if (col == 9) {
+                        gridState[row][col] = Tile(0.9f, 0.3f, 0.2f);
+                    }
+                    else if (col == 10) {
+                        gridState[row][col] = Tile(0.7f, 0.6f, 0.8f);
+                    }
+                    else if (col == 11) {
+                        gridState[row][col] = Tile(0.1f, 0.1f, 0.1f);
+                    }
+                    else if (col == 12) {
+                        gridState[row][col] = Tile(0.1f, 0.9f, 0.1f);
+                    }
+                    else if (col == GRID_WIDTH - 1) {
+                        gridState[row][col] = Tile(0.0f, 1.0f, 0.0f); // Bruh
+                    }
+                    break;
+
+                case 1:
+                    if (col == 0) {
+                        gridState[row][col] = Tile(0.3f, 0.2f, 0.1f);
+                    }
+                    else if (col == 1) {
+                        gridState[row][col] = Tile(0.8f, 0.5f, 0.7f);
+                    }
+                    else if (col == 2) {
+                        gridState[row][col] = Tile(0.2f, 0.4f, 0.6f);
+                    }
+                    else if (col == 3) {
+                        gridState[row][col] = Tile(0.5f, 0.3f, 0.2f);
+                    }
+                    else if (col == 4) {
+                        gridState[row][col] = Tile(0.1f, 0.7f, 0.5f);
+                    }
+                    else if (col == 5) {
+                        gridState[row][col] = Tile(0.9f, 0.2f, 0.8f);
+                    }
+                    else if (col == 6) {
+                        gridState[row][col] = Tile(0.3f, 0.3f, 0.3f);
+                    }
+                    else if (col == 7) {
+                        gridState[row][col] = Tile(0.8f, 0.6f, 0.2f);
+                    }
+                    else if (col == 8) {
+                        gridState[row][col] = Tile(0.8f, 0.9f, 0.1f);
+                    }
+                    else if (col == 9) {
+                        gridState[row][col] = Tile(0.9f, 0.3f, 0.2f);
+                    }
+                    else if (col == 10) {
+                        gridState[row][col] = Tile(0.1f, 0.6f, 0.8f);
+                    }
+                    else if (col == 11) {
+                        gridState[row][col] = Tile(0.1f, 0.5f, 0.1f);
+                    }
+                    else if (col == 12) {
+                        gridState[row][col] = Tile(0.1f, 0.9f, 0.3f);
+                    }
+                    else if (col == GRID_WIDTH - 1) {
+                        gridState[row][col] = Tile(0.0f, 1.0f, 0.0f); // Bruh
+                    }
+                    break;
+
+                case 2:
+                    if (col == 0) {
+                        gridState[row][col] = Tile(0.4f, 0.4f, 0.9f);
+                    }
+                    else if (col == 1) {
+                        gridState[row][col] = Tile(0.3f, 0.6f, 0.7f);
+                    }
+                    else if (col == 2) {
+                        gridState[row][col] = Tile(0.7f, 0.2f, 0.1f);
+                    }
+                    else if (col == 3) {
+                        gridState[row][col] = Tile(0.5f, 0.8f, 0.2f);
+                    }
+                    else if (col == 4) {
+                        gridState[row][col] = Tile(0.6f, 0.3f, 0.4f);
+                    }
+                    else if (col == 5) {
+                        gridState[row][col] = Tile(0.9f, 0.9f, 0.5f);
+                    }
+                    else if (col == 6) {
+                        gridState[row][col] = Tile(0.2f, 0.6f, 0.9f);
+                    }
+                    else if (col == 7) {
+                        gridState[row][col] = Tile(0.4f, 0.9f, 0.7f);
+                    }
+                    else if (col == 8) {
+                        gridState[row][col] = Tile(0.1f, 0.7f, 0.3f);
+                    }
+                    else if (col == 9) {
+                        gridState[row][col] = Tile(0.9f, 0.3f, 0.2f);
+                    }
+                    else if (col == 10) {
+                        gridState[row][col] = Tile(0.7f, 0.6f, 0.1f);
+                    }
+                    else if (col == 11) {
+                        gridState[row][col] = Tile(0.1f, 0.1f, 0.5f);
+                    }
+                    else if (col == 12) {
+                        gridState[row][col] = Tile(0.3f, 0.9f, 0.1f);
+                    }
+                    else if (col == GRID_WIDTH - 1) {
+                        gridState[row][col] = Tile(0.0f, 1.0f, 0.0f); // Bruh
+                    }
+                    break;
+                }
+            }
+
+            // 5. Bottom corners of the grid border
             else if (row == UI_ROWS_ABOVE + PLAYABLE_ROWS && col == 0) {
                 gridState[row][col] = Tile(0.0f, 1.0f, 1.0f); // Bottom-left grid border (Cyan)
             }
@@ -74,17 +222,17 @@ void initGrid() {
                 gridState[row][col] = Tile(1.0f, 0.0f, 1.0f); // Bottom-right grid border (Pink)
             }
 
-            // 4. Left and right border columns (Blue)
+            // 6. Left and right border columns
             else if (col == 0 || col == GRID_WIDTH - 1) {
                 gridState[row][col] = Tile(0.2f, 0.0f, 0.5f); // Blue
             }
 
-            // 5. Rows above and below the playable grid (Blue)
+            // 7. Rows above and below the playable grid
             else if (row < UI_ROWS_ABOVE || row >= UI_ROWS_ABOVE + PLAYABLE_ROWS) {
                 gridState[row][col] = Tile(0.0f, 0.5f, 1.0f); // Light Blue
             }
 
-            // 6. Playable rows (Alternating Black and White)
+            // 8. Playable rows (alternating black/white)
             else {
                 if ((row + col) % 2 == 0) {
                     gridState[row][col] = Tile(0.0f, 0.0f, 0.0f); // Black
@@ -96,6 +244,7 @@ void initGrid() {
         }
     }
 }
+
 
 // Update the grid dynamically
 void updateGrid() {
