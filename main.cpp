@@ -36,7 +36,7 @@ void update(float dt) {
 // Main function
 int main() {
     // Create the window with default size
-    graphics::createWindow(CANVAS_WIDTH, CANVAS_HEIGHT, "DATAMINER");
+    graphics::createWindow(CANVAS_WIDTH, CANVAS_HEIGHT, "DATALEECH");
 
     // Set logical canvas size and scaling mode
     graphics::setCanvasSize(CANVAS_WIDTH, CANVAS_HEIGHT); // Logical size for a square grid

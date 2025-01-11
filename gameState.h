@@ -160,6 +160,9 @@ public:
     // Reset states for new game
     void resetGameStates();              // Reset all flags to their default state
 
+    bool enemyKilled = false;
+    float enemyKillEndTime = 0.0f;
+
     // Destructor
     ~GameState();
 };

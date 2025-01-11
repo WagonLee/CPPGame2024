@@ -50,8 +50,8 @@ void initGrid() {
                 else if (col == 11) {
                     gridState[row][col] = Tile(0.3f, 0.2f, 0.9f); // Tile at (0, 11)
                 }
-                else if (col == GRID_WIDTH - 2) {
-                    gridState[row][col] = Tile(0.2f, 0.2f, 0.7f); // Second to last tile
+                else if (col == 12) {
+                    gridState[row][col] = Tile(1.0f, 0.2f, 1.0f); // Tile at (0, 12)
                 }
                 else if (col == GRID_WIDTH - 1) {
                     gridState[row][col] = Tile(0.0f, 1.0f, 0.0f); // Top-right corner (Green)
@@ -100,6 +100,48 @@ void initGrid() {
 // Update the grid dynamically
 void updateGrid() {
     Player* player = nullptr;
+    auto* gameState = GameState::getInstance();
+
+    // EFFECT 1
+
+    // Check if an enemy was recently killed
+    // Check if an enemy was recently killed
+    if (gameState->enemyKilled) {
+        // Turn the top row blue
+        gridState[0][1] = Tile(1.0f, 0.0f, 0.0f);
+        gridState[0][2] = Tile(1.0f, 0.0f, 0.0f);
+        gridState[0][3] = Tile(1.0f, 0.0f, 0.0f);
+        gridState[0][4] = Tile(1.0f, 0.0f, 0.0f);
+        gridState[0][5] = Tile(1.0f, 0.0f, 0.0f);
+        gridState[0][6] = Tile(1.0f, 0.0f, 0.0f);
+        gridState[0][7] = Tile(1.0f, 0.0f, 0.0f);
+        gridState[0][8] = Tile(1.0f, 0.0f, 0.0f);
+        gridState[0][9] = Tile(1.0f, 0.0f, 0.0f);
+        gridState[0][10] = Tile(1.0f, 0.0f, 0.0f);
+        gridState[0][11] = Tile(1.0f, 0.0f, 0.0f);
+        gridState[0][12] = Tile(1.0f, 0.0f, 0.0f);
+
+        // Reset the top row if the current time has passed the end time
+        if (graphics::getGlobalTime() >= gameState->enemyKillEndTime) {
+            gameState->enemyKilled = false;
+
+            // Reset the top row to its init colors
+            gridState[0][1] = Tile(0.9f, 0.1f, 0.1f); // Tile at (0, 1)
+            gridState[0][2] = Tile(0.8f, 0.2f, 0.2f); // Tile at (0, 2)
+            gridState[0][3] = Tile(0.7f, 0.3f, 0.3f); // Tile at (0, 3)
+            gridState[0][4] = Tile(0.6f, 0.4f, 0.4f); // Tile at (0, 4)
+            gridState[0][5] = Tile(0.5f, 0.5f, 0.5f); // Tile at (0, 5)
+            gridState[0][6] = Tile(0.4f, 0.6f, 0.6f); // Tile at (0, 6)
+            gridState[0][7] = Tile(0.3f, 0.7f, 0.7f); // Tile at (0, 7)
+            gridState[0][8] = Tile(0.2f, 0.8f, 0.8f); // Tile at (0, 8)
+            gridState[0][9] = Tile(0.1f, 0.9f, 0.9f); // Tile at (0, 9)
+            gridState[0][10] = Tile(0.2f, 0.9f, 0.1f); // Tile at (0, 10)
+            gridState[0][11] = Tile(0.3f, 0.2f, 0.9f); // Tile at (0, 11)
+            gridState[0][12] = Tile(1.0f, 0.2f, 1.0f); // Tile at (0, 12)
+        }
+    }
+
+    // EFFECT 2
 
     // Locate the player object
     for (const auto& obj : GameState::getInstance()->getGameObjects()) {

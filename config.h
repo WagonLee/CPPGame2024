@@ -1,5 +1,7 @@
 #pragma once
 
+const std::string ASSET_PATH = "bin/assets/";
+
 // Global toggle for menu state
 extern bool inMenu; // Declare inMenu as external
 
@@ -8,7 +10,7 @@ const int GRID_WIDTH = 14;       // Increased by 2 for left and right columns
 const int PLAYABLE_COLUMNS = 12; // Still 12 playable columns
 const int PLAYABLE_ROWS = 12;    // Rows accessible to the player
 const int UI_ROWS_ABOVE = 1;     // Rows above the playable grid (for UI or flavor)
-const int UI_ROWS_BELOW = 4;     // Rows below the playable grid (for UI or flavor)
+const int UI_ROWS_BELOW = 5;     // Rows below the playable grid (for UI or flavor)
 const int GRID_HEIGHT = PLAYABLE_ROWS + UI_ROWS_ABOVE + UI_ROWS_BELOW; // Total rows
 
 // Canvas Dimensions

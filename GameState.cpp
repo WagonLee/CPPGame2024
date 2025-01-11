@@ -457,7 +457,7 @@ void GameState::draw() {
 
     if (player) {
         // Set up the font and brush for text
-        graphics::setFont(std::string("assets/Arial.ttf")); // Use Arial font
+        graphics::setFont(ASSET_PATH + "Arial.ttf");
         graphics::Brush textBrush;
         textBrush.fill_color[0] = 1.0f; // Red text
         textBrush.fill_color[1] = 0.0f;
@@ -649,7 +649,7 @@ void GameState::drawPauseMenu() {
     br.outline_opacity = 0.0f;
 
     // Draw pause menu background
-    br.texture = "assets/menu_background.png"; // Same background as main menu
+    br.texture = ASSET_PATH + "menu_background.png"; // Same background as main menu
     graphics::drawRect(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, CANVAS_WIDTH, CANVAS_HEIGHT, br);
 
     // Draw pause menu options

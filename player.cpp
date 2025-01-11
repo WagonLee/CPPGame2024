@@ -209,23 +209,23 @@ void Player::checkTailCollision() {
 void Player::draw() {
     graphics::Brush brush;
 
+    // Choose texture based on player state
     if (hitEdge || !isAlive) {
-        brush.fill_color[0] = 1.0f; // Pink for death
-        brush.fill_color[1] = 0.0f;
-        brush.fill_color[2] = 1.0f;
+        brush.texture = ASSET_PATH + "CHAR-C.png"; // Texture for death
     }
     else {
-        brush.fill_color[0] = 0.0f; // Green for player
-        brush.fill_color[1] = 1.0f;
-        brush.fill_color[2] = 0.0f;
+        brush.texture = ASSET_PATH + "CHAR-D.png"; // Texture for alive state
     }
 
+    brush.outline_opacity = 0.0f; // Remove outlines
     brush.fill_opacity = 1.0f;
 
+    // Draw the player with the selected texture
     graphics::drawRect(x, y, CELL_SIZE, CELL_SIZE, brush);
 
-    // Yellow tail
-    brush.fill_color[0] = 1.0f;
+    // Tail rendering (still using color)
+    brush.texture = ""; // No texture for tail, fallback to color
+    brush.fill_color[0] = 1.0f; // Yellow tail
     brush.fill_color[1] = 1.0f;
     brush.fill_color[2] = 0.0f;
 

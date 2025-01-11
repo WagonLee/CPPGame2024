@@ -6,7 +6,7 @@
 #include "MenuUtils.h"
 
 void Menu::init() {
-    graphics::setFont(std::string("assets/Arial.ttf")); // Simplified asset path
+    graphics::setFont(ASSET_PATH + "Arial.ttf"); // Simplified asset path
 }
 
 // State to track key presses
@@ -49,7 +49,7 @@ void Menu::draw() {
     br.outline_opacity = 0.0f;
 
     // Draw background
-    br.texture = "assets/menu_background.png"; // Simplified asset path
+    br.texture = ASSET_PATH + "menu_background.png"; // Simplified asset path
     graphics::drawRect(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, CANVAS_WIDTH, CANVAS_HEIGHT, br);
 
     // Draw menu options
