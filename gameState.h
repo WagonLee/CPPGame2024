@@ -13,6 +13,7 @@
 #include "PowerUpLevel1.h" // Include Level 1 Power-Up
 #include "PowerUpLevel2.h" // Include Level 2 Power-Up
 #include "PowerUpLevel3.h" // Include Level 3 Power-Up
+#include "PowerUpLevel4.h" // Include Level 3 Power-Up
 #include "Player.h"
 #include "DepositZone.h" // Added DepositZone
 #include "config.h"
@@ -65,6 +66,9 @@ private:
 
     int score = 0;         // Total score
     int tally = 0;         // Tracks consecutive deposits
+
+    int killChain = 0;         // Tracks the number of kills in the current chain
+    int killChainScore = 0;    // Accumulated score for the chain
 
     // Power-Up Management
     std::vector<std::unique_ptr<PowerUpBase>> activePowerUps; // Unlimited power-ups
@@ -132,6 +136,9 @@ public:
     int getTally() const { return tally; } // Getter for tally
     void resetTally(); // Resets tally for power-ups
 
+    void resetKillChain();     // Resets the kill chain
+    void addToKillChain();     // Increments the kill chain and calculates score
+
     // Power-Up Management
     void spawnPowerUp(int level);       // Spawns a power-up of a specific level
     void updatePowerUpTimers(float dt); // Handles auto-upgrading of power-ups
@@ -195,7 +202,7 @@ void GameState::spawnInteractiveObject() {
             }
         }
 
-        // Prevent spawning on player's tail segments
+        // Prevent spawning on player's tail segments and adjacent tiles
         Player* player = nullptr;
         for (const auto& obj : gameObjects) {
             player = dynamic_cast<Player*>(obj.get());
@@ -203,6 +210,19 @@ void GameState::spawnInteractiveObject() {
         }
 
         if (player) {
+            int playerX = player->getGridX();
+            int playerY = player->getGridY();
+
+            // Check against player's position and adjacent tiles
+            if ((gridX == playerX && gridY == playerY) || // Player's position
+                (gridX == playerX - 1 && gridY == playerY) || // Left
+                (gridX == playerX + 1 && gridY == playerY) || // Right
+                (gridX == playerX && gridY == playerY - 1) || // Up
+                (gridX == playerX && gridY == playerY + 1)) { // Down
+                positionValid = false;
+            }
+
+            // Check against player's tail segments
             for (const auto& segment : player->tail) {
                 if (segment.gridX == gridX && segment.gridY == gridY) {
                     positionValid = false;
@@ -234,6 +254,9 @@ void GameState::spawnInteractiveObject() {
     }
     else if constexpr (std::is_same<T, PowerUpLevel3>::value) { // Level 3 Power-Up
         addObject(new PowerUpLevel3(this, gridX, gridY));
+    }
+    else if constexpr (std::is_same<T, PowerUpLevel4>::value) { // Level 4 Power-Up
+        addObject(new PowerUpLevel4(this, gridX, gridY));
     }
 
     // Debug log with timestamp

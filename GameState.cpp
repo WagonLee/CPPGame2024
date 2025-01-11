@@ -21,6 +21,7 @@ GameState* GameState::instance = nullptr;
 // Constructor
 GameState::GameState() {}
 
+
 // Singleton instance
 GameState* GameState::getInstance() {
     if (!instance) {
@@ -75,8 +76,8 @@ void GameState::spawnPowerUp(int level) {
 
     // Attempt to find a valid position
     for (int attempts = 0; attempts < 100; ++attempts) {
-        gridX = rand() % PLAYABLE_COLUMNS; // Random X position within playable area
-        gridY = UI_ROWS_ABOVE + (rand() % PLAYABLE_ROWS); // Random Y position within playable rows
+        gridX = 1 + (rand() % PLAYABLE_COLUMNS); // Exclude the 1-grid unplayable column on the left
+        gridY = UI_ROWS_ABOVE + (rand() % PLAYABLE_ROWS); // Exclude the top unplayable rows
 
         // Check if position is valid
         positionValid = true;
@@ -112,7 +113,7 @@ void GameState::spawnPowerUp(int level) {
     case 3:
         powerUp = std::make_unique<PowerUpLevel3>(this, gridX, gridY);
         break;
-    case 4: // Support for the fourth power-up
+    case 4:
         powerUp = std::make_unique<PowerUpLevel4>(this, gridX, gridY);
         break;
     default:
@@ -136,6 +137,7 @@ void GameState::spawnPowerUp(int level) {
         std::cerr << "Failed to create Power-Up Level " << level << std::endl;
     }
 }
+
 
 void GameState::spawnPowerUpAt(int level, int gridX, int gridY) {
     std::unique_ptr<PowerUpBase> powerUp = nullptr;
@@ -205,7 +207,7 @@ void GameState::updatePowerUpTimers(float dt) {
             continue;
         }
 
-        // Skip upgrade for Level 3 (max level)
+        // Skip upgrade for Level 4 (max level)
         if (powerUp->getLevel() >= 4) {
             std::cout << "Removing timer for max-level Power-Up at index " << index << std::endl;
             upgradeTimers.erase(upgradeTimers.begin() + i);
@@ -244,6 +246,14 @@ void GameState::updatePowerUpTimers(float dt) {
             }
         }
     }
+
+    // Check if any power-up effects are active
+    bool powerUpActive = isAnyPowerUpActive();
+
+    if (!powerUpActive) {
+        // No active power-ups, reset the kill chain
+        resetKillChain();
+    }
 }
 
 // Update game state
@@ -261,6 +271,22 @@ void GameState::update(float dt) {
         }
         return; // Skip updates during the "READY?" state
     }
+
+
+    // DEBUG DEBUG DEBUG DEBUG
+    // static bool keyHeld = false;
+
+    // Debug: Spawn a power-up when the P key is pressed
+    if (graphics::getKeyState(graphics::SCANCODE_L)) {
+            int randomLevel = 1 + (rand() % 4); // Random level between 1 and 4
+            spawnPowerUp(randomLevel);
+            std::cout << "Debug: Spawned Power-Up Level " << randomLevel << " using L key." << std::endl;
+
+        }
+    
+
+
+    // DEBUG DEBUG DEBUG DEBUG 
 
     // Handle pause state
     if (paused) {
@@ -606,6 +632,19 @@ void GameState::incrementTally(int count) {
 void GameState::resetTally() {
     tally = 0; // Reset tally to zero
     std::cout << "Tally reset to 0." << std::endl;
+}
+
+void GameState::resetKillChain() {
+    killChain = 0;
+    killChainScore = 0;
+}
+
+void GameState::addToKillChain() {
+    killChain++;
+    int points = 10 * killChain; // Points based on current chain length
+    killChainScore += points;   // Add to cumulative score
+    addScore(points);           // Update game score
+    std::cout << "Kill chain: " << killChain << ", Points awarded: " << points << ", Total: " << killChainScore << std::endl;
 }
 
 // Set the paused state

@@ -207,30 +207,30 @@ void Player::checkTailCollision() {
 
 // Draw the player and its tail
 void Player::draw() {
-    graphics::Brush brush;
+    graphics::Brush br;
 
     // Choose texture based on player state
     if (hitEdge || !isAlive) {
-        brush.texture = ASSET_PATH + "CHAR-C.png"; // Texture for death
+        br.texture = ASSET_PATH + "CHAR-C.png"; // Texture for death
     }
     else {
-        brush.texture = ASSET_PATH + "CHAR-D.png"; // Texture for alive state
+        br.texture = ASSET_PATH + "CHAR-D.png"; // Texture for alive state
     }
 
-    brush.outline_opacity = 0.0f; // Remove outlines
-    brush.fill_opacity = 1.0f;
+    br.outline_opacity = 0.0f; // Remove outlines
+    br.fill_opacity = 1.0f;
 
     // Draw the player with the selected texture
-    graphics::drawRect(x, y, CELL_SIZE, CELL_SIZE, brush);
+    graphics::drawRect(x, y, CELL_SIZE, CELL_SIZE, br);
 
     // Tail rendering (still using color)
-    brush.texture = ""; // No texture for tail, fallback to color
-    brush.fill_color[0] = 1.0f; // Yellow tail
-    brush.fill_color[1] = 1.0f;
-    brush.fill_color[2] = 0.0f;
+    br.texture = ""; // No texture for tail, fallback to color
+    br.fill_color[0] = 1.0f; // Yellow tail
+    br.fill_color[1] = 1.0f;
+    br.fill_color[2] = 0.0f;
 
     for (const auto& segment : tail) {
-        graphics::drawRect(segment.x, segment.y, CELL_SIZE * 0.8f, CELL_SIZE * 0.8f, brush);
+        graphics::drawRect(segment.x, segment.y, CELL_SIZE * 0.8f, CELL_SIZE * 0.8f, br);
     }
 }
 

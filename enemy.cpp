@@ -11,11 +11,13 @@ void Enemy::handleCollision(Player& player) {
     if (isWeak) {
         std::cout << "Weak enemy killed by player!" << std::endl;
         setActive(false); // Deactivate the enemy
-        GameState::getInstance()->addScore(10);
 
-        // Notify GameState about the kill and set the end time
-        GameState::getInstance()->enemyKilled = true;
-        GameState::getInstance()->enemyKillEndTime = graphics::getGlobalTime() + 1000.0f; // 1 second from now
+        auto* gameState = GameState::getInstance();
+
+        // Notify GameState about the kill
+        gameState->addToKillChain(); // Increment kill chain and calculate score
+        gameState->enemyKilled = true;
+        gameState->enemyKillEndTime = graphics::getGlobalTime() + 1000.0f; // 1 second from now
     }
     else {
         std::cout << "Player killed by enemy!" << std::endl;
