@@ -25,25 +25,12 @@ void draw() {
 // Update function
 void update(float dt) {
     if (inMenu) {
-        menu.update(); // Update the menu
+        menu.update(); // Update menu if in menu mode
     }
     else {
-        GameState::getInstance()->update(dt); // Update game objects
+        GameState::getInstance()->update(dt); // Update game state
+        updateGrid();                         // Update the grid dynamically
     }
-}
-
-// Initialize the game
-void initGame() {
-    GameState* gameState = GameState::getInstance();
-    gameState->init();
-
-    // Initialize player at the center of the playable grid
-    int startX = GRID_WIDTH / 2; // Horizontal center
-    int startY = UI_ROWS_ABOVE + (PLAYABLE_ROWS / 2); // Vertical center of the playable rows
-    Player* player = new Player(gameState, startX, startY, 0.004f); // Slow speed
-    gameState->addObject(player);
-
-    std::cout << "Game initialized with player at (" << startX << ", " << startY << ")." << std::endl;
 }
 
 // Main function
@@ -54,6 +41,8 @@ int main() {
     // Set logical canvas size and scaling mode
     graphics::setCanvasSize(CANVAS_WIDTH, CANVAS_HEIGHT); // Logical size for a square grid
     graphics::setCanvasScaleMode(graphics::CANVAS_SCALE_FIT); // Maintain aspect ratio with black bars
+
+    initGrid(); // Initialize the grid first
 
     // Initialize the menu
     menu.init();
