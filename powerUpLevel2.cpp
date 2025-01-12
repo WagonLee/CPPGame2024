@@ -17,21 +17,16 @@ void PowerUpLevel2::applyEffect() {
 
 // Draw
 void PowerUpLevel2::draw() {
-
     if (!visible) return;
 
     graphics::Brush br;
     br.outline_opacity = 0.0f;
-
-    // Dark Green for Level 2
-    br.fill_color[0] = 0.0f;   // Dark Green
-    br.fill_color[1] = 0.39f;
-    br.fill_color[2] = 0.0f;
+    br.texture = "bin/assets/objects/POWERUP2.png"; // Direct path to the Level 2 texture
 
     // Use CELL_SIZE for proper alignment
     float xPos = gridX * CELL_SIZE + CELL_SIZE / 2.0f;
     float yPos = gridY * CELL_SIZE + CELL_SIZE / 2.0f;
 
-    // Draw the power-up, slightly smaller than a full cell for aesthetics
-    graphics::drawRect(xPos, yPos, CELL_SIZE * 0.8f, CELL_SIZE * 0.8f, br);
+    // Draw the power-up with the texture applied
+    graphics::drawRect(xPos, yPos, CELL_SIZE, CELL_SIZE, br);
 }

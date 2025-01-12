@@ -22,6 +22,7 @@ class PowerUpBase;      // Forward declare PowerUpBase
 class PowerUpLevel1;    // Forward declare Level 1
 class PowerUpLevel2;    // Forward declare Level 2
 class PowerUpLevel3;    // Forward declare Level 3
+class PowerUpLevel4;    // Forward declare Level 3
 
 class GameState {
 private:

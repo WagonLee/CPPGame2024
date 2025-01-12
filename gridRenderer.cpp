@@ -22,54 +22,54 @@ void initGrid() {
                     gridState[row][col] = Tile(ASSET_PATH + "grid/HORIZONTAL-EDGE.png");
                 }
                 else if (col == 2) {
-                    gridState[row][col] = Tile(ASSET_PATH + "grid/HORIZONTAL-EDGE.png");
+                    gridState[row][col] = Tile(ASSET_PATH + "chars/B.png");
                 }
                 else if (col == 3) {
-                    gridState[row][col] = Tile(ASSET_PATH + "grid/HORIZONTAL-EDGE.png");
+                    gridState[row][col] = Tile(ASSET_PATH + "chars/Y.png");
                 }
                 else if (col == 4) {
-                    gridState[row][col] = Tile(ASSET_PATH + "grid/HORIZONTAL-EDGE.png");
+                    gridState[row][col] = Tile(ASSET_PATH + "chars/T.png");
                 }
                 else if (col == 5) {
-                    gridState[row][col] = Tile(ASSET_PATH + "grid/HORIZONTAL-EDGE.png");
+                    gridState[row][col] = Tile(ASSET_PATH + "chars/E.png");
                 }
                 else if (col == 6) {
-                    gridState[row][col] = Tile(ASSET_PATH + "grid/HORIZONTAL-EDGE.png");
+                    gridState[row][col] = Tile(ASSET_PATH + "chars/R.png");
                 }
                 else if (col == 7) {
-                    gridState[row][col] = Tile(ASSET_PATH + "grid/HORIZONTAL-EDGE.png");
+                    gridState[row][col] = Tile(ASSET_PATH + "chars/A.png");
                 }
                 else if (col == 8) {
-                    gridState[row][col] = Tile(ASSET_PATH + "grid/HORIZONTAL-EDGE.png");
+                    gridState[row][col] = Tile(ASSET_PATH + "chars/I.png");
                 }
                 else if (col == 9) {
-                    gridState[row][col] = Tile(ASSET_PATH + "grid/HORIZONTAL-EDGE.png");
+                    gridState[row][col] = Tile(ASSET_PATH + "chars/D.png");
                 }
                 else if (col == 10) {
-                    gridState[row][col] = Tile(ASSET_PATH + "grid/HORIZONTAL-EDGE.png");
+                    gridState[row][col] = Tile(ASSET_PATH + "chars/E.png");
                 }
                 else if (col == 11) {
-                    gridState[row][col] = Tile(ASSET_PATH + "grid/HORIZONTAL-EDGE.png");
+                    gridState[row][col] = Tile(ASSET_PATH + "chars/R.png");
                 }
                 else if (col == 12) {
                     gridState[row][col] = Tile(ASSET_PATH + "grid/HORIZONTAL-EDGE.png");
                 }
                 else if (col == GRID_WIDTH - 1) {
-                    gridState[row][col] = Tile(ASSET_PATH + "grid/TR-CORNER.png"); // Top-right corner (Red)
+                    gridState[row][col] = Tile(ASSET_PATH + "grid/TR-CORNER.png"); // Top-right corner 
                 }
             }
 
             // 2. Bottom corners of the entire window
             else if (row == GRID_HEIGHT - 1 && col == 0) {
-                gridState[row][col] = Tile(ASSET_PATH + "grid/TR-CORNER.png"); // Bottom-left corner (Orange)
+                gridState[row][col] = Tile(ASSET_PATH + "grid/BL-CORNER.png"); // Bottom-left corner
             }
             else if (row == GRID_HEIGHT - 1 && col == GRID_WIDTH - 1) {
-                gridState[row][col] = Tile(1.0f, 1.0f, 0.0f); // Bottom-right corner (Yellow)
+                gridState[row][col] = Tile(ASSET_PATH + "grid/BR-CORNER.png"); // Bottom-right corner 
             }
 
             // 3. Entire last row (if not corners)
             else if (row == GRID_HEIGHT - 1) {
-                gridState[row][col] = Tile(0.2f, 0.0f, 0.5f); // Blue
+                gridState[row][col] = Tile(ASSET_PATH + "grid/HORIZONTAL-EDGE.png");
             }
 
             // 4. Additional rows well below the playable grid
@@ -79,180 +79,153 @@ void initGrid() {
                 switch (relativeRow) {
                 case 0:
                     if (col == 0) {
-                        gridState[row][col] = Tile(0.7f, 0.7f, 0.2f);
+                        gridState[row][col] = Tile(ASSET_PATH + "grid/VERTICAL-EDGE.png");
                     }
                     else if (col == 1) {
-                        gridState[row][col] = Tile(0.5f, 0.0f, 0.9f);
+                        gridState[row][col] = Tile(ASSET_PATH + "chars/S.png");
                     }
                     else if (col == 2) {
-                        gridState[row][col] = Tile(0.0f, 0.5f, 0.9f);
+                        gridState[row][col] = Tile(ASSET_PATH + "chars/C.png");
                     }
                     else if (col == 3) {
-                        gridState[row][col] = Tile(0.6f, 0.3f, 0.8f);
+                        gridState[row][col] = Tile(ASSET_PATH + "chars/R.png");
                     }
                     else if (col == 4) {
-                        gridState[row][col] = Tile(0.4f, 0.8f, 0.1f);
+                        gridState[row][col] = Tile(ASSET_PATH + "chars/0.png");
                     }
                     else if (col == 5) {
-                        gridState[row][col] = Tile(0.3f, 0.2f, 0.6f);
+                        gridState[row][col] = Tile(ASSET_PATH + "chars/0.png");
                     }
                     else if (col == 6) {
-                        gridState[row][col] = Tile(0.2f, 0.9f, 0.2f);
+                        gridState[row][col] = Tile(ASSET_PATH + "chars/0.png");
                     }
                     else if (col == 7) {
-                        gridState[row][col] = Tile(0.5f, 0.1f, 0.9f);
+                        gridState[row][col] = Tile(ASSET_PATH + "chars/0.png");
                     }
                     else if (col == 8) {
-                        gridState[row][col] = Tile(0.1f, 0.5f, 0.3f);
+                        gridState[row][col] = Tile(ASSET_PATH + "chars/0.png");
                     }
                     else if (col == 9) {
-                        gridState[row][col] = Tile(0.9f, 0.3f, 0.2f);
+                        gridState[row][col] = Tile(ASSET_PATH + "chars/0.png");
                     }
                     else if (col == 10) {
-                        gridState[row][col] = Tile(0.7f, 0.6f, 0.8f);
+                        gridState[row][col] = Tile(ASSET_PATH + "chars/X.png");
                     }
                     else if (col == 11) {
-                        gridState[row][col] = Tile(0.1f, 0.1f, 0.1f);
+                        gridState[row][col] = Tile(ASSET_PATH + "chars/0.png");
                     }
                     else if (col == 12) {
-                        gridState[row][col] = Tile(0.1f, 0.9f, 0.1f);
+                        gridState[row][col] = Tile(ASSET_PATH + "chars/0.png");
                     }
                     else if (col == GRID_WIDTH - 1) {
-                        gridState[row][col] = Tile(0.0f, 1.0f, 0.0f); // Bruh
+                        gridState[row][col] = Tile(ASSET_PATH + "grid/VERTICAL-EDGE.png");
                     }
                     break;
 
                 case 1:
+                {
                     if (col == 0) {
-                        gridState[row][col] = Tile(0.3f, 0.2f, 0.1f);
-                    }
-                    else if (col == 1) {
-                        gridState[row][col] = Tile(0.8f, 0.5f, 0.7f);
-                    }
-                    else if (col == 2) {
-                        gridState[row][col] = Tile(0.2f, 0.4f, 0.6f);
-                    }
-                    else if (col == 3) {
-                        gridState[row][col] = Tile(0.5f, 0.3f, 0.2f);
-                    }
-                    else if (col == 4) {
-                        gridState[row][col] = Tile(0.1f, 0.7f, 0.5f);
-                    }
-                    else if (col == 5) {
-                        gridState[row][col] = Tile(0.9f, 0.2f, 0.8f);
-                    }
-                    else if (col == 6) {
-                        gridState[row][col] = Tile(0.3f, 0.3f, 0.3f);
-                    }
-                    else if (col == 7) {
-                        gridState[row][col] = Tile(0.8f, 0.6f, 0.2f);
-                    }
-                    else if (col == 8) {
-                        gridState[row][col] = Tile(0.8f, 0.9f, 0.1f);
-                    }
-                    else if (col == 9) {
-                        gridState[row][col] = Tile(0.9f, 0.3f, 0.2f);
-                    }
-                    else if (col == 10) {
-                        gridState[row][col] = Tile(0.1f, 0.6f, 0.8f);
-                    }
-                    else if (col == 11) {
-                        gridState[row][col] = Tile(0.1f, 0.5f, 0.1f);
-                    }
-                    else if (col == 12) {
-                        gridState[row][col] = Tile(0.1f, 0.9f, 0.3f);
+                        // Left corner
+                        gridState[row][col] = Tile(ASSET_PATH + "grid/ML-CORNER.png");
                     }
                     else if (col == GRID_WIDTH - 1) {
-                        gridState[row][col] = Tile(0.0f, 1.0f, 0.0f); // Bruh
+                        // Right corner
+                        gridState[row][col] = Tile(ASSET_PATH + "grid/MR-CORNER.png");
+                    }
+                    else {
+                        // Everything in between
+                        gridState[row][col] = Tile(ASSET_PATH + "grid/HORIZONTAL-EDGE.png");
                     }
                     break;
+                }
+
 
                 case 2:
                     if (col == 0) {
-                        gridState[row][col] = Tile(0.4f, 0.4f, 0.9f);
+                        gridState[row][col] = Tile(ASSET_PATH + "grid/VERTICAL-EDGE.png");
                     }
                     else if (col == 1) {
-                        gridState[row][col] = Tile(0.3f, 0.6f, 0.7f);
+                        gridState[row][col] = Tile(ASSET_PATH + "chars/P.png");
                     }
                     else if (col == 2) {
-                        gridState[row][col] = Tile(0.7f, 0.2f, 0.1f);
+                        gridState[row][col] = Tile(ASSET_PATH + "chars/A.png");
                     }
                     else if (col == 3) {
-                        gridState[row][col] = Tile(0.5f, 0.8f, 0.2f);
+                        gridState[row][col] = Tile(ASSET_PATH + "chars/Y.png");
                     }
                     else if (col == 4) {
-                        gridState[row][col] = Tile(0.6f, 0.3f, 0.4f);
+                        gridState[row][col] = Tile(ASSET_PATH + "chars/L.png");
                     }
                     else if (col == 5) {
-                        gridState[row][col] = Tile(0.9f, 0.9f, 0.5f);
+                        gridState[row][col] = Tile(ASSET_PATH + "chars/O.png");
                     }
                     else if (col == 6) {
-                        gridState[row][col] = Tile(0.2f, 0.6f, 0.9f);
+                        gridState[row][col] = Tile(ASSET_PATH + "chars/A.png");
                     }
                     else if (col == 7) {
-                        gridState[row][col] = Tile(0.4f, 0.9f, 0.7f);
+                        gridState[row][col] = Tile(ASSET_PATH + "chars/D.png");
                     }
                     else if (col == 8) {
-                        gridState[row][col] = Tile(0.1f, 0.7f, 0.3f);
+                        gridState[row][col] = Tile(ASSET_PATH + "chars/S.png");
                     }
                     else if (col == 9) {
-                        gridState[row][col] = Tile(0.9f, 0.3f, 0.2f);
+                        gridState[row][col] = Tile(ASSET_PATH + "grid/POWERUP1.png");
                     }
                     else if (col == 10) {
-                        gridState[row][col] = Tile(0.7f, 0.6f, 0.1f);
+                        gridState[row][col] = Tile(ASSET_PATH + "grid/POWERUP2.png");
                     }
                     else if (col == 11) {
-                        gridState[row][col] = Tile(0.1f, 0.1f, 0.5f);
+                        gridState[row][col] = Tile(ASSET_PATH + "grid/POWERUP3.png");
                     }
                     else if (col == 12) {
-                        gridState[row][col] = Tile(0.3f, 0.9f, 0.1f);
+                        gridState[row][col] = Tile(ASSET_PATH + "grid/POWERUP4.png");
                     }
                     else if (col == GRID_WIDTH - 1) {
-                        gridState[row][col] = Tile(0.0f, 1.0f, 0.0f); // Bruh
+                        gridState[row][col] = Tile(ASSET_PATH + "grid/VERTICAL-EDGE.png");
                     }
                     break;
                 case 3:
                     if (col == 0) {
-                        gridState[row][col] = Tile(0.7f, 0.7f, 0.2f);
+                        gridState[row][col] = Tile(ASSET_PATH + "grid/VERTICAL-EDGE.png");
                     }
                     else if (col == 1) {
-                        gridState[row][col] = Tile(0.5f, 0.0f, 0.9f);
+                        gridState[row][col] = Tile(ASSET_PATH + "chars/R.png");
                     }
                     else if (col == 2) {
-                        gridState[row][col] = Tile(0.0f, 0.5f, 0.9f);
+                        gridState[row][col] = Tile(ASSET_PATH + "chars/A.png");
                     }
                     else if (col == 3) {
-                        gridState[row][col] = Tile(0.6f, 0.3f, 0.8f);
+                        gridState[row][col] = Tile(ASSET_PATH + "chars/M.png");
                     }
                     else if (col == 4) {
-                        gridState[row][col] = Tile(0.4f, 0.8f, 0.1f);
+                        gridState[row][col] = Tile(ASSET_PATH + "grid/TALLY-OFF1.png");
                     }
                     else if (col == 5) {
-                        gridState[row][col] = Tile(0.3f, 0.2f, 0.6f);
+                        gridState[row][col] = Tile(ASSET_PATH + "grid/TALLY-OFF1.png");
                     }
                     else if (col == 6) {
-                        gridState[row][col] = Tile(0.2f, 0.9f, 0.2f);
+                        gridState[row][col] = Tile(ASSET_PATH + "grid/TALLY-OFF1.png");
                     }
                     else if (col == 7) {
-                        gridState[row][col] = Tile(0.5f, 0.1f, 0.9f);
+                        gridState[row][col] = Tile(ASSET_PATH + "grid/TALLY-OFF1.png");
                     }
                     else if (col == 8) {
-                        gridState[row][col] = Tile(0.1f, 0.5f, 0.3f);
+                        gridState[row][col] = Tile(ASSET_PATH + "grid/TALLY-OFF1.png");
                     }
                     else if (col == 9) {
-                        gridState[row][col] = Tile(0.9f, 0.3f, 0.2f);
+                        gridState[row][col] = Tile(ASSET_PATH + "grid/TALLY-OFF2.png");
                     }
                     else if (col == 10) {
-                        gridState[row][col] = Tile(0.7f, 0.6f, 0.8f);
+                        gridState[row][col] = Tile(ASSET_PATH + "grid/TALLY-OFF2.png");
                     }
                     else if (col == 11) {
-                        gridState[row][col] = Tile(0.1f, 0.1f, 0.1f);
+                        gridState[row][col] = Tile(ASSET_PATH + "grid/TALLY-OFF2.png");
                     }
                     else if (col == 12) {
-                        gridState[row][col] = Tile(0.1f, 0.9f, 0.1f);
+                        gridState[row][col] = Tile(ASSET_PATH + "grid/TALLY-OFF2.png");
                     }
                     else if (col == GRID_WIDTH - 1) {
-                        gridState[row][col] = Tile(0.0f, 1.0f, 0.0f); // Bruh
+                        gridState[row][col] = Tile(ASSET_PATH + "grid/VERTICAL-EDGE.png");
                     }
                     break;
                 }
@@ -260,20 +233,20 @@ void initGrid() {
 
             // 5. Bottom corners of the grid border
             else if (row == UI_ROWS_ABOVE + PLAYABLE_ROWS && col == 0) {
-                gridState[row][col] = Tile(0.0f, 1.0f, 1.0f); // Bottom-left grid border (Cyan)
+                gridState[row][col] = Tile(ASSET_PATH + "grid/ML-CORNER.png");
             }
             else if (row == UI_ROWS_ABOVE + PLAYABLE_ROWS && col == PLAYABLE_COLUMNS + 1) {
-                gridState[row][col] = Tile(1.0f, 0.0f, 1.0f); // Bottom-right grid border (Pink)
+                gridState[row][col] = Tile(ASSET_PATH + "grid/MR-CORNER.png");
             }
 
             // 6. Left and right border columns
             else if (col == 0 || col == GRID_WIDTH - 1) {
-                gridState[row][col] = Tile(0.2f, 0.0f, 0.5f); // Blue
+                gridState[row][col] = Tile(ASSET_PATH + "grid/VERTICAL-EDGE.png");
             }
 
             // 7. Rows above and below the playable grid
             else if (row < UI_ROWS_ABOVE || row >= UI_ROWS_ABOVE + PLAYABLE_ROWS) {
-                gridState[row][col] = Tile(0.0f, 0.5f, 1.0f); // Light Blue
+                gridState[row][col] = Tile(ASSET_PATH + "grid/HORIZONTAL-EDGE.png");
             }
 
             // 8. Playable rows (alternating black/white)
@@ -300,37 +273,30 @@ void updateGrid() {
     // Check if an enemy was recently killed
     // Check if an enemy was recently killed
     if (gameState->enemyKilled) {
+
         // Turn the top row blue
-        gridState[0][1] = Tile(1.0f, 0.0f, 0.0f);
-        gridState[0][2] = Tile(1.0f, 0.0f, 0.0f);
-        gridState[0][3] = Tile(1.0f, 0.0f, 0.0f);
-        gridState[0][4] = Tile(1.0f, 0.0f, 0.0f);
-        gridState[0][5] = Tile(1.0f, 0.0f, 0.0f);
-        gridState[0][6] = Tile(1.0f, 0.0f, 0.0f);
-        gridState[0][7] = Tile(1.0f, 0.0f, 0.0f);
-        gridState[0][8] = Tile(1.0f, 0.0f, 0.0f);
-        gridState[0][9] = Tile(1.0f, 0.0f, 0.0f);
-        gridState[0][10] = Tile(1.0f, 0.0f, 0.0f);
-        gridState[0][11] = Tile(1.0f, 0.0f, 0.0f);
-        gridState[0][12] = Tile(1.0f, 0.0f, 0.0f);
+        gridState[0][4] = Tile(ASSET_PATH + "chars/P.png");
+        gridState[0][5] = Tile(ASSET_PATH + "chars/U.png");
+        gridState[0][6] = Tile(ASSET_PATH + "chars/R.png");
+        gridState[0][7] = Tile(ASSET_PATH + "chars/G.png");
+        gridState[0][8] = Tile(ASSET_PATH + "chars/E.png");
+        gridState[0][9] = Tile(ASSET_PATH + "chars/D.png");
 
         // Reset the top row if the current time has passed the end time
         if (graphics::getGlobalTime() >= gameState->enemyKillEndTime) {
             gameState->enemyKilled = false;
 
             // Reset the top row to its init colors
-            gridState[0][1] = Tile(0.9f, 0.1f, 0.1f); // Tile at (0, 1)
-            gridState[0][2] = Tile(0.8f, 0.2f, 0.2f); // Tile at (0, 2)
-            gridState[0][3] = Tile(0.7f, 0.3f, 0.3f); // Tile at (0, 3)
-            gridState[0][4] = Tile(0.6f, 0.4f, 0.4f); // Tile at (0, 4)
-            gridState[0][5] = Tile(0.5f, 0.5f, 0.5f); // Tile at (0, 5)
-            gridState[0][6] = Tile(0.4f, 0.6f, 0.6f); // Tile at (0, 6)
-            gridState[0][7] = Tile(0.3f, 0.7f, 0.7f); // Tile at (0, 7)
-            gridState[0][8] = Tile(0.2f, 0.8f, 0.8f); // Tile at (0, 8)
-            gridState[0][9] = Tile(0.1f, 0.9f, 0.9f); // Tile at (0, 9)
-            gridState[0][10] = Tile(0.2f, 0.9f, 0.1f); // Tile at (0, 10)
-            gridState[0][11] = Tile(0.3f, 0.2f, 0.9f); // Tile at (0, 11)
-            gridState[0][12] = Tile(1.0f, 0.2f, 1.0f); // Tile at (0, 12)
+            gridState[0][2] = Tile(ASSET_PATH + "chars/B.png");
+            gridState[0][3] = Tile(ASSET_PATH + "chars/Y.png");
+            gridState[0][4] = Tile(ASSET_PATH + "chars/T.png");
+            gridState[0][5] = Tile(ASSET_PATH + "chars/E.png");
+            gridState[0][6] = Tile(ASSET_PATH + "chars/R.png");
+            gridState[0][7] = Tile(ASSET_PATH + "chars/A.png");
+            gridState[0][8] = Tile(ASSET_PATH + "chars/I.png");
+            gridState[0][9] = Tile(ASSET_PATH + "chars/D.png");
+            gridState[0][10] = Tile(ASSET_PATH + "chars/E.png");
+            gridState[0][11] = Tile(ASSET_PATH + "chars/R.png");
         }
     }
 
@@ -347,18 +313,13 @@ void updateGrid() {
     // Ensure the player exists and is dead
     if (player && !player->getIsAlive()) {
         // Set each tile in the top row to red
-        gridState[0][1] = Tile(1.0f, 0.0f, 0.0f);
-        gridState[0][2] = Tile(1.0f, 0.0f, 0.0f);
-        gridState[0][3] = Tile(1.0f, 0.0f, 0.0f);
         gridState[0][4] = Tile(1.0f, 0.0f, 0.0f);
-        gridState[0][5] = Tile(1.0f, 0.0f, 0.0f);
-        gridState[0][6] = Tile(1.0f, 0.0f, 0.0f);
-        gridState[0][7] = Tile(1.0f, 0.0f, 0.0f);
-        gridState[0][8] = Tile(1.0f, 0.0f, 0.0f);
+        gridState[0][5] = Tile(ASSET_PATH + "chars/P.png");
+        gridState[0][6] = Tile(ASSET_PATH + "chars/W.png");
+        gridState[0][7] = Tile(ASSET_PATH + "chars/N.png");
+        gridState[0][8] = Tile(ASSET_PATH + "chars/D.png");
         gridState[0][9] = Tile(1.0f, 0.0f, 0.0f);
-        gridState[0][10] = Tile(1.0f, 0.0f, 0.0f);
-        gridState[0][11] = Tile(1.0f, 0.0f, 0.0f);
-        gridState[0][12] = Tile(1.0f, 0.0f, 0.0f);
+        gridState[0][9] = Tile(1.0f, 0.0f, 0.0f);
 
     }
 }
