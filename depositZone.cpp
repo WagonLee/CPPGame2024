@@ -9,6 +9,7 @@ DepositZone::DepositZone(GameState* state, int x, int y, Shape shape, bool horiz
     duration = 185.0f;  // 10 seconds active time
     timer = duration;
     init(); // Calculate zone tiles
+    initializeVariants(); // Precompute random variants
 }
 
 // Initialize zone shape
@@ -25,6 +26,23 @@ void DepositZone::init() {
     case Shape::CIRCLE:
         createCircle();
         break;
+    }
+    initializeVariants(); // Ensure variants are updated after tiles are created
+}
+
+// Initialize random variants for middle tiles
+void DepositZone::initializeVariants() {
+    tileVariants.resize(tiles.size(), 0); // Match the size of tiles
+
+    for (size_t i = 0; i < tiles.size(); ++i) {
+        if (horizontal && i > 0 && i < tiles.size() - 1) {
+            // Generate random variants for horizontal middle tiles
+            tileVariants[i] = 1 + (rand() % 4); // Random number between 1 and 4
+        }
+        else {
+            // No variant needed for edge or vertical tiles
+            tileVariants[i] = 0;
+        }
     }
 }
 
@@ -128,8 +146,9 @@ void DepositZone::drawStraightLine() {
                 br.texture = ASSET_PATH + "zones/HORIZ-RIGHT.png";
             }
             else {
-                // Middle tiles
-                br.texture = ASSET_PATH + "zones/HORIZ-MID.png";
+                // Use precomputed random variant for middle tiles
+                int variant = tileVariants[i];
+                br.texture = ASSET_PATH + "zones/HORIZ-MID" + std::to_string(variant) + ".png";
             }
         }
         else {
@@ -155,6 +174,7 @@ void DepositZone::drawStraightLine() {
         graphics::drawRect(xPos, yPos, CELL_SIZE, CELL_SIZE, br);
     }
 }
+
 
 void DepositZone::drawDonut() {
     graphics::Brush br;
@@ -253,122 +273,61 @@ void DepositZone::drawCircle() {
         bool isBottomLeftCenter = (tile.first == gridX + 1 && tile.second == gridY + 2);
         bool isBottomRightCenter = (tile.first == gridX + 2 && tile.second == gridY + 2);
 
-        // Apply styles based on tile type (unique color for each tile!)
-
-        // 1) Four corners (each individually colored)
-        if (isTopLeftCorner) {
-            // (gridX, gridY)
-            br.fill_color[0] = 1.0f;  // R
-            br.fill_color[1] = 0.0f;  // G
-            br.fill_color[2] = 0.0f;  // B  => Bright red
-        }
-        else if (isTopRightCorner) {
-            // (gridX+3, gridY)
-            br.fill_color[0] = 0.0f;
-            br.fill_color[1] = 1.0f;
-            br.fill_color[2] = 0.0f;  // Bright green
-        }
-        else if (isBottomLeftCorner) {
-            // (gridX, gridY+3)
-            br.fill_color[0] = 0.0f;
-            br.fill_color[1] = 0.0f;
-            br.fill_color[2] = 1.0f;  // Bright blue
-        }
-        else if (isBottomRightCorner) {
-            // (gridX+3, gridY+3)
-            br.fill_color[0] = 1.0f;
-            br.fill_color[1] = 1.0f;
-            br.fill_color[2] = 0.0f;  // Bright yellow
-        }
-
-        // 2) Edges (originally lumps 2 tiles each, so nest sub-if to differentiate)
-        else if (isTopSideCorner) {
-            // These are (gridX+1, gridY) and (gridX+2, gridY)
+        // 2) Edges
+        if (isTopSideCorner) {
+            // (gridX+1, gridY) and (gridX+2, gridY)
             if (tile.first == gridX + 1) {
-                br.fill_color[0] = 1.0f; // Pink
-                br.fill_color[1] = 0.5f;
-                br.fill_color[2] = 0.7f;
+                br.texture = ASSET_PATH + "zones/TOPLEFT1.png";
             }
             else {
-                br.fill_color[0] = 0.5f; // Light green
-                br.fill_color[1] = 1.0f;
-                br.fill_color[2] = 0.5f;
+                br.texture = ASSET_PATH + "zones/TOPRIGHT1.png";
             }
         }
         else if (isBottomSideCorner) {
-            // These are (gridX+1, gridY+3) and (gridX+2, gridY+3)
+            // (gridX+1, gridY+3) and (gridX+2, gridY+3)
             if (tile.first == gridX + 1) {
-                br.fill_color[0] = 0.5f;
-                br.fill_color[1] = 0.5f;
-                br.fill_color[2] = 1.0f; // Light blue
+                br.texture = ASSET_PATH + "zones/BOTLEFT2.png";
             }
             else {
-                br.fill_color[0] = 0.3f;
-                br.fill_color[1] = 0.7f;
-                br.fill_color[2] = 1.0f; // Variation of light blue
+                br.texture = ASSET_PATH + "zones/BOTRIGHT2.png";
             }
         }
         else if (isLeftSideCorner) {
-            // These are (gridX, gridY+1) and (gridX, gridY+2)
+            // (gridX, gridY+1) and (gridX, gridY+2)
             if (tile.second == gridY + 1) {
-                br.fill_color[0] = 0.8f;
-                br.fill_color[1] = 0.4f;
-                br.fill_color[2] = 0.4f; // Salmon
+                br.texture = ASSET_PATH + "zones/TOPLEFT2.png";
             }
             else {
-                br.fill_color[0] = 1.0f;
-                br.fill_color[1] = 0.7f;
-                br.fill_color[2] = 0.5f; // Light orange
+                br.texture = ASSET_PATH + "zones/BOTLEFT1.png";
             }
         }
         else if (isRightSideCorner) {
-            // These are (gridX+3, gridY+1) and (gridX+3, gridY+2)
+            // (gridX+3, gridY+1) and (gridX+3, gridY+2)
             if (tile.second == gridY + 1) {
-                br.fill_color[0] = 0.5f;
-                br.fill_color[1] = 1.0f;
-                br.fill_color[2] = 0.7f; // Mint/pastel green
+                br.texture = ASSET_PATH + "zones/TOPRIGHT1.png";
             }
             else {
-                br.fill_color[0] = 0.5f;
-                br.fill_color[1] = 1.0f;
-                br.fill_color[2] = 1.0f; // Pastel cyan
+                br.texture = ASSET_PATH + "zones/BOTRIGHT1.png";
             }
         }
 
-        // 3) Four center tiles (each individually colored)
+        // 3) Four center tiles (each individually assigned)
         else if (isTopLeftCenter) {
-            br.fill_color[0] = 0.6f; // Purple
-            br.fill_color[1] = 0.0f;
-            br.fill_color[2] = 0.6f;
+            br.texture = ASSET_PATH + "zones/CENTER-TOPLEFT.png";
         }
         else if (isTopRightCenter) {
-            br.fill_color[0] = 0.0f; // Darker purple
-            br.fill_color[1] = 0.0f;
-            br.fill_color[2] = 0.6f;
+            br.texture = ASSET_PATH + "zones/CENTER-TOPRIGHT.png";
         }
         else if (isBottomLeftCenter) {
-            br.fill_color[0] = 0.6f; // Dark red
-            br.fill_color[1] = 0.0f;
-            br.fill_color[2] = 0.0f;
+            br.texture = ASSET_PATH + "zones/CENTER-BOTLEFT.png";
         }
         else if (isBottomRightCenter) {
-            br.fill_color[0] = 0.0f; // Dark green
-            br.fill_color[1] = 0.6f;
-            br.fill_color[2] = 0.0f;
+            br.texture = ASSET_PATH + "zones/CENTER-BOTRIGHT.png";
         }
 
-        // 4) Fallback (anything outside the 4×4, or not used)
-        else {
-            br.fill_color[0] = 0.1f; // Gray
-            br.fill_color[1] = 0.5f;
-            br.fill_color[2] = 0.1f;
-        }
+        br.outline_opacity = 0.0f;
 
-        // Semi-transparent outline
-        br.outline_opacity = 0.5f;
-
-        // Draw the tile
+        // Draw the tile (unchanged from original code)
         graphics::drawRect(xPos, yPos, CELL_SIZE, CELL_SIZE, br);
     }
 }
-

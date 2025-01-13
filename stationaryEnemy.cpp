@@ -15,23 +15,24 @@ void StationaryEnemy::init() {
 // Draw the stationary enemy
 void StationaryEnemy::draw() {
     graphics::Brush br;
-    br.outline_opacity = 0.0f;
+    br.outline_opacity = 0.0f; // Remove outlines
 
-    if (isWeak) {
-        br.fill_color[0] = 0.5f; // Light cyan for weak state
-        br.fill_color[1] = 1.0f;
-        br.fill_color[2] = 0.0f;
+    // Ensure texture path is correct and fill opacity is set
+    if (isWeak) { // Check weak state correctly
+        br.texture = ASSET_PATH + "objects/STATIONARY-ENEMY-WEAK.png"; // Corrected texture path
     }
     else {
-        br.fill_color[0] = 0.0f; // Cyan for strong state
-        br.fill_color[1] = 1.0f;
-        br.fill_color[2] = 1.0f;
+        br.texture = ASSET_PATH + "objects/STATIONARY-ENEMY.png"; // Corrected texture path
     }
 
+    br.fill_opacity = 1.0f; // Ensure the texture is fully visible
+
+    // Calculate position on the grid
     float xPos = gridX * CELL_SIZE + CELL_SIZE / 2.0f;
     float yPos = gridY * CELL_SIZE + CELL_SIZE / 2.0f;
 
-    graphics::drawRect(xPos, yPos, CELL_SIZE, CELL_SIZE, br);
+    // Draw the enemy with the appropriate texture
+    graphics::drawRect(xPos, yPos - CELL_SIZE/8.1f, CELL_SIZE * 1.3f, CELL_SIZE * 1.3f, br);
 }
 
 // Update behavior

@@ -14,12 +14,16 @@ private:
     Shape shape;                   // Shape of the deposit zone
     bool horizontal;               // Orientation for straight lines
     std::vector<std::pair<int, int>> tiles; // Stores affected grid tiles
+    std::vector<int> tileVariants; // Precomputed random variants for tiles
     float duration;                // Active duration (seconds)
     float timer;                   // Tracks remaining time
 
     void drawStraightLine();
     void drawDonut();
     void drawCircle();
+
+    // Helper method to initialize random variants
+    void initializeVariants();
 
 public:
     // Constructor
