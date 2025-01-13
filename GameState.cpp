@@ -19,8 +19,10 @@
 GameState* GameState::instance = nullptr;
 
 // Constructor
-GameState::GameState() {}
-
+GameState::GameState() {
+    firstSpawnTime = graphics::getGlobalTime(); // Initialize the spawn timer
+    std::cout << "GameState initialized. First spawn time set to: " << firstSpawnTime << std::endl;
+}
 
 // Singleton instance
 GameState* GameState::getInstance() {
@@ -321,11 +323,57 @@ void GameState::update(float dt) {
     time_t currentTime = time(nullptr); // declaration
 
     // --- MOVING ENEMY SPAWNING ---
-    if (!isAnyPowerUpActive() && difftime(currentTime, lastMovingEnemySpawnTime) >= movingEnemySpawnInterval) {
-        spawnInteractiveObject<MovingEnemy>();
-        lastMovingEnemySpawnTime = currentTime;
-        movingEnemySpawnInterval = movingEnemySpawnMin + (rand() / (RAND_MAX / (movingEnemySpawnMax - movingEnemySpawnMin)));
+    if (isAnyPowerUpActive()) {
+        // Check for inactive enemies and turn them weak
+        for (const auto& obj : gameObjects) {
+            MovingEnemy* movingEnemy = dynamic_cast<MovingEnemy*>(obj.get());
+            if (movingEnemy && movingEnemy->isInactive && !movingEnemy->getIsWeak()) {
+                movingEnemy->setWeak(true); // Turn weak if inactive and power-up is active
+                std::cout << "Inactive MovingEnemy at (" << movingEnemy->getGridX()
+                    << ", " << movingEnemy->getGridY() << ") turned WEAK due to power-up." << std::endl;
+            }
+        }
     }
+    else {
+        // Continue spawning logic if no power-up is active
+        if (firstSpawn) {
+            // Wait 4 seconds before the first spawn
+            if (graphics::getGlobalTime() >= firstSpawnTime + 4000.0f) {
+                spawnInteractiveObject<MovingEnemy>();
+                firstSpawn = false;
+                enemySpawnedInactive = true;
+                std::cout << "First MovingEnemy spawned after 4 seconds." << std::endl;
+            }
+        }
+        else {
+            // Spawn new enemy as soon as the last one exits inactive state
+            for (const auto& obj : gameObjects) {
+                MovingEnemy* movingEnemy = dynamic_cast<MovingEnemy*>(obj.get());
+                if (movingEnemy && movingEnemy->isActive() && !enemySpawnedInactive) {
+                    spawnInteractiveObject<MovingEnemy>();
+                    enemySpawnedInactive = true;
+                    std::cout << "New MovingEnemy spawned after previous became active." << std::endl;
+                    break;
+                }
+            }
+        }
+
+        // Check if all active enemies have exited inactive state
+        bool allActive = true;
+        for (const auto& obj : gameObjects) {
+            MovingEnemy* movingEnemy = dynamic_cast<MovingEnemy*>(obj.get());
+            if (movingEnemy && movingEnemy->isInactive) {
+                allActive = false;
+                break;
+            }
+        }
+
+        // Reset enemy spawn flag if all are active
+        if (allActive) {
+            enemySpawnedInactive = false;
+        }
+    }
+
 
     // --- STATIONARY ENEMY SPAWNING ---
     if (!isAnyPowerUpActive() && difftime(currentTime, lastStationarySpawnTime) >= stationaryEnemySpawnInterval) {

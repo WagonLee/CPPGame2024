@@ -35,7 +35,10 @@ void MovingEnemy::draw() {
     graphics::Brush br;
     br.outline_opacity = 0.0f;
 
-    if (isWeak()) { // Check for weak state
+    if (isInactive) { // Check for inactive state
+        br.texture = ASSET_PATH + "objects/MOVING-ENEMY-SPAWNING.png"; // Texture for inactive state
+    }
+    else if (isWeak()) { // Check for weak state
         br.texture = ASSET_PATH + "objects/MOVING-ENEMY-WEAK.png"; // Texture for weak state
     }
     else {
@@ -50,6 +53,16 @@ void MovingEnemy::draw() {
 
 // Update behavior
 void MovingEnemy::update(float dt) {
+    // Handle inactive state
+    if (isInactive) {
+        if (graphics::getGlobalTime() >= inactiveEndTime) {
+            activate(); // End inactive state
+            std::cout << "MovingEnemy at (" << gridX << ", " << gridY << ") is now ACTIVE." << std::endl;
+        }
+        return; // Skip further updates while inactive
+    }
+
+    // Handle weak state
     if (isWeak()) { // Don't move if weak
         return;
     }
@@ -138,11 +151,9 @@ void MovingEnemy::setWeak(bool weak) {
     isWeakState = weak;
     if (weak) {
         stopMovement(); // Stop movement
-        std::cout << "Enemy set to WEAK! Color should change." << std::endl;
     }
     else {
         startMovement(); // Resume movement
-        std::cout << "Enemy restored to NORMAL! Color should change back." << std::endl;
     }
 }
 
@@ -159,6 +170,11 @@ void MovingEnemy::startMovement() {
 
 // Collision Handling for MovingEnemy
 void MovingEnemy::handleCollision(Player& player) {
+    // Ignore collisions if the enemy is inactive
+    if (isInactive) {
+        return;
+    }
+
     if (isWeak()) {
         std::cout << "Weak enemy killed by player!" << std::endl;
         setActive(false); // Deactivate the enemy
@@ -168,7 +184,7 @@ void MovingEnemy::handleCollision(Player& player) {
         // Notify GameState about the kill
         gameState->addToKillChain(); // Increment kill chain and calculate score
         gameState->enemyKilled = true;
-        gameState->enemyKillEndTime = graphics::getGlobalTime() + 1500.0f; // 1 second from now
+        gameState->enemyKillEndTime = graphics::getGlobalTime() + 1500.0f; // 1.5 seconds from now
     }
     else {
         std::cout << "Player killed by enemy!" << std::endl;

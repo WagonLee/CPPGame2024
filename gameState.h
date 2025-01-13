@@ -82,13 +82,15 @@ private:
     const int tallyLevel3 = 8;
     const int tallyLevel4 = 9;
 
-
     const float upgradeTime = 400.0f; // Time for auto-upgrade
 
     bool preGamePaused = true; // Tracks if the game is in the "READY?" state
     bool paused = false;       // Tracks if the game is paused during gameplay
     int pauseMenuSelection = 0; // Tracks the current option in the pause menu
 
+    bool firstSpawn = true;            // Track the first spawn
+    float firstSpawnTime = 0.0f;       // Time for the first spawn 
+    bool enemySpawnedInactive = false; // Ensure one spawn at a time
 public:
     // Singleton pattern
     static GameState* getInstance();
@@ -177,7 +179,7 @@ public:
     ~GameState();
 };
 
-// Template implementation must be in the header file
+// Template
 template <typename T>
 void GameState::spawnInteractiveObject() {
     if (isGameOver) return;
@@ -238,11 +240,11 @@ void GameState::spawnInteractiveObject() {
     if (!positionValid) return;
 
     // Correct instantiation for object type
-    if constexpr (std::is_same<T, MovingEnemy>::value) {
-        addObject(new MovingEnemy(this, gridX, gridY));
-    }
-    else if constexpr (std::is_same<T, StationaryEnemy>::value) { // Added StationaryEnemy
-        addObject(new StationaryEnemy(this, gridX, gridY));
+    if constexpr (std::is_same<T, MovingEnemy>::value || std::is_same<T, StationaryEnemy>::value) {
+        auto* enemy = new T(this, gridX, gridY);
+        enemy->setInactive(4000.0f); // Set inactive state for 4 seconds
+        addObject(enemy);
+        std::cout << typeid(T).name() << " spawned INACTIVE at (" << gridX << ", " << gridY << ")" << std::endl;
     }
     else if constexpr (std::is_same<T, Collectible>::value) {
         addObject(new Collectible(this, gridX, gridY));

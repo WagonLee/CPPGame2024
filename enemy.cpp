@@ -34,3 +34,19 @@ void Enemy::setWeak(bool weak) {
 bool Enemy::getIsWeak() const {
     return isWeak;
 }
+
+// Set the enemy to inactive
+void Enemy::setInactive(float duration) {
+    isInactive = true;
+    inactiveEndTime = graphics::getGlobalTime() + duration;
+}
+
+// Check if the enemy is inactive
+bool Enemy::getIsInactive() const {
+    return isInactive;
+}
+
+// Activate the enemy (end inactive state)
+void Enemy::activate() {
+    isInactive = false;
+}
