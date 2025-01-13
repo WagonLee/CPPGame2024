@@ -197,24 +197,25 @@ void DepositZone::drawDonut() {
 
         // 1) Corners
         if (isTopLeftCorner) {
-            br.texture = ASSET_PATH + "zones/VERT-MID.png";
+            br.texture = ASSET_PATH + "zones/TOPLEFT2.png";
         }
         else if (isTopRightCorner) {
-            br.texture = ASSET_PATH + "zones/VERT-BOT.png";
+            br.texture = ASSET_PATH + "zones/TOPRIGHT1.png";
         }
         else if (isBottomLeftCorner) {
-            br.texture = ASSET_PATH + "zones/VERT-MID.png";
+            br.texture = ASSET_PATH + "zones/BOTLEFT2.png";
         }
         else if (isBottomRightCorner) {
-            br.texture = ASSET_PATH + "zones/VERT-MID.png";
+            br.texture = ASSET_PATH + "zones/BOTRIGHT2.png";
         }
 
         // 2) Edges
         else if (isHorizontalEdge) {
-            br.texture = ASSET_PATH + "zones/VERT-MID.png";
+            int variant = tileVariants[i];
+            br.texture = ASSET_PATH + "zones/HORIZ-MID" + std::to_string(variant) + ".png";
         }
         else if (isVerticalEdge) {
-            br.texture = ASSET_PATH + "zones/VERT-BOT.png";
+            br.texture = ASSET_PATH + "zones/VERT-MID.png";
         }
 
         // Semi-transparent outline (or zero if you prefer)

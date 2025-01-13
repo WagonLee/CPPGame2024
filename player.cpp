@@ -210,7 +210,7 @@ void Player::draw() {
 
     // Tail rendering with texture 
     br.texture = ASSET_PATH + "objects/COLLECTIBLE.png"; // Tail texture
-    br.fill_opacity = 1.0f; // Ensure texture is visible
+    br.fill_opacity = 1.0f; 
     br.outline_opacity = 0.0f;
 
     for (const auto& segment : tail) {
@@ -218,23 +218,22 @@ void Player::draw() {
     }
 
     // Determine texture based on movement direction and player state
-    std::string texturePrefix = ASSET_PATH + "objects/PLAYER";
     if (hitEdge || !isAlive) {
         // Death textures based on last direction
-        if (directionX > 0) br.texture = texturePrefix + "-DEAD-R.png";
-        else if (directionX < 0) br.texture = texturePrefix + "-DEAD-L.png";
-        else if (directionY > 0) br.texture = texturePrefix + "-DEAD-D.png";
-        else if (directionY < 0) br.texture = texturePrefix + "-DEAD-U.png";
+        if (directionX > 0) br.texture = ASSET_PATH + "objects/PLAYER-R-PWND.png";
+        else if (directionX < 0) br.texture = ASSET_PATH + "objects/PLAYER-L-PWND.png";
+        else if (directionY > 0) br.texture = ASSET_PATH + "objects/PLAYER-D-PWND.png";
+        else if (directionY < 0) br.texture = ASSET_PATH + "objects/PLAYER-U-PWND.png";
     }
     else {
         // Alive textures based on current direction
-        if (directionX > 0) br.texture = texturePrefix + "-R.png";
-        else if (directionX < 0) br.texture = texturePrefix + "-L.png";
-        else if (directionY > 0) br.texture = texturePrefix + "-D.png";
-        else if (directionY < 0) br.texture = texturePrefix + "-U.png";
+        if (directionX > 0) br.texture = ASSET_PATH + "objects/PLAYER-R.png";
+        else if (directionX < 0) br.texture = ASSET_PATH + "objects/PLAYER-L.png";
+        else if (directionY > 0) br.texture = ASSET_PATH + "objects/PLAYER-D.png";
+        else if (directionY < 0) br.texture = ASSET_PATH + "objects/PLAYER-U.png";
     }
 
-    br.outline_opacity = 0.0f; // Remove outlines
+    br.outline_opacity = 0.0f;
     br.fill_opacity = 1.0f;
 
     // Draw the player with the selected texture (draw this last to appear on top of the tail)
