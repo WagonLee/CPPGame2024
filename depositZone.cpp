@@ -176,56 +176,53 @@ void DepositZone::drawStraightLine() {
 
 void DepositZone::drawDonut() {
     graphics::Brush br;
-
     for (const auto& tile : tiles) {
         float xPos = tile.first * CELL_SIZE + CELL_SIZE / 2.0f;
         float yPos = tile.second * CELL_SIZE + CELL_SIZE / 2.0f;
 
-        // Determine the position of the tile relative to the 4x4 donut
-        bool isTopLeftCorner = (tile.first == gridX && tile.second == gridY);
-        bool isTopRightCorner = (tile.first == gridX + 3 && tile.second == gridY);
-        bool isBottomLeftCorner = (tile.first == gridX && tile.second == gridY + 3);
-        bool isBottomRightCorner = (tile.first == gridX + 3 && tile.second == gridY + 3);
+        // First, validate if this tile position is valid for the intended shape
+        // If gridY + 3 would exceed playable area, adjust gridY to keep donut in bounds
+        int effectiveGridY = (gridY + 3 >= PLAYABLE_ROWS + UI_ROWS_ABOVE) ?
+            PLAYABLE_ROWS + UI_ROWS_ABOVE - 4 : gridY;
+
+        // Now use effectiveGridY instead of gridY for all position checks
+        bool isTopLeftCorner = (tile.first == gridX && tile.second == effectiveGridY);
+        bool isTopRightCorner = (tile.first == gridX + 3 && tile.second == effectiveGridY);
+        bool isBottomLeftCorner = (tile.first == gridX && tile.second == effectiveGridY + 3);
+        bool isBottomRightCorner = (tile.first == gridX + 3 && tile.second == effectiveGridY + 3);
 
         bool isHorizontalEdge =
-            ((tile.second == gridY) || (tile.second == gridY + 3))    // top or bottom row
-            && !(tile.first == gridX || tile.first == gridX + 3);       // exclude corners
+            ((tile.second == effectiveGridY) || (tile.second == effectiveGridY + 3))    // top or bottom row
+            && !(tile.first == gridX || tile.first == gridX + 3);     // exclude corners
 
         bool isVerticalEdge =
             ((tile.first == gridX) || (tile.first == gridX + 3))      // left or right column
-            && !(tile.second == gridY || tile.second == gridY + 3);     // exclude corners
+            && !(tile.second == effectiveGridY || tile.second == effectiveGridY + 3);   // exclude corners
 
-        // 1) Corners
+        // Rest of the function remains the same...
         if (isTopLeftCorner) {
-            br.texture = ASSET_PATH + "zones/TOPLEFT2.png";
+            br.texture = ASSET_PATH + "zones/DONTL.png";
         }
         else if (isTopRightCorner) {
-            br.texture = ASSET_PATH + "zones/TOPRIGHT1.png";
+            br.texture = ASSET_PATH + "zones/DONTR.png";
         }
         else if (isBottomLeftCorner) {
-            br.texture = ASSET_PATH + "zones/BOTLEFT2.png";
+            br.texture = ASSET_PATH + "zones/DONBL.png";
         }
         else if (isBottomRightCorner) {
-            br.texture = ASSET_PATH + "zones/BOTRIGHT2.png";
+            br.texture = ASSET_PATH + "zones/DONBR.png";
         }
-
-        // 2) Edges
         else if (isHorizontalEdge) {
-            int variant = tileVariants[i];
-            br.texture = ASSET_PATH + "zones/HORIZ-MID" + std::to_string(variant) + ".png";
+            br.texture = ASSET_PATH + "zones/HORIZ-MID4.png";
         }
         else if (isVerticalEdge) {
             br.texture = ASSET_PATH + "zones/VERT-MID.png";
         }
 
-        // Semi-transparent outline (or zero if you prefer)
         br.outline_opacity = 0.0f;
-
-        // Draw the tile
         graphics::drawRect(xPos, yPos, CELL_SIZE, CELL_SIZE, br);
     }
 }
-
 
 void DepositZone::drawCircle() {
     graphics::Brush br;
