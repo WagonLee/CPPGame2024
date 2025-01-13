@@ -168,13 +168,11 @@ void DepositZone::drawStraightLine() {
         }
 
         br.outline_opacity = 0.0f; // Remove outlines for textures
-        br.fill_opacity = 1.0f;    // Ensure textures are fully visible
 
         // Draw the tile
         graphics::drawRect(xPos, yPos, CELL_SIZE, CELL_SIZE, br);
     }
 }
-
 
 void DepositZone::drawDonut() {
     graphics::Brush br;
@@ -184,134 +182,102 @@ void DepositZone::drawDonut() {
         float yPos = tile.second * CELL_SIZE + CELL_SIZE / 2.0f;
 
         // Determine the position of the tile relative to the 4x4 donut
-        bool isTopLeftCorner = (tile.first == gridX && tile.second == gridY);                // Top-left corner
-        bool isTopRightCorner = (tile.first == gridX + 3 && tile.second == gridY);           // Top-right corner
-        bool isBottomLeftCorner = (tile.first == gridX && tile.second == gridY + 3);         // Bottom-left corner
-        bool isBottomRightCorner = (tile.first == gridX + 3 && tile.second == gridY + 3);    // Bottom-right corner
+        bool isTopLeftCorner = (tile.first == gridX && tile.second == gridY);
+        bool isTopRightCorner = (tile.first == gridX + 3 && tile.second == gridY);
+        bool isBottomLeftCorner = (tile.first == gridX && tile.second == gridY + 3);
+        bool isBottomRightCorner = (tile.first == gridX + 3 && tile.second == gridY + 3);
 
-        bool isHorizontalEdge = (tile.second == gridY || tile.second == gridY + 3) &&        // Top or bottom row
-            !(tile.first == gridX || tile.first == gridX + 3);           // Exclude corners
+        bool isHorizontalEdge =
+            ((tile.second == gridY) || (tile.second == gridY + 3))    // top or bottom row
+            && !(tile.first == gridX || tile.first == gridX + 3);       // exclude corners
 
-        bool isVerticalEdge = (tile.first == gridX || tile.first == gridX + 3) &&            // Left or right column
-            !(tile.second == gridY || tile.second == gridY + 3);           // Exclude corners
+        bool isVerticalEdge =
+            ((tile.first == gridX) || (tile.first == gridX + 3))      // left or right column
+            && !(tile.second == gridY || tile.second == gridY + 3);     // exclude corners
 
-        // Apply styles based on tile type
+        // 1) Corners
         if (isTopLeftCorner) {
-            // Top-left corner
-            br.fill_color[0] = 0.7f; // Red-ish color
-            br.fill_color[1] = 0.1f;
-            br.fill_color[2] = 0.1f;
+            br.texture = ASSET_PATH + "zones/VERT-MID.png";
         }
         else if (isTopRightCorner) {
-            // Top-right corner
-            br.fill_color[0] = 0.1f; // Green-ish color
-            br.fill_color[1] = 0.7f;
-            br.fill_color[2] = 0.1f;
+            br.texture = ASSET_PATH + "zones/VERT-BOT.png";
         }
         else if (isBottomLeftCorner) {
-            // Bottom-left corner
-            br.fill_color[0] = 0.1f; // Blue-ish color
-            br.fill_color[1] = 0.1f;
-            br.fill_color[2] = 0.7f;
+            br.texture = ASSET_PATH + "zones/VERT-MID.png";
         }
         else if (isBottomRightCorner) {
-            // Bottom-right corner
-            br.fill_color[0] = 0.7f; // Yellow-ish color
-            br.fill_color[1] = 0.7f;
-            br.fill_color[2] = 0.1f;
-        }
-        else if (isHorizontalEdge) {
-            // Horizontal edges
-            br.fill_color[0] = 0.1f; // Example placeholder color
-            br.fill_color[1] = 0.7f;
-            br.fill_color[2] = 0.1f;
-        }
-        else if (isVerticalEdge) {
-            // Vertical edges
-            br.fill_color[0] = 0.1f; // Example placeholder color
-            br.fill_color[1] = 0.1f;
-            br.fill_color[2] = 0.7f;
-        }
-        else {
-            // Inner tiles or other sections (if applicable)
-            br.fill_color[0] = 0.5f; // Example placeholder color
-            br.fill_color[1] = 0.5f;
-            br.fill_color[2] = 0.5f;
+            br.texture = ASSET_PATH + "zones/VERT-MID.png";
         }
 
-        br.outline_opacity = 0.5f; // Semi-transparent outline
+        // 2) Edges
+        else if (isHorizontalEdge) {
+            br.texture = ASSET_PATH + "zones/VERT-MID.png";
+        }
+        else if (isVerticalEdge) {
+            br.texture = ASSET_PATH + "zones/VERT-BOT.png";
+        }
+
+        // Semi-transparent outline (or zero if you prefer)
+        br.outline_opacity = 0.0f;
 
         // Draw the tile
         graphics::drawRect(xPos, yPos, CELL_SIZE, CELL_SIZE, br);
     }
 }
 
+
 void DepositZone::drawCircle() {
     graphics::Brush br;
 
     for (const auto& tile : tiles) {
-        float xPos = tile.first * CELL_SIZE + CELL_SIZE / 2.0f;
-        float yPos = tile.second * CELL_SIZE + CELL_SIZE / 2.0f;
+        int tx = tile.first;
+        int ty = tile.second;
 
-        // Determine the position of the tile relative to the 4x4 circle
-        bool isTopLeftCorner = (tile.first == gridX && tile.second == gridY);
-        bool isTopRightCorner = (tile.first == gridX + 3 && tile.second == gridY);
-        bool isBottomLeftCorner = (tile.first == gridX && tile.second == gridY + 3);
-        bool isBottomRightCorner = (tile.first == gridX + 3 && tile.second == gridY + 3);
+        // 1) Skip tiles that fall outside the valid grid range
+        if (tx < 0 || tx >= GRID_WIDTH || ty < 0 || ty >= GRID_HEIGHT) {
+            continue;
+        }
 
-        bool isTopSideCorner = ((tile.first == gridX + 1 || tile.first == gridX + 2)
-            && tile.second == gridY);
-        bool isBottomSideCorner = ((tile.first == gridX + 1 || tile.first == gridX + 2)
-            && tile.second == gridY + 3);
-        bool isLeftSideCorner = (tile.first == gridX
-            && (tile.second == gridY + 1 || tile.second == gridY + 2));
-        bool isRightSideCorner = (tile.first == gridX + 3
-            && (tile.second == gridY + 1 || tile.second == gridY + 2));
+        // 2) Compute center for drawing
+        float xPos = tx * CELL_SIZE + CELL_SIZE / 2.0f;
+        float yPos = ty * CELL_SIZE + CELL_SIZE / 2.0f;
 
-        bool isTopLeftCenter = (tile.first == gridX + 1 && tile.second == gridY + 1);
-        bool isTopRightCenter = (tile.first == gridX + 2 && tile.second == gridY + 1);
-        bool isBottomLeftCenter = (tile.first == gridX + 1 && tile.second == gridY + 2);
-        bool isBottomRightCenter = (tile.first == gridX + 2 && tile.second == gridY + 2);
+        // 3) The same logic you already use to figure out which texture to apply
+        bool isTopSideCorner = ((tx == gridX + 1 || tx == gridX + 2) && ty == gridY);
+        bool isBottomSideCorner = ((tx == gridX + 1 || tx == gridX + 2) && ty == gridY + 3);
+        bool isLeftSideCorner = (tx == gridX && (ty == gridY + 1 || ty == gridY + 2));
+        bool isRightSideCorner = (tx == gridX + 3 && (ty == gridY + 1 || ty == gridY + 2));
 
-        // 2) Edges
+        bool isTopLeftCenter = (tx == gridX + 1 && ty == gridY + 1);
+        bool isTopRightCenter = (tx == gridX + 2 && ty == gridY + 1);
+        bool isBottomLeftCenter = (tx == gridX + 1 && ty == gridY + 2);
+        bool isBottomRightCenter = (tx == gridX + 2 && ty == gridY + 2);
+
+        // TEXTURE ASSIGNMENTS
         if (isTopSideCorner) {
-            // (gridX+1, gridY) and (gridX+2, gridY)
-            if (tile.first == gridX + 1) {
+            if (tx == gridX + 1)
                 br.texture = ASSET_PATH + "zones/TOPLEFT1.png";
-            }
-            else {
+            else
                 br.texture = ASSET_PATH + "zones/TOPRIGHT1.png";
-            }
         }
         else if (isBottomSideCorner) {
-            // (gridX+1, gridY+3) and (gridX+2, gridY+3)
-            if (tile.first == gridX + 1) {
+            if (tx == gridX + 1)
                 br.texture = ASSET_PATH + "zones/BOTLEFT2.png";
-            }
-            else {
+            else
                 br.texture = ASSET_PATH + "zones/BOTRIGHT2.png";
-            }
         }
         else if (isLeftSideCorner) {
-            // (gridX, gridY+1) and (gridX, gridY+2)
-            if (tile.second == gridY + 1) {
+            if (ty == gridY + 1)
                 br.texture = ASSET_PATH + "zones/TOPLEFT2.png";
-            }
-            else {
+            else
                 br.texture = ASSET_PATH + "zones/BOTLEFT1.png";
-            }
         }
         else if (isRightSideCorner) {
-            // (gridX+3, gridY+1) and (gridX+3, gridY+2)
-            if (tile.second == gridY + 1) {
+            if (ty == gridY + 1)
                 br.texture = ASSET_PATH + "zones/TOPRIGHT1.png";
-            }
-            else {
+            else
                 br.texture = ASSET_PATH + "zones/BOTRIGHT1.png";
-            }
         }
-
-        // 3) Four center tiles (each individually assigned)
         else if (isTopLeftCenter) {
             br.texture = ASSET_PATH + "zones/CENTER-TOPLEFT.png";
         }
@@ -324,10 +290,13 @@ void DepositZone::drawCircle() {
         else if (isBottomRightCenter) {
             br.texture = ASSET_PATH + "zones/CENTER-BOTRIGHT.png";
         }
+        else {
+            continue;
+        }
 
         br.outline_opacity = 0.0f;
 
-        // Draw the tile (unchanged from original code)
+        // 4) Draw the tile
         graphics::drawRect(xPos, yPos, CELL_SIZE, CELL_SIZE, br);
     }
 }

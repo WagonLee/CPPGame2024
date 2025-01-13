@@ -272,9 +272,7 @@ void GameState::update(float dt) {
         return; // Skip updates during the "READY?" state
     }
 
-
-    // DEBUG DEBUG DEBUG DEBUG
-    // static bool keyHeld = false;
+    // DEBUG DEBUG START DEBUG DEBUG
 
     // Debug: Spawn a power-up when the P key is pressed
     if (graphics::getKeyState(graphics::SCANCODE_L)) {
@@ -284,9 +282,20 @@ void GameState::update(float dt) {
 
         }
     
+    // DEBUG: Spawn deposit zone with the Z key
+    static bool zKeyHeld = false;
+    if (graphics::getKeyState(graphics::SCANCODE_Z)) {
+        if (!zKeyHeld) {
+            replaceDepositZone(); // Replace current deposit zone
+            std::cout << "Debug: Spawned a new deposit zone using Z key." << std::endl;
+            zKeyHeld = true; // Prevent rapid spamming
+        }
+    }
+    else {
+        zKeyHeld = false; // Reset when key is released
+    }
 
-
-    // DEBUG DEBUG DEBUG DEBUG 
+    // DEBUG DEBUG END DEBUG DEBUG 
 
     // Handle pause state
     if (paused) {
