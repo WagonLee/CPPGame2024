@@ -121,50 +121,35 @@ void DepositZone::drawStraightLine() {
             // Horizontal straight line
             if (i == 0) {
                 // Left edge
-                br.fill_color[0] = 0.2f; // Dark green
-                br.fill_color[1] = 0.1f;
-                br.fill_color[2] = 0.7f;
-                br.outline_opacity = 1.0f;
+                br.texture = ASSET_PATH + "zones/HORIZ-LEFT.png";
             }
             else if (i == tiles.size() - 1) {
                 // Right edge
-                br.fill_color[0] = 0.2f; // Dark green
-                br.fill_color[1] = 0.5f;
-                br.fill_color[2] = 0.0f;
-                br.outline_opacity = 1.0f;
+                br.texture = ASSET_PATH + "zones/HORIZ-RIGHT.png";
             }
             else {
                 // Middle tiles
-                br.fill_color[0] = 0.0f; // Dark green
-                br.fill_color[1] = 1.0f;
-                br.fill_color[2] = 0.0f;
-                br.outline_opacity = 0.5f; // Semi-transparent outline
+                br.texture = ASSET_PATH + "zones/HORIZ-MID.png";
             }
         }
         else {
             // Vertical straight line
             if (i == 0) {
                 // Top edge
-                br.fill_color[0] = 0.0f; // Dark green
-                br.fill_color[1] = 0.5f;
-                br.fill_color[2] = 0.0f;
-                br.outline_opacity = 1.0f;
+                br.texture = ASSET_PATH + "zones/VERT-TOP.png";
             }
             else if (i == tiles.size() - 1) {
                 // Bottom edge
-                br.fill_color[0] = 0.1f; // Dark green
-                br.fill_color[1] = 0.5f;
-                br.fill_color[2] = 1.0f;
-                br.outline_opacity = 1.0f;
+                br.texture = ASSET_PATH + "zones/VERT-BOT.png";
             }
             else {
                 // Middle tiles
-                br.fill_color[0] = 1.0f; // Dark green
-                br.fill_color[1] = 0.5f;
-                br.fill_color[2] = 1.0f;
-                br.outline_opacity = 0.5f; // Semi-transparent outline
+                br.texture = ASSET_PATH + "zones/VERT-MID.png";
             }
         }
+
+        br.outline_opacity = 0.0f; // Remove outlines for textures
+        br.fill_opacity = 1.0f;    // Ensure textures are fully visible
 
         // Draw the tile
         graphics::drawRect(xPos, yPos, CELL_SIZE, CELL_SIZE, br);

@@ -30,5 +30,5 @@ void PowerUpLevel3::draw() {
     float yPos = gridY * CELL_SIZE + CELL_SIZE / 2.0f;
 
     // Draw the power-up with the texture applied
-    graphics::drawRect(xPos, yPos, CELL_SIZE, CELL_SIZE, br);
+    graphics::drawRect(xPos, yPos, CELL_SIZE * 0.95, CELL_SIZE * 0.95, br);
 }

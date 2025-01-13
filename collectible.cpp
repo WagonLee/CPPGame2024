@@ -11,19 +11,18 @@ Collectible::Collectible(GameState* state, int x, int y)
 // Draw the collectible
 void Collectible::draw() {
     graphics::Brush br;
-    br.outline_opacity = 0.0f;
-    br.fill_color[0] = 1.0f; // Yellow
-    br.fill_color[1] = 1.0f;
-    br.fill_color[2] = 0.0f;
+
+    br.outline_opacity = 0.0f; // No outlines
+    br.texture = ASSET_PATH + "objects/COLLECTIBLE.png"; // Use the correct texture path
+    br.fill_opacity = 1.0f;   // Ensure texture is visible
 
     // Use CELL_SIZE from config.h for consistent alignment
     float xPos = gridX * CELL_SIZE + CELL_SIZE / 2.0f;
     float yPos = gridY * CELL_SIZE + CELL_SIZE / 2.0f;
 
     // Draw the collectible, slightly smaller than a full cell for aesthetics
-    graphics::drawRect(xPos, yPos, CELL_SIZE * 0.8f, CELL_SIZE * 0.8f, br);
+    graphics::drawRect(xPos, yPos, CELL_SIZE, CELL_SIZE, br);
 }
-
 
 // Update behavior
 void Collectible::update(float dt) {}

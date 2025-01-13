@@ -205,33 +205,40 @@ void Player::checkTailCollision() {
     }
 }
 
-// Draw the player and its tail
 void Player::draw() {
     graphics::Brush br;
 
-    // Choose texture based on player state
+    // Tail rendering with texture 
+    br.texture = ASSET_PATH + "objects/COLLECTIBLE.png"; // Tail texture
+    br.fill_opacity = 1.0f; // Ensure texture is visible
+    br.outline_opacity = 0.0f;
+
+    for (const auto& segment : tail) {
+        graphics::drawRect(segment.x, segment.y, CELL_SIZE, CELL_SIZE, br);
+    }
+
+    // Determine texture based on movement direction and player state
+    std::string texturePrefix = ASSET_PATH + "objects/PLAYER";
     if (hitEdge || !isAlive) {
-        br.texture = ASSET_PATH + "CHAR-C.png"; // Texture for death
+        // Death textures based on last direction
+        if (directionX > 0) br.texture = texturePrefix + "-DEAD-R.png";
+        else if (directionX < 0) br.texture = texturePrefix + "-DEAD-L.png";
+        else if (directionY > 0) br.texture = texturePrefix + "-DEAD-D.png";
+        else if (directionY < 0) br.texture = texturePrefix + "-DEAD-U.png";
     }
     else {
-        br.texture = ASSET_PATH + "CHAR-D.png"; // Texture for alive state
+        // Alive textures based on current direction
+        if (directionX > 0) br.texture = texturePrefix + "-R.png";
+        else if (directionX < 0) br.texture = texturePrefix + "-L.png";
+        else if (directionY > 0) br.texture = texturePrefix + "-D.png";
+        else if (directionY < 0) br.texture = texturePrefix + "-U.png";
     }
 
     br.outline_opacity = 0.0f; // Remove outlines
     br.fill_opacity = 1.0f;
 
-    // Draw the player with the selected texture
-    graphics::drawRect(x, y, CELL_SIZE, CELL_SIZE, br);
-
-    // Tail rendering (still using color)
-    br.texture = ""; // No texture for tail, fallback to color
-    br.fill_color[0] = 1.0f; // Yellow tail
-    br.fill_color[1] = 1.0f;
-    br.fill_color[2] = 0.0f;
-
-    for (const auto& segment : tail) {
-        graphics::drawRect(segment.x, segment.y, CELL_SIZE * 0.8f, CELL_SIZE * 0.8f, br);
-    }
+    // Draw the player with the selected texture (draw this last to appear on top of the tail)
+    graphics::drawRect(x, y - CELL_SIZE / 2, CELL_SIZE, CELL_SIZE * 2.0f, br);
 }
 
 void Player::handleInput() {

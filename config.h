@@ -14,6 +14,6 @@ const int UI_ROWS_BELOW = 6;     // Rows below the playable grid (for UI or flav
 const int GRID_HEIGHT = PLAYABLE_ROWS + UI_ROWS_ABOVE + UI_ROWS_BELOW; // Total rows
 
 // Canvas Dimensions
-const float CANVAS_WIDTH = 600.0f;          // Logical canvas width
+const float CANVAS_WIDTH = 900.0f;          // Logical canvas width
 const float CELL_SIZE = CANVAS_WIDTH / GRID_WIDTH; // Consistent cell size
 const float CANVAS_HEIGHT = GRID_HEIGHT * CELL_SIZE; // Logical canvas height based on rows

@@ -35,18 +35,17 @@ void MovingEnemy::draw() {
     graphics::Brush br;
     br.outline_opacity = 0.0f;
 
-    if (isWeak()) { // Add parentheses to call it as a function
-        br.fill_color[0] = 0.5f; // Light red for weak state
-        br.fill_color[1] = 0.0f;
-        br.fill_color[2] = 0.0f;
+    if (isWeak()) { // Check for weak state
+        br.texture = ASSET_PATH + "objects/MOVING-ENEMY-WEAK.png"; // Texture for weak state
     }
     else {
-        br.fill_color[0] = 1.0f; // Original red for strong enemy
-        br.fill_color[1] = 0.0f;
-        br.fill_color[2] = 0.0f;
+        br.texture = ASSET_PATH + "objects/MOVING-ENEMY.png"; // Texture for strong state
     }
 
-    graphics::drawRect(xPos, yPos, CELL_SIZE * 0.8f, CELL_SIZE * 0.8f, br);
+    br.fill_opacity = 1.0f; // Ensure the texture is fully visible
+
+    // Draw the enemy with the appropriate texture
+    graphics::drawRect(xPos, yPos, CELL_SIZE, CELL_SIZE, br);
 }
 
 // Update behavior
@@ -169,7 +168,7 @@ void MovingEnemy::handleCollision(Player& player) {
         // Notify GameState about the kill
         gameState->addToKillChain(); // Increment kill chain and calculate score
         gameState->enemyKilled = true;
-        gameState->enemyKillEndTime = graphics::getGlobalTime() + 1000.0f; // 1 second from now
+        gameState->enemyKillEndTime = graphics::getGlobalTime() + 1500.0f; // 1 second from now
     }
     else {
         std::cout << "Player killed by enemy!" << std::endl;

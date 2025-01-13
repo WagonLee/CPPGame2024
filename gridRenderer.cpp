@@ -19,7 +19,7 @@ void initGrid() {
                     gridState[row][col] = Tile(ASSET_PATH + "grid/TL-CORNER.png"); // Top-left corner (Red)
                 }
                 else if (col == 1) {
-                    gridState[row][col] = Tile(ASSET_PATH + "grid/HORIZONTAL-EDGE.png");
+                    gridState[row][col] = Tile(ASSET_PATH + "grid/BR-CORNER.png");
                 }
                 else if (col == 2) {
                     gridState[row][col] = Tile(ASSET_PATH + "chars/B.png");
@@ -52,7 +52,7 @@ void initGrid() {
                     gridState[row][col] = Tile(ASSET_PATH + "chars/R.png");
                 }
                 else if (col == 12) {
-                    gridState[row][col] = Tile(ASSET_PATH + "grid/HORIZONTAL-EDGE.png");
+                    gridState[row][col] = Tile(ASSET_PATH + "grid/BL-CORNER.png");
                 }
                 else if (col == GRID_WIDTH - 1) {
                     gridState[row][col] = Tile(ASSET_PATH + "grid/TR-CORNER.png"); // Top-right corner 
@@ -275,12 +275,16 @@ void updateGrid() {
     if (gameState->enemyKilled) {
 
         // Turn the top row blue
+        gridState[0][2] = Tile(0.0f, 0.0f, 0.0f);
+        gridState[0][3] = Tile(ASSET_PATH + "grid/PURGED.png");
         gridState[0][4] = Tile(ASSET_PATH + "chars/P.png");
         gridState[0][5] = Tile(ASSET_PATH + "chars/U.png");
         gridState[0][6] = Tile(ASSET_PATH + "chars/R.png");
         gridState[0][7] = Tile(ASSET_PATH + "chars/G.png");
         gridState[0][8] = Tile(ASSET_PATH + "chars/E.png");
         gridState[0][9] = Tile(ASSET_PATH + "chars/D.png");
+        gridState[0][10] = Tile(ASSET_PATH + "grid/PURGED.png");
+        gridState[0][11] = Tile(0.0f, 0.0f, 0.0f);
 
         // Reset the top row if the current time has passed the end time
         if (graphics::getGlobalTime() >= gameState->enemyKillEndTime) {
@@ -313,14 +317,16 @@ void updateGrid() {
     // Ensure the player exists and is dead
     if (player && !player->getIsAlive()) {
         // Set each tile in the top row to red
-        gridState[0][4] = Tile(1.0f, 0.0f, 0.0f);
+        gridState[0][2] = Tile(0.0f, 0.0f, 0.0f);
+        gridState[0][3] = Tile(0.0f, 0.0f, 0.0f);
+        gridState[0][4] = Tile(ASSET_PATH + "grid/PWND.png");
         gridState[0][5] = Tile(ASSET_PATH + "chars/P.png");
         gridState[0][6] = Tile(ASSET_PATH + "chars/W.png");
         gridState[0][7] = Tile(ASSET_PATH + "chars/N.png");
         gridState[0][8] = Tile(ASSET_PATH + "chars/D.png");
-        gridState[0][9] = Tile(1.0f, 0.0f, 0.0f);
-        gridState[0][9] = Tile(1.0f, 0.0f, 0.0f);
-
+        gridState[0][9] = Tile(ASSET_PATH + "grid/PWND.png");
+        gridState[0][10] = Tile(0.0f, 0.0f, 0.0f);
+        gridState[0][11] = Tile(0.0f, 0.0f, 0.0f);
     }
 }
 

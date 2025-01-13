@@ -458,44 +458,32 @@ void GameState::update(float dt) {
 
 // Draw all game objects
 void GameState::draw() {
-
-    // Draw deposit zone first (part of the board)
+    // Draw deposit zone first (background layer)
     if (depositZone) {
         depositZone->draw();
     }
 
-    // Draw all other active objects
+    // Draw all other active objects EXCEPT player
     for (auto& obj : gameObjects) {
-        if (obj->isActive()) {
+        Player* potentialPlayer = dynamic_cast<Player*>(obj.get());
+        if (obj->isActive() && !potentialPlayer) {  // Skip if it's the player
             obj->draw();
         }
     }
 
-    // Show "READY?" during pre-game pause
-    if (isPreGamePaused()) {
-        graphics::Brush textBrush;
-        textBrush.fill_color[0] = 0.0f; // Green
-        textBrush.fill_color[1] = 1.0f;
-        textBrush.fill_color[2] = 0.0f;
-        textBrush.outline_opacity = 1.0f;
-
-        graphics::drawText(CANVAS_WIDTH / 2 - 100, CANVAS_HEIGHT / 2, 40, "READY?", textBrush);
-    }
-
-    if (paused) {
-        drawPauseMenu(); // Draw the pause menu
-        return;          // Skip other rendering
-    }
-
-    // Locate the player
+    // Find and draw player LAST so it appears on top
     Player* player = nullptr;
     for (auto& obj : gameObjects) {
         player = dynamic_cast<Player*>(obj.get());
-        if (player) break;
+        if (player) {
+            player->draw();  // Draw player after everything else
+            break;
+        }
     }
 
+    // Draw UI elements if we have a valid player
     if (player) {
-        // Set up the font and brush for text
+        // Set up the font and brush for text graphics
         graphics::setFont(ASSET_PATH + "Arial.ttf");
         graphics::Brush textBrush;
         textBrush.fill_color[0] = 1.0f; // Red text
@@ -503,10 +491,12 @@ void GameState::draw() {
         textBrush.fill_color[2] = 0.0f;
         textBrush.outline_opacity = 0.0f;
 
+        // Calculate center position for text
+        float xPos = (GRID_WIDTH * CELL_SIZE) / 2.0f; // Horizontal center
+        float yPos = 30; // 30 pixels from the top
+
         // Display tail size
         std::string tailText = "Tail Size: " + std::to_string(player->getTailSize());
-        float xPos = (GRID_WIDTH * CELL_SIZE) / 2.0f; // Horizontal center
-        float yPos = 30;                             // 30 pixels from the top
         graphics::drawText(xPos, yPos, 30, tailText, textBrush); // Size 30
 
         // Display score below tail size
@@ -518,6 +508,21 @@ void GameState::draw() {
         graphics::drawText(xPos, yPos + 80, 30, tallyText, textBrush); // Offset by 80 pixels
     }
 
+    // Show "READY?" during pre-game pause
+    if (isPreGamePaused()) {
+        graphics::Brush textBrush;
+        textBrush.fill_color[0] = 0.0f; // Green
+        textBrush.fill_color[1] = 1.0f;
+        textBrush.fill_color[2] = 0.0f;
+        textBrush.outline_opacity = 1.0f;
+        graphics::drawText(CANVAS_WIDTH / 2 - 100, CANVAS_HEIGHT / 2, 40, "READY?", textBrush);
+    }
+
+    // Handle pause menu
+    if (paused) {
+        drawPauseMenu(); // Draw the pause menu
+        return; // Skip other rendering
+    }
 }
 
 // Initialize game state
