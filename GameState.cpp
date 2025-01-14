@@ -322,7 +322,7 @@ void GameState::update(float dt) {
 
     time_t currentTime = time(nullptr); // declaration
 
-    // --- MOVING ENEMY SPAWNING --- good-ish
+    // --- MOVING ENEMY SPAWNING
     if (isAnyPowerUpActive()) {
         // Check for inactive enemies and turn them weak
         for (const auto& obj : gameObjects) {
