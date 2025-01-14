@@ -91,6 +91,8 @@ private:
     bool firstSpawn = true;            // Track the first spawn
     float firstSpawnTime = 0.0f;       // Time for the first spawn 
     bool enemySpawnedInactive = false; // Ensure one spawn at a time
+    void checkInactiveEnemies(); // Check and update inactive enemies based on power-up status
+
 public:
     // Singleton pattern
     static GameState* getInstance();

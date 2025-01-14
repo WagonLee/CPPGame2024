@@ -322,7 +322,7 @@ void GameState::update(float dt) {
 
     time_t currentTime = time(nullptr); // declaration
 
-    // --- MOVING ENEMY SPAWNING ---
+    // --- MOVING ENEMY SPAWNING --- good-ish
     if (isAnyPowerUpActive()) {
         // Check for inactive enemies and turn them weak
         for (const auto& obj : gameObjects) {
@@ -330,11 +330,10 @@ void GameState::update(float dt) {
             if (movingEnemy && movingEnemy->isInactive && !movingEnemy->getIsWeak()) {
                 movingEnemy->setWeak(true); // Turn weak if inactive and power-up is active
                 std::cout << "Inactive MovingEnemy at (" << movingEnemy->getGridX()
-                    << ", " << movingEnemy->getGridY() << ") turned WEAK due to power-up." << std::endl;
+                          << ", " << movingEnemy->getGridY() << ") turned WEAK due to power-up." << std::endl;
             }
         }
-    }
-    else {
+    } else {
         // Continue spawning logic if no power-up is active
         if (firstSpawn) {
             // Wait 4 seconds before the first spawn
@@ -344,8 +343,7 @@ void GameState::update(float dt) {
                 enemySpawnedInactive = true;
                 std::cout << "First MovingEnemy spawned after 4 seconds." << std::endl;
             }
-        }
-        else {
+        } else {
             // Spawn new enemy as soon as the last one exits inactive state
             for (const auto& obj : gameObjects) {
                 MovingEnemy* movingEnemy = dynamic_cast<MovingEnemy*>(obj.get());
@@ -373,7 +371,6 @@ void GameState::update(float dt) {
             enemySpawnedInactive = false;
         }
     }
-
 
     // --- STATIONARY ENEMY SPAWNING ---
     if (!isAnyPowerUpActive() && difftime(currentTime, lastStationarySpawnTime) >= stationaryEnemySpawnInterval) {

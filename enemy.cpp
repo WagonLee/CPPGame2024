@@ -27,6 +27,7 @@ void Enemy::handleCollision(Player& player) {
 
 // Set weak state
 void Enemy::setWeak(bool weak) {
+    isInactive = false;
     isWeak = weak;
 }
 
