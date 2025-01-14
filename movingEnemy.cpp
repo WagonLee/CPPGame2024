@@ -56,19 +56,25 @@ void MovingEnemy::update(float dt) {
     // Handle inactive state
     if (isInactive) {
         if (graphics::getGlobalTime() >= inactiveEndTime) {
-            activate(); // End inactive state
+            // Instead of forcibly resetting isWeak here, just do:
+            isInactive = false;
+            // If you have an activate() method, call it, but remove any 'isWeak = false' there!
+            // activate(); 
+
             std::cout << "MovingEnemy at (" << gridX << ", " << gridY << ") is now ACTIVE." << std::endl;
         }
         return; // Skip further updates while inactive
     }
 
     // Handle weak state
+    // If the enemy is weak (due to a power-up), skip movement
     if (isWeak()) { // Don't move if weak
         return;
     }
 
     moveToTarget(dt); // Smooth movement logic
 
+    // The rest of your movement timer logic:
     auto now = std::chrono::high_resolution_clock::now();
     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastMoveTime).count();
 

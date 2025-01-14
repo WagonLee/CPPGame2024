@@ -12,7 +12,7 @@ void PowerUpLevel1::applyEffect() {
     std::cout << "Level 1 Power-Up effect applied! Weakening MovingEnemies for 10 seconds." << std::endl;
 
     // Use the centralized weakness logic in PowerUpBase
-    startWeakEffect(10000.0f); // Updated to 10 seconds
+    startWeakEffect(9000.0f);
 }
 
 // Draw

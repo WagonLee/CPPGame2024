@@ -13,7 +13,7 @@ void PowerUpLevel4::applyEffect() {
     std::cout << "Level 4 Power-Up effect applied! Weakening all enemies for 20 seconds and spawning 1 collectible." << std::endl;
 
     // Use the centralized weakness logic in PowerUpBase
-    startWeakEffect(17000.0f); // Updated to 17 seconds
+    startWeakEffect(9000.0f); 
 
     // Spawn 1 additional collectible immediately
     std::cout << "Spawning 1 additional collectible as part of Level 4 effect." << std::endl;

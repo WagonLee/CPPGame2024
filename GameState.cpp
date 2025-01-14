@@ -219,8 +219,8 @@ void GameState::updatePowerUpTimers(float dt) {
 
         // Increment elapsed time
         elapsedTime += dt / 60.0f; // Adjust for frame rate scaling
-        std::cout << "Timer for Power-Up Level " << powerUp->getLevel()
-            << ": " << elapsedTime << "/" << upgradeTime << " seconds" << std::endl;
+        /*std::cout << "Timer for Power-Up Level " << powerUp->getLevel()
+            << ": " << elapsedTime << "/" << upgradeTime << " seconds" << std::endl;*/
 
         // Auto-upgrade if time threshold is reached
         if (elapsedTime >= upgradeTime && powerUp->isActive()) {
@@ -372,13 +372,6 @@ void GameState::update(float dt) {
         }
     }
 
-    // --- STATIONARY ENEMY SPAWNING ---
-    if (!isAnyPowerUpActive() && difftime(currentTime, lastStationarySpawnTime) >= stationaryEnemySpawnInterval) {
-        spawnInteractiveObject<StationaryEnemy>();
-        lastStationarySpawnTime = currentTime;
-        stationaryEnemySpawnInterval = stationarySpawnMin + (rand() / (RAND_MAX / (stationarySpawnMax - stationarySpawnMin)));
-    }
-
     // --- DEPOSIT ZONE HANDLING ---
     if (!depositZone) {
         spawnDepositZone(); // First-time spawn
@@ -398,6 +391,13 @@ void GameState::update(float dt) {
             // Reset and respawn
             depositZone->resetTimer(); // Reset timer for new zone
             spawnDepositZone();        // Create a new zone immediately
+            // --- STATIONARY ENEMY SPAWNING ---
+            if (!isAnyPowerUpActive() && difftime(currentTime, lastStationarySpawnTime) >= stationaryEnemySpawnInterval) {
+                spawnInteractiveObject<StationaryEnemy>();
+                lastStationarySpawnTime = currentTime;
+                stationaryEnemySpawnInterval = stationarySpawnMin + (rand() / (RAND_MAX / (stationarySpawnMax - stationarySpawnMin)));
+            }
+
         }
     }
 
