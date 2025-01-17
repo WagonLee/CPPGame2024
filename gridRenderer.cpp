@@ -339,6 +339,31 @@ void updateGrid() {
     int multiplier = gameState->getMultiplier();
     gridState[14][11] = Tile(ASSET_PATH + "chars/" + std::to_string(multiplier / 10) + ".png");
     gridState[14][12] = Tile(ASSET_PATH + "chars/" + std::to_string(multiplier % 10) + ".png");
+
+    // Update tally display in row 17
+    int tally = gameState->getTally(); // Get the current tally
+
+    // Update columns 4 to 8 with TALLY-ON1 or TALLY-OFF1
+    for (int i = 4; i <= 8; ++i) {
+        if (tally > 0) {
+            gridState[17][i] = Tile(ASSET_PATH + "grid/TALLY-ON1.png");
+            --tally;
+        }
+        else {
+            gridState[17][i] = Tile(ASSET_PATH + "grid/TALLY-OFF1.png");
+        }
+    }
+
+    // Update columns 9 to 12 with TALLY-ON2 or TALLY-OFF2
+    for (int i = 9; i <= 12; ++i) {
+        if (tally > 0) {
+            gridState[17][i] = Tile(ASSET_PATH + "grid/TALLY-ON2.png");
+            --tally;
+        }
+        else {
+            gridState[17][i] = Tile(ASSET_PATH + "grid/TALLY-OFF2.png");
+        }
+    }
 }
 
 // Render the grid

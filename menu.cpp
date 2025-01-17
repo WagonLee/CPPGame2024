@@ -6,7 +6,12 @@
 #include "MenuUtils.h"
 
 void Menu::init() {
-    graphics::setFont(ASSET_PATH + "Arial.ttf"); // Simplified asset path
+    // Set the font using ASSET_PATH
+    graphics::setFont(ASSET_PATH + "Arial.ttf");
+
+    // Play menu music in a loop with full volume
+    std::cout << "Playing menu music..." << std::endl;
+    graphics::playMusic(ASSET_PATH + "sounds/MENU.mp3", 0.6f, true);
 }
 
 // State to track key presses
@@ -27,6 +32,7 @@ void Menu::update() {
     if (selectTriggered) {
         switch (selectedOption) {
         case 0: // PLAY
+            graphics::stopMusic(); // Stop the menu music
             inMenu = false;
             gameState->resetGameStates();
             gameState->init();

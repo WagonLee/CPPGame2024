@@ -21,7 +21,7 @@ void PowerUpLevel1::draw() {
 
     graphics::Brush br;
     br.outline_opacity = 0.0f;
-    br.texture = "bin/assets/objects/POWERUP1.png"; // Direct path to the texture
+    br.texture = ASSET_PATH + "objects/POWERUP1.png";
 
     // Use CELL_SIZE for proper alignment
     float xPos = gridX * CELL_SIZE + CELL_SIZE / 2.0f;

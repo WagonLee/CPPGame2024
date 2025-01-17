@@ -41,7 +41,7 @@ private:
 
     // Collectible respawn
     std::vector<std::pair<time_t, time_t>> collectibleRespawnTimers; // Tracks respawn timers
-    const double collectibleRespawnDelay = 0.1; // Delay in seconds before respawn
+    const double collectibleRespawnDelay = 0; // Delay in seconds before respawn
 
     // Player death state
     bool isGameOver = false;

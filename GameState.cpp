@@ -265,11 +265,17 @@ void GameState::update(float dt) {
 
     // Handle pre-game pause ("READY?" state)
     if (isPreGamePaused()) {
-        if (graphics::getKeyState(graphics::SCANCODE_UP) || graphics::getKeyState(graphics::SCANCODE_W) ||
-            graphics::getKeyState(graphics::SCANCODE_DOWN) || graphics::getKeyState(graphics::SCANCODE_S) ||
-            graphics::getKeyState(graphics::SCANCODE_LEFT) || graphics::getKeyState(graphics::SCANCODE_A) ||
-            graphics::getKeyState(graphics::SCANCODE_RIGHT) || graphics::getKeyState(graphics::SCANCODE_D)) {
-            setPreGamePause(false); // Start the game when a movement key is pressed
+        if (graphics::getKeyState(graphics::SCANCODE_UP) ||
+            graphics::getKeyState(graphics::SCANCODE_W) ||
+            graphics::getKeyState(graphics::SCANCODE_DOWN) ||
+            graphics::getKeyState(graphics::SCANCODE_S) ||
+            graphics::getKeyState(graphics::SCANCODE_LEFT) ||
+            graphics::getKeyState(graphics::SCANCODE_A) ||
+            graphics::getKeyState(graphics::SCANCODE_RIGHT) ||
+            graphics::getKeyState(graphics::SCANCODE_D)) {
+
+            setPreGamePause(false); // Exit the pre-game pause state
+            graphics::playMusic(ASSET_PATH + "sounds/BGM.mp3", 0.6f, true); // Start background music
         }
         return; // Skip updates during the "READY?" state
     }
@@ -394,6 +400,7 @@ void GameState::update(float dt) {
             // --- STATIONARY ENEMY SPAWNING ---
             if (!isAnyPowerUpActive()) {
                 spawnInteractiveObject<StationaryEnemy>();
+                graphics::playSound(ASSET_PATH + "sounds/nodepo.wav", 0.40f, false);
             }
 
         }
@@ -416,18 +423,22 @@ void GameState::update(float dt) {
     if (tally >= tallyLevel4) {
         std::cout << "Condition met for Level 4 Power-Up. Tally = " << tally << std::endl;
         spawnPowerUp(4);
+        graphics::playSound(ASSET_PATH + "sounds/lvl4.wav", 1.0f, false);
     }
     else if (tally >= tallyLevel3) {
         std::cout << "Condition met for Level 3 Power-Up. Tally = " << tally << std::endl;
         spawnPowerUp(3);
+        graphics::playSound(ASSET_PATH + "sounds/lvl3.wav", 1.0f, false);
     }
     else if (tally >= tallyLevel2) {
         std::cout << "Condition met for Level 2 Power-Up. Tally = " << tally << std::endl;
         spawnPowerUp(2);
+        graphics::playSound(ASSET_PATH + "sounds/lvl2.wav", 1.0f, false);
     }
     else if (tally >= tallyLevel1) {
         std::cout << "Condition met for Level 1 Power-Up. Tally = " << tally << std::endl;
         spawnPowerUp(1);
+        graphics::playSound(ASSET_PATH + "sounds/lvl1.wav", 1.0f, false);
     }
 
     // Reset Tally AFTER checking ALL conditions
@@ -531,37 +542,6 @@ void GameState::draw() {
             player->draw();  // Draw player after everything else
             break;
         }
-    }
-
-    // Draw UI elements if we have a valid player
-    if (player) {
-        // Set up the font and brush for text graphics
-        graphics::setFont(ASSET_PATH + "Arial.ttf");
-        graphics::Brush textBrush;
-        textBrush.fill_color[0] = 1.0f; // Red text
-        textBrush.fill_color[1] = 0.0f;
-        textBrush.fill_color[2] = 0.0f;
-        textBrush.outline_opacity = 0.0f;
-
-        // Calculate center position for text
-        float xPos = (GRID_WIDTH * CELL_SIZE) / 2.0f; // Horizontal center
-        float yPos = 30; // 30 pixels from the top
-
-        // Display tail size
-        std::string tailText = "Tail Size: " + std::to_string(player->getTailSize());
-        graphics::drawText(xPos, yPos, 30, tailText, textBrush); // Size 30
-
-        // Display score below tail size
-        std::string scoreText = "Score: " + std::to_string(getScore());
-        graphics::drawText(xPos, yPos + 40, 30, scoreText, textBrush); // Offset by 40 pixels
-
-        // Display tally below score
-        std::string tallyText = "Tally: " + std::to_string(getTally());
-        graphics::drawText(xPos, yPos + 80, 30, tallyText, textBrush); // Offset by 80 pixels
-
-        // Display score multiplier below tally
-        std::string multiplierText = "Multiplier: x" + std::to_string(getMultiplier());
-        graphics::drawText(xPos, yPos + 120, 30, multiplierText, textBrush); // Offset by 120 pixels
     }
 
     // Show "READY?" during pre-game pause
@@ -809,9 +789,17 @@ void GameState::reset() {}
 
 // Handles stopping activity after player death
 void GameState::endGame() {
-    isGameOver = true;
+    isGameOver = true; // Set game over flag
+
+    // Stop current background music
+    graphics::stopMusic();
+
+    // Play death music
+    graphics::playMusic(ASSET_PATH + "sounds/death.wav", 0.85f, false);
+
     std::cout << "Game Over! All activity stopped." << std::endl;
 }
+
 
 // Schedule collectible respawn
 void GameState::scheduleCollectibleRespawn() {

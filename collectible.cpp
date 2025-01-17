@@ -40,16 +40,19 @@ void Collectible::init() {
     std::cout << "Collectible initialized at: (" << gridX << ", " << gridY << ")\n";
 }
 
-// Handle collision
 void Collectible::handleCollision(Player& player) {
     std::cout << "Collectible collected at: (" << gridX << ", " << gridY << ")\n";
 
+    // Play sound effect for collectible pickup
+    graphics::playSound(ASSET_PATH + "sounds/collect.wav", 1.0f, false);
+
     // Add a tail segment when collected
-    player.addTailSegment(); // NEW: Add tail segment to player
+    player.addTailSegment(); // Add tail segment to player
 
     setActive(false); // Collectible disappears
     GameState::getInstance()->scheduleCollectibleRespawn(); // Schedule respawn
 }
+
 
 void Collectible::startLingering(float duration) {
     isLingering = true;

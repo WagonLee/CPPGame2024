@@ -13,6 +13,9 @@ PowerUpBase::PowerUpBase(GameState* state, int x, int y, int level)
 void PowerUpBase::handleCollision(Player& player) {
     if (!canCollide()) return; // Prevent duplicate collisions
 
+    graphics::playSound(ASSET_PATH + "sounds/pwrpickup.wav", 0.7f, false);
+
+
     std::cout << "PowerUp Level " << level << " collected!" << std::endl;
 
     // Mark as collected
@@ -29,7 +32,6 @@ void PowerUpBase::handleCollision(Player& player) {
 void PowerUpBase::startWeakEffect(float duration) {
     weakEffectDuration = duration;
     isWeakEffectActive = true;
-
     std::cout << "Weak effect started for " << duration << " seconds." << std::endl;
 
     // Apply effect to MovingEnemies and StationaryEnemies

@@ -101,6 +101,9 @@ void Player::shedTail() {
     if (depositedCount > 0) {
         GameState* gameState = GameState::getInstance();
 
+        // Play deposit sound effect
+        graphics::playSound(ASSET_PATH + "sounds/depo.wav", 1.0f, false);
+
         // Revamped scoring logic
         int depositScore = 0;
         for (int i = 1; i <= depositedCount; ++i) {
@@ -117,9 +120,15 @@ void Player::shedTail() {
         std::cout << "Deposited " << depositedCount << " segments, awarded " << depositScore
             << " points (Pattern scoring applied)." << std::endl;
     }
+    else {
+        // Play fail deposit sound effect
+        graphics::playSound(ASSET_PATH + "sounds/faildepo.wav", 1.0f, false);
+        std::cout << "Failed to deposit any segments." << std::endl;
+    }
 
     std::cout << "Tail processing complete. Deposited: " << depositedCount << std::endl;
 }
+
 
 
 // Update movement and collisions

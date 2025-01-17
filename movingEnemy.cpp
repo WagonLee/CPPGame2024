@@ -182,6 +182,7 @@ void MovingEnemy::handleCollision(Player& player) {
     }
 
     if (isWeak()) {
+        graphics::playSound(ASSET_PATH + "sounds/kill.wav", 0.7f, false);
         std::cout << "Weak enemy killed by player!" << std::endl;
         setActive(false); // Deactivate the enemy
 

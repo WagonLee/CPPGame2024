@@ -11,6 +11,7 @@ PowerUpLevel4::PowerUpLevel4(GameState* state, int x, int y)
 // Apply effect
 void PowerUpLevel4::applyEffect() {
     std::cout << "Level 4 Power-Up effect applied! Weakening all enemies for 20 seconds and spawning 1 collectible." << std::endl;
+    graphics::playSound(ASSET_PATH + "pwrpickup.wav", 0.7f, false);
 
     // Use the centralized weakness logic in PowerUpBase
     startWeakEffect(9000.0f); 
@@ -21,7 +22,7 @@ void PowerUpLevel4::applyEffect() {
 
     // Increment the score multiplier in GameState
     GameState::getInstance()->incrementMultiplier();
-    std::cout << "Score multiplier increased due to Level 3 Power-Up!" << std::endl;
+    std::cout << "Score multiplier increased due to Level 3 Power-Up!" << std::endl;         
 }
 
 // Draw
@@ -30,7 +31,7 @@ void PowerUpLevel4::draw() {
 
     graphics::Brush br;
     br.outline_opacity = 0.0f;
-    br.texture = "bin/assets/objects/POWERUP4.png"; // Direct path to the Level 4 texture
+    br.texture = ASSET_PATH + "objects/POWERUP4.png";
 
     // Use CELL_SIZE for proper alignment
     float xPos = gridX * CELL_SIZE + CELL_SIZE / 2.0f;
