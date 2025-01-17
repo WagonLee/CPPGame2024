@@ -6,30 +6,37 @@
 #include "MenuUtils.h"
 
 void Menu::init() {
-    // Set the font using ASSET_PATH
-    graphics::setFont(ASSET_PATH + "Arial.ttf");
+    // Initialize menu grid with default black tiles
+    menuGridState = std::vector<std::vector<Tile>>(GRID_HEIGHT, std::vector<Tile>(GRID_WIDTH, Tile(0.0f, 0.0f, 0.0f)));
 
-    // Play menu music in a loop with full volume
-    std::cout << "Playing menu music..." << std::endl;
+    // Play menu music in a loop with reduced volume
     graphics::playMusic(ASSET_PATH + "sounds/MENU.mp3", 0.6f, true);
 }
-
-// State to track key presses
-bool keyUpPressed = false;
-bool keyDownPressed = false;
-bool keySelectPressed = false;
 
 void Menu::update() {
     static bool selectTriggered = false;
 
     // Update menu selection using MAIN_MENU_OPTIONS
+    int prevOption = selectedOption;
     selectedOption = handleMenuInput(MAIN_MENU_OPTIONS, selectedOption, selectTriggered);
+
+    // Play sound for up/down navigation
+    if (selectedOption != prevOption) {
+        if (selectedOption > prevOption) {
+            graphics::playSound(ASSET_PATH + "sounds/down.wav", 1.0f, false);
+        }
+        else {
+            graphics::playSound(ASSET_PATH + "sounds/up.wav", 1.0f, false);
+        }
+    }
 
     // Get game state instance
     GameState* gameState = GameState::getInstance();
 
     // Handle option selection
     if (selectTriggered) {
+        graphics::playSound(ASSET_PATH + "sounds/select.wav", 1.0f, false); // Play select sound
+
         switch (selectedOption) {
         case 0: // PLAY
             graphics::stopMusic(); // Stop the menu music
@@ -40,8 +47,8 @@ void Menu::update() {
         case 1: // HIGH SCORES
             // Implement high score logic
             break;
-        case 2: // TUTORIAL
-            // Implement tutorial logic
+        case 2: // HELP
+            // Implement help logic
             break;
         case 3: // EXIT
             graphics::stopMessageLoop();
@@ -51,35 +58,56 @@ void Menu::update() {
 }
 
 void Menu::draw() {
-    graphics::Brush br;
-    br.outline_opacity = 0.0f;
-
-    // Draw background
-    br.texture = ASSET_PATH + "menu_background.png"; // Simplified asset path
-    graphics::drawRect(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, CANVAS_WIDTH, CANVAS_HEIGHT, br);
-
-    // Draw menu options
-    const float fontSize = 30.0f; // Font size
-    const float spacing = 50.0f;  // Vertical spacing between options
-    const float charWidth = 15.0f; // Approximate width per character for font size 30
-
-    for (size_t i = 0; i < MAIN_MENU_OPTIONS.size(); ++i) {
-        br.fill_color[0] = 1.0f; // Default white color
-        br.fill_color[1] = 1.0f;
-        br.fill_color[2] = 1.0f;
-
-        if (i == selectedOption) {
-            br.fill_color[0] = 0.0f; // Highlighted color (green)
-            br.fill_color[1] = 1.0f;
-            br.fill_color[2] = 0.0f;
+    // Clear the menu grid to black
+    for (int row = 0; row < GRID_HEIGHT; ++row) {
+        for (int col = 0; col < GRID_WIDTH; ++col) {
+            menuGridState[row][col] = Tile(0.0f, 0.0f, 0.0f); // Black background
         }
+    }
 
-        // Calculate horizontal and vertical positioning
-        float textWidth = MAIN_MENU_OPTIONS[i].size() * charWidth; // Approximate text width
-        float x = (CANVAS_WIDTH - textWidth) / 2; // Center horizontally
-        float y = (CANVAS_HEIGHT / 2) + (i - MAIN_MENU_OPTIONS.size() / 2.0f) * spacing; // Vertical alignment
+    // Define menu options using textures
+    const std::vector<std::vector<std::string>> menuOptions = {
+        {"P.png", "L.png", "A.png", "Y.png"},        // PLAY
+        {"H.png", "I.png", "S.png", "C.png", "O.png", "R.png", "E.png", "S.png"}, // HISCORES
+        {"H.png", "E.png", "L.png", "P.png"},       // HELP
+        {"E.png", "X.png", "I.png", "T.png"}        // EXIT
+    };
 
-        // Draw the menu option
-        graphics::drawText(x, y, fontSize, MAIN_MENU_OPTIONS[i], br);
+    // Draw each menu option on the menu grid
+    int startRow = 4; // Starting row for menu options
+    for (size_t i = 0; i < menuOptions.size(); ++i) {
+        int startCol = 5; // Centered column for text
+        for (const auto& charTexture : menuOptions[i]) {
+            if (i == selectedOption) {
+                // Highlight the selected option with a green background
+                menuGridState[startRow][startCol] = Tile(0.0f, 1.0f, 0.0f); // Green highlight
+            }
+            menuGridState[startRow][startCol].texture = ASSET_PATH + "chars/" + charTexture;
+            ++startCol;
+        }
+        startRow += 2; // Add 1 grid tall space between each option
+    }
+
+    // Render the menu grid
+    graphics::Brush br;
+    for (int row = 0; row < GRID_HEIGHT; ++row) {
+        for (int col = 0; col < GRID_WIDTH; ++col) {
+            const auto& tile = menuGridState[row][col];
+            br.fill_color[0] = tile.r;
+            br.fill_color[1] = tile.g;
+            br.fill_color[2] = tile.b;
+
+            if (!tile.texture.empty()) {
+                br.texture = tile.texture;
+            }
+            else {
+                br.texture = "";
+            }
+
+            br.outline_opacity = 0.0f;
+            float x = col * CELL_SIZE + CELL_SIZE / 2;
+            float y = row * CELL_SIZE + CELL_SIZE / 2;
+            graphics::drawRect(x, y, CELL_SIZE, CELL_SIZE, br);
+        }
     }
 }
