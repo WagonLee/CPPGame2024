@@ -109,13 +109,13 @@ void initGrid() {
                         gridState[row][col] = Tile(ASSET_PATH + "chars/0.png");
                     }
                     else if (col == 10) {
-                        gridState[row][col] = Tile(ASSET_PATH + "chars/X.png");
+                        gridState[row][col] = Tile(ASSET_PATH    + "chars/X.png");
                     }
                     else if (col == 11) {
                         gridState[row][col] = Tile(ASSET_PATH + "chars/0.png");
                     }
                     else if (col == 12) {
-                        gridState[row][col] = Tile(ASSET_PATH + "chars/0.png");
+                        gridState[row][col] = Tile(ASSET_PATH + "chars/1.png");
                     }
                     else if (col == GRID_WIDTH - 1) {
                         gridState[row][col] = Tile(ASSET_PATH + "grid/VERTICAL-EDGE.png");
@@ -262,7 +262,6 @@ void initGrid() {
     }
 }
 
-
 // Update the grid dynamically
 void updateGrid() {
     Player* player = nullptr;
@@ -271,9 +270,7 @@ void updateGrid() {
     // EFFECT 1
 
     // Check if an enemy was recently killed
-    // Check if an enemy was recently killed
     if (gameState->enemyKilled) {
-
         // Turn the top row blue
         gridState[0][2] = Tile(0.0f, 0.0f, 0.0f);
         gridState[0][3] = Tile(ASSET_PATH + "grid/PURGED.png");
@@ -328,8 +325,21 @@ void updateGrid() {
         gridState[0][10] = Tile(0.0f, 0.0f, 0.0f);
         gridState[0][11] = Tile(0.0f, 0.0f, 0.0f);
     }
-}
 
+    // SCORE AND MULTIPLIER DISPLAY
+
+    // Update score tiles
+    int score = gameState->getScore();
+    for (int i = 9; i >= 4; --i) {
+        gridState[14][i] = Tile(ASSET_PATH + "chars/" + std::to_string(score % 10) + ".png");
+        score /= 10;
+    }
+
+    // Update multiplier tiles
+    int multiplier = gameState->getMultiplier();
+    gridState[14][11] = Tile(ASSET_PATH + "chars/" + std::to_string(multiplier / 10) + ".png");
+    gridState[14][12] = Tile(ASSET_PATH + "chars/" + std::to_string(multiplier % 10) + ".png");
+}
 
 // Render the grid
 void drawGrid() {
