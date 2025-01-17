@@ -32,18 +32,6 @@ private:
     static GameState* instance;
     std::vector<std::unique_ptr<GameObject>> gameObjects;
 
-    // MovingEnemy spawn timing
-    time_t lastMovingEnemySpawnTime;                     // Renamed for MovingEnemy
-    double movingEnemySpawnInterval;                     // Renamed for MovingEnemy
-    const double movingEnemySpawnMin = 5.0;              // Minimum spawn interval
-    const double movingEnemySpawnMax = 10.0;             // Maximum spawn interval
-
-    // StationaryEnemy spawn timing
-    time_t lastStationarySpawnTime;                      // Added for StationaryEnemy
-    double stationaryEnemySpawnInterval;                 // Added for StationaryEnemy
-    const double stationarySpawnMin = 10.0;              // Minimum spawn interval
-    const double stationarySpawnMax = 20.0;              // Maximum spawn interval
-
     // Deposit zone variables
     std::unique_ptr<DepositZone> depositZone; // Single deposit zone
     const double depositZoneDuration = 10.0; // 10 seconds per zone
@@ -71,6 +59,8 @@ private:
     int killChain = 0;         // Tracks the number of kills in the current chain
     int killChainScore = 0;    // Accumulated score for the chain
 
+    int scoreMulti = 1;
+
     // Power-Up Management
     std::vector<std::unique_ptr<PowerUpBase>> activePowerUps; // Unlimited power-ups
     std::vector<std::pair<size_t, float>> upgradeTimers;      // Use indices instead of pointers
@@ -91,7 +81,6 @@ private:
     bool firstSpawn = true;            // Track the first spawn
     float firstSpawnTime = 0.0f;       // Time for the first spawn 
     bool enemySpawnedInactive = false; // Ensure one spawn at a time
-    void checkInactiveEnemies(); // Check and update inactive enemies based on power-up status
 
 public:
     // Singleton pattern
@@ -176,6 +165,9 @@ public:
 
     bool enemyKilled = false;
     float enemyKillEndTime = 0.0f;
+
+    void incrementMultiplier(); // Increase multiplier
+    int getMultiplier() const;  // Get the current multiplier
 
     // Destructor
     ~GameState();

@@ -18,6 +18,10 @@ void PowerUpLevel4::applyEffect() {
     // Spawn 1 additional collectible immediately
     std::cout << "Spawning 1 additional collectible as part of Level 4 effect." << std::endl;
     state->spawnInteractiveObject<Collectible>();
+
+    // Increment the score multiplier in GameState
+    GameState::getInstance()->incrementMultiplier();
+    std::cout << "Score multiplier increased due to Level 3 Power-Up!" << std::endl;
 }
 
 // Draw

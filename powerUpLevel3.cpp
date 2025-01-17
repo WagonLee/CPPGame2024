@@ -1,7 +1,7 @@
 #include "PowerUpLevel3.h"
 #include "graphics.h"
 #include <iostream>
-#include "GameState.h" // MULTI MAYBE?
+#include "GameState.h"
 #include "config.h"
 
 // Constructor
@@ -15,6 +15,9 @@ void PowerUpLevel3::applyEffect() {
     // Use the centralized weakness logic in PowerUpBase
     startWeakEffect(9000.0f);
 
+    // Increment the score multiplier in GameState
+    GameState::getInstance()->incrementMultiplier();
+    std::cout << "Score multiplier increased due to Level 3 Power-Up!" << std::endl;
 }
 
 // Draw

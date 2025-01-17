@@ -8,6 +8,11 @@ Enemy::Enemy(GameState* state, int x, int y, const std::string& type)
 
 // Handle collision
 void Enemy::handleCollision(Player& player) {
+    // Ignore collisions if the enemy is inactive
+    if (isInactive) {
+        return;
+    }
+
     if (isWeak) {
         std::cout << "Weak enemy killed by player!" << std::endl;
         setActive(false); // Deactivate the enemy
@@ -17,13 +22,14 @@ void Enemy::handleCollision(Player& player) {
         // Notify GameState about the kill
         gameState->addToKillChain(); // Increment kill chain and calculate score
         gameState->enemyKilled = true;
-        gameState->enemyKillEndTime = graphics::getGlobalTime() + 1000.0f; // 1 second from now
+        gameState->enemyKillEndTime = graphics::getGlobalTime() + 1500.0f; // 1.5 seconds from now
     }
     else {
         std::cout << "Player killed by enemy!" << std::endl;
         player.setDead(); // Kill the player if enemy is strong
     }
 }
+
 
 // Set weak state
 void Enemy::setWeak(bool weak) {

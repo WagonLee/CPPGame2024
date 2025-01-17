@@ -13,4 +13,3 @@ public:
     void update(float dt) override; // No movement logic needed
     void init() override;       // Initialize behavior
 };
-#pragma once

@@ -5,7 +5,9 @@
 
 // Constructor
 StationaryEnemy::StationaryEnemy(GameState* state, int x, int y)
-    : Enemy(state, x, y, "StationaryEnemy") {}
+    : Enemy(state, x, y, "StationaryEnemy") {
+    setInactive(4.0f); // Spawn in an inactive state for 4 seconds
+}
 
 // Initialize behavior
 void StationaryEnemy::init() {
@@ -17,12 +19,15 @@ void StationaryEnemy::draw() {
     graphics::Brush br;
     br.outline_opacity = 0.0f; // Remove outlines
 
-    // Ensure texture path is correct and fill opacity is set
-    if (isWeak) { // Check weak state correctly
-        br.texture = ASSET_PATH + "objects/STATIONARY-ENEMY-WEAK.png"; // Corrected texture path
+    // Check state and assign appropriate texture
+    if (isInactive) {
+        br.texture = ASSET_PATH + "objects/STATIONARY-ENEMY-SPAWNING.png"; // Inactive state texture
+    }
+    else if (isWeak) {
+        br.texture = ASSET_PATH + "objects/STATIONARY-ENEMY-WEAK.png"; // Weak state texture
     }
     else {
-        br.texture = ASSET_PATH + "objects/STATIONARY-ENEMY.png"; // Corrected texture path
+        br.texture = ASSET_PATH + "objects/STATIONARY-ENEMY.png"; // Active state texture
     }
 
     br.fill_opacity = 1.0f; // Ensure the texture is fully visible
@@ -32,10 +37,19 @@ void StationaryEnemy::draw() {
     float yPos = gridY * CELL_SIZE + CELL_SIZE / 2.0f;
 
     // Draw the enemy with the appropriate texture
-    graphics::drawRect(xPos, yPos - CELL_SIZE/8.1f, CELL_SIZE * 1.3f, CELL_SIZE * 1.3f, br);
+    graphics::drawRect(xPos, yPos, CELL_SIZE, CELL_SIZE, br);
 }
 
 // Update behavior
 void StationaryEnemy::update(float dt) {
-    // Stationary enemy does not move, so no update logic required
+    // Handle inactive state
+    if (isInactive) {
+        if (graphics::getGlobalTime() >= inactiveEndTime) {
+            activate(); // Transition to active state
+            std::cout << "StationaryEnemy at (" << gridX << ", " << gridY << ") is now ACTIVE." << std::endl;
+        }
+        return; // Skip further updates while inactive
+    }
+
+    // No active behavior for stationary enemy beyond handling inactive state
 }

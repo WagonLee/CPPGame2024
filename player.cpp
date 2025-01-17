@@ -99,16 +99,28 @@ void Player::shedTail() {
 
     // Update tally and score AFTER processing all segments
     if (depositedCount > 0) {
-        GameState::getInstance()->incrementTally(depositedCount);
-        GameState::getInstance()->addScore(depositedCount);
+        GameState* gameState = GameState::getInstance();
+
+        // Revamped scoring logic
+        int depositScore = 0;
+        for (int i = 1; i <= depositedCount; ++i) {
+            depositScore += i * 10; // Add score based on the deposit pattern
+        }
+
+        gameState->incrementTally(depositedCount); // Increment tally
+        gameState->addScore(depositScore);         // Update game score
 
         // Force respawn AFTER processing all deposits
         std::cout << "Forcing deposit zone respawn immediately!" << std::endl;
-        GameState::getInstance()->replaceDepositZone();
+        gameState->replaceDepositZone();
+
+        std::cout << "Deposited " << depositedCount << " segments, awarded " << depositScore
+            << " points (Pattern scoring applied)." << std::endl;
     }
 
     std::cout << "Tail processing complete. Deposited: " << depositedCount << std::endl;
 }
+
 
 // Update movement and collisions
 void Player::update(float dt) {

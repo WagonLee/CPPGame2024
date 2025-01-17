@@ -392,10 +392,8 @@ void GameState::update(float dt) {
             depositZone->resetTimer(); // Reset timer for new zone
             spawnDepositZone();        // Create a new zone immediately
             // --- STATIONARY ENEMY SPAWNING ---
-            if (!isAnyPowerUpActive() && difftime(currentTime, lastStationarySpawnTime) >= stationaryEnemySpawnInterval) {
+            if (!isAnyPowerUpActive()) {
                 spawnInteractiveObject<StationaryEnemy>();
-                lastStationarySpawnTime = currentTime;
-                stationaryEnemySpawnInterval = stationarySpawnMin + (rand() / (RAND_MAX / (stationarySpawnMax - stationarySpawnMin)));
             }
 
         }
@@ -560,6 +558,10 @@ void GameState::draw() {
         // Display tally below score
         std::string tallyText = "Tally: " + std::to_string(getTally());
         graphics::drawText(xPos, yPos + 80, 30, tallyText, textBrush); // Offset by 80 pixels
+
+        // Display score multiplier below tally
+        std::string multiplierText = "Multiplier: x" + std::to_string(getMultiplier());
+        graphics::drawText(xPos, yPos + 120, 30, multiplierText, textBrush); // Offset by 120 pixels
     }
 
     // Show "READY?" during pre-game pause
@@ -582,12 +584,7 @@ void GameState::draw() {
 // Initialize game state
 void GameState::init() {
     // Initialize timers for spawning enemies
-    lastMovingEnemySpawnTime = time(nullptr);
-    movingEnemySpawnInterval = movingEnemySpawnMin + (rand() / (RAND_MAX / (movingEnemySpawnMax - movingEnemySpawnMin)));
-
-    lastStationarySpawnTime = time(nullptr);
-    stationaryEnemySpawnInterval = stationarySpawnMin + (rand() / (RAND_MAX / (stationarySpawnMax - stationarySpawnMin)));
-
+    
     srand(static_cast<unsigned int>(time(nullptr)));
 
     // Spawn a deposit zone
@@ -700,10 +697,21 @@ void GameState::resetKillChain() {
 
 void GameState::addToKillChain() {
     killChain++;
-    int points = 10 * killChain; // Points based on current chain length
-    killChainScore += points;   // Add to cumulative score
-    addScore(points);           // Update game score
+    int points = 10 * killChain * scoreMulti; // Points based on chain and multiplier
+    killChainScore += points;                // Add to cumulative score
+    addScore(points);
     std::cout << "Kill chain: " << killChain << ", Points awarded: " << points << ", Total: " << killChainScore << std::endl;
+}
+
+// Increment the multiplier
+void GameState::incrementMultiplier() {
+    scoreMulti++;
+    std::cout << "Score multiplier increased to " << scoreMulti << "." << std::endl;
+}
+
+// Get the current multiplier
+int GameState::getMultiplier() const {
+    return scoreMulti;
 }
 
 // Set the paused state
