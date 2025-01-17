@@ -62,7 +62,6 @@ void Player::shedTail() {
     if (tail.empty()) return; // No tail to shed
 
     auto* depositZone = GameState::getInstance()->getDepositZone().get();
-    std::cout << "Processing tail: " << tail.size() << " segments." << std::endl;
 
     std::vector<TailSegment> tempTail = tail;
     tail.clear(); // Clear tail immediately to avoid reprocessing
@@ -71,19 +70,26 @@ void Player::shedTail() {
     // Check if any power-up is active
     bool powerUpActive = GameState::getInstance()->isAnyPowerUpActive();
 
+    float lingerBaseTime = 0.1f; // Base linger duration per collectible
+    float currentLingerTime = 0.0f; // Incremental linger time for each collectible
+
     for (const auto& segment : tempTail) {
         // Check if segment is inside the zone
         if (depositZone->isTileInZone(segment.gridX, segment.gridY)) {
-            std::cout << "Segment at (" << segment.gridX << ", " << segment.gridY
-                << ") deposited." << std::endl;
             depositedCount++;
+
+            // Find collectible at the deposited location
+            for (const auto& obj : GameState::getInstance()->getGameObjects()) {
+                Collectible* collectible = dynamic_cast<Collectible*>(obj.get());
+                if (collectible && collectible->getGridX() == segment.gridX &&
+                    collectible->getGridY() == segment.gridY) {
+                    currentLingerTime += lingerBaseTime; // Increment linger time
+                    collectible->startLingering(currentLingerTime * 1000.0f); // Convert to milliseconds
+                }
+            }
         }
         else {
             // Spawn enemy for non-deposited segment
-            std::cout << "Segment at (" << segment.gridX << ", " << segment.gridY
-                << ") -> enemy" << std::endl;
-
-            // Spawn MovingEnemy
             MovingEnemy* enemy = new MovingEnemy(GameState::getInstance(), segment.gridX, segment.gridY);
             GameState::getInstance()->addObject(enemy);
 
@@ -91,8 +97,6 @@ void Player::shedTail() {
             if (powerUpActive) {
                 enemy->setWeak(true);  // Enemy starts in a weak state
                 enemy->stopMovement(); // Optional: Stop movement for weak enemies
-                std::cout << "Enemy spawned in a WEAK state at (" << segment.gridX
-                    << ", " << segment.gridY << ")" << std::endl;
             }
         }
     }
@@ -111,16 +115,12 @@ void Player::shedTail() {
         gameState->addScore(depositScore);         // Update game score
 
         // Force respawn AFTER processing all deposits
-        std::cout << "Forcing deposit zone respawn immediately!" << std::endl;
         gameState->replaceDepositZone();
 
         std::cout << "Deposited " << depositedCount << " segments, awarded " << depositScore
-            << " points (Pattern scoring applied)." << std::endl;
+            << " points." << std::endl;
     }
-
-    std::cout << "Tail processing complete. Deposited: " << depositedCount << std::endl;
 }
-
 
 // Update movement and collisions
 void Player::update(float dt) {
