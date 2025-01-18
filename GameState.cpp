@@ -561,28 +561,26 @@ void GameState::draw() {
     }
 }
 
-void GameState::init()
-{
-    // 1) Initialize or resize the tile-based grid.
-    //    Make sure GRID_HEIGHT, GRID_WIDTH, and Tile(...) are defined.
-    menuGridState = std::vector<std::vector<Tile>>(
-        GRID_HEIGHT,
-        std::vector<Tile>(GRID_WIDTH, Tile(0.0f, 0.0f, 0.0f))
-        );
-
-    // 2) Rest of your initialization:
+// Initialize game state
+void GameState::init() {
+    // Initialize timers for spawning enemies
+    
     srand(static_cast<unsigned int>(time(nullptr)));
 
+    // Spawn a deposit zone
     spawnDepositZone();
 
+    // Spawn initial collectibles
     for (int i = 0; i < collectibleCount; i++) {
         spawnInteractiveObject<Collectible>();
     }
 
-    int startX = GRID_WIDTH / 2;
-    int startY = UI_ROWS_ABOVE + (PLAYABLE_ROWS / 2);
-    Player* player = new Player(this, startX, startY, 0.004f);
-    addObject(player);
+    // Initialize the player
+    int startX = GRID_WIDTH / 2; // Center of the grid horizontally
+    int startY = UI_ROWS_ABOVE + (PLAYABLE_ROWS / 2); // Center of the playable area vertically
+    Player* player = new Player(this, startX, startY, 0.004f); // Adjust speed as needed
+    addObject(player); // Add the player to gameObjects
+
 }
 
 void GameState::replaceDepositZone() {
