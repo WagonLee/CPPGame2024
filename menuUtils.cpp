@@ -1,46 +1,68 @@
-#include "graphics.h"
 #include "MenuUtils.h"
-#include <iostream> // For debug output
+#include "graphics.h"
 
-int handleMenuInput(const std::vector<std::string>& options, int currentSelection, bool& selectTriggered) {
-    static bool keyUpPressed = false;
-    static bool keyDownPressed = false;
+// This function reads UP, DOWN, and RETURN keys using a static memory
+// of previous states. It returns the new selectedOption. If user hits
+// RETURN, we set selectTriggered = true exactly once.
 
-    // Handle UP key with debounce
-    if (graphics::getKeyState(graphics::SCANCODE_UP)) {
-        if (!keyUpPressed) {
-            currentSelection = (currentSelection - 1 + options.size()) % options.size();
-            keyUpPressed = true;
-        }
+int handleMenuInput(const std::vector<std::string>& options,
+    int currentOption,
+    bool& selectTriggered)
+{
+    // Store the old states across function calls
+    static bool prevUp = false;
+    static bool prevDown = false;
+    static bool prevReturn = false;
+
+    // Read current states
+    bool currUp = graphics::getKeyState(graphics::SCANCODE_UP);
+    bool currDown = graphics::getKeyState(graphics::SCANCODE_DOWN);
+    bool currReturn = graphics::getKeyState(graphics::SCANCODE_RETURN);
+
+    // Reset the output each frame
+    selectTriggered = false;
+
+    // ========================
+    // Up Key - rising edge
+    // ========================
+    if (currUp && !prevUp) {
+        // Move selection up
+        currentOption--;
+    }
+
+    // ========================
+    // Down Key - rising edge
+    // ========================
+    if (currDown && !prevDown) {
+        // Move selection down
+        currentOption++;
+    }
+
+    // ========================
+    // Wrap/clamp selection
+    // ========================
+    if (!options.empty()) {
+        // For wrapping behavior:
+        currentOption = (currentOption + (int)options.size()) % (int)options.size();
     }
     else {
-        keyUpPressed = false;
+        // If somehow no options, clamp to 0
+        currentOption = 0;
     }
 
-    // Handle DOWN key with debounce
-    if (graphics::getKeyState(graphics::SCANCODE_DOWN)) {
-        if (!keyDownPressed) {
-            currentSelection = (currentSelection + 1) % options.size();
-            keyDownPressed = true;
-        }
-    }
-    else {
-        keyDownPressed = false;
+    // ========================
+    // Enter Key - rising edge
+    // ========================
+    if (currReturn && !prevReturn) {
+        // The user pressed enter this frame
+        selectTriggered = true;
     }
 
-    // Handle selection with ENTER
-    if (graphics::getKeyState(graphics::SCANCODE_RETURN)) {
-        if (!selectTriggered) {
-            selectTriggered = true;
-        }
-    }
-    else {
-        selectTriggered = false;
-    }
+    // Update static "prev" states
+    prevUp = currUp;
+    prevDown = currDown;
+    prevReturn = currReturn;
 
-    // Ensure currentSelection is clamped
-    if (currentSelection < 0) currentSelection = 0;
-    if (currentSelection >= static_cast<int>(options.size())) currentSelection = static_cast<int>(options.size()) - 1;
-
-    return currentSelection;
+    // Return the new selection
+    return currentOption;
 }
