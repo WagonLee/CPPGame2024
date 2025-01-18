@@ -34,6 +34,7 @@ void TutorialMenu::update(float dt) {
         std::cout << "Exiting TutorialMenu, transitioning to MainMenu" << std::endl;
         graphics::playSound(ASSET_PATH + "sounds/select.wav", 1.0f, false);
         inHiScores = false;
+        inTutorial = false;
         inMenu = true;
         MainMenu::getInstance()->init();
     }

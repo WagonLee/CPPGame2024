@@ -2,17 +2,20 @@
 #include "GameState.h"
 #include "MainMenu.h"
 #include "HiScoreMenu.h"
-#include "GridRenderer.h"
-#include <iostream> // For debug output
 #include "tutorialMenu.h"
+#include "GridRenderer.h"
+#include <iostream>
+#include "config.h"
 
 // Global state flags
-bool inMenu = true;        // Default menu state
-bool inHiScores = false;   // HiScore menu state
+bool inMenu = true;   // Defaults to main menu
+bool inHiScores = false;
+bool inTutorial = false;
 
 // Menu instances
 MainMenu* mainMenu = MainMenu::getInstance();
 HiScoreMenu* hiScoreMenu = HiScoreMenu::getInstance();
+TutorialMenu* tutorialMenu = TutorialMenu::getInstance();
 
 // Draw function
 void draw() {
@@ -22,10 +25,12 @@ void draw() {
     else if (inHiScores) {
         hiScoreMenu->draw();
     }
-    else if (!inMenu && !inHiScores) { // Tutorial Menu
-        TutorialMenu::getInstance()->draw();
+    else if (inTutorial) {
+        tutorialMenu->draw();
     }
     else {
+        drawGrid();                       
+        // Now draw the actual game objects
         GameState::getInstance()->draw();
     }
 }
@@ -38,24 +43,24 @@ void update(float dt) {
     else if (inHiScores) {
         hiScoreMenu->update(dt);
     }
-    else if (!inMenu && !inHiScores) { // Tutorial Menu
-        TutorialMenu::getInstance()->update(dt);
+    else if (inTutorial) {
+        tutorialMenu->update(dt);
     }
     else {
+        // Game logic
         GameState::getInstance()->update(dt);
     }
 }
 
-// Main function
 int main() {
     // Create the window with default size
     graphics::createWindow(CANVAS_WIDTH, CANVAS_HEIGHT, "BYTERAIDER");
 
     // Set logical canvas size and scaling mode
-    graphics::setCanvasSize(CANVAS_WIDTH, CANVAS_HEIGHT);       // Logical size
-    graphics::setCanvasScaleMode(graphics::CANVAS_SCALE_FIT);   // Maintain aspect ratio
+    graphics::setCanvasSize(CANVAS_WIDTH, CANVAS_HEIGHT);
+    graphics::setCanvasScaleMode(graphics::CANVAS_SCALE_FIT);
 
-    initGrid(); // Initialize the grid
+    initGrid(); // Initialize the grid for menu usage
 
     // Initialize the main menu
     mainMenu->init();
@@ -69,6 +74,5 @@ int main() {
 
     // Destroy the window on exit
     graphics::destroyWindow();
-
     return 0;
 }

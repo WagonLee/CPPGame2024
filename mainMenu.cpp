@@ -8,6 +8,7 @@
 // Global flags from main.cpp
 extern bool inMenu;
 extern bool inHiScores;
+extern bool inTutorial;
 
 MainMenu* MainMenu::instance = nullptr;
 
@@ -40,7 +41,6 @@ void MainMenu::update(float dt) {
     selectedOption = handleMenuInput(MAIN_MENU_OPTIONS, selectedOption, selectTriggered);
 
     if (selectedOption != prevOption) {
-        // Play up/down feedback
         graphics::playSound(
             ASSET_PATH + (selectedOption > prevOption ? "sounds/down.wav" : "sounds/up.wav"),
             0.5f,
@@ -49,33 +49,33 @@ void MainMenu::update(float dt) {
     }
 
     if (selectTriggered) {
-        // The user pressed Return this frame
         graphics::playSound(ASSET_PATH + "sounds/select.wav", 0.5f, false);
 
         switch (selectedOption) {
-        case 0:
-            // PLAY
+        case 0: // PLAY
             graphics::stopMusic();
             inMenu = false;
+            inHiScores = false;
+            inTutorial = false;
             GameState::getInstance()->resetGameStates();
             GameState::getInstance()->init();
             break;
 
-        case 1:
-            // HISCORES
+        case 1: // HISCORES
             inMenu = false;
             inHiScores = true;
+            inTutorial = false;
             HiScoreMenu::getInstance()->init();
             break;
 
-        case 2: // Help (Tutorial)
+        case 2: // HELP (Tutorial)
             inMenu = false;
             inHiScores = false;
+            inTutorial = true;  // <--- THE KEY
             TutorialMenu::getInstance()->init();
             break;
 
-        case 3:
-            // EXIT
+        case 3: // EXIT
             graphics::stopMessageLoop();
             break;
         }

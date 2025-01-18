@@ -7,6 +7,7 @@
 // Global flags from main.cpp
 extern bool inMenu;
 extern bool inHiScores;
+extern bool inTutorial;
 
 HiScoreMenu* HiScoreMenu::instance = nullptr;
 
@@ -65,7 +66,7 @@ void HiScoreMenu::update(float dt) {
     if (selectTriggered) {
         std::cout << "Exiting HiScoreMenu, transitioning to MainMenu" << std::endl;
         graphics::playSound(ASSET_PATH + "sounds/select.wav", 1.0f, false);
-
+        inTutorial = false;
         inHiScores = false;
         inMenu = true;
         MainMenu::getInstance()->init();
