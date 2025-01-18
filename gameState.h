@@ -148,15 +148,9 @@ public:
     void markPowerUpForRemoval(PowerUpBase* powerUp);
     void cleanupMarkedPowerUps();
     bool hasPendingRemovals() const { return isPowerUpRemovalPending; }
-    void setProcessingUpdates(bool processing) { isProcessingUpdates = processing; }
+    void setProcessingUpdates(bool processing) { isProcessingUpdates = processing; }    
 
-    // Pause management
-    void setPaused(bool paused);         // Set the game to paused or unpaused
-    bool isPaused() const;               // Check if the game is paused
-    void updatePauseMenu();   // Handles navigation and selection for the pause menu
-    void drawPauseMenu();     // Renders the pause menu
-
-    // Pre-game pause ("READY?" state)
+    // Pre-game pause
     void setPreGamePause(bool preGame);  // Enable or disable the pre-game pause
     bool isPreGamePaused() const;        // Check if the game is in the pre-game pause
 
