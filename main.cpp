@@ -47,8 +47,9 @@ void update(float dt) {
         tutorialMenu->update(dt);
     }
     else {
-        // Game logic
+        // GAME branch: Update the game logic, then the grid
         GameState::getInstance()->update(dt);
+        updateGrid(); // Dynamically update tiles (score, kills, etc.)
     }
 }
 
