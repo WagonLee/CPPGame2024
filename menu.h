@@ -1,22 +1,21 @@
 #pragma once
+#include "GridRenderer.h"
 #include <vector>
 #include <string>
-#include "GridRenderer.h" // For Tile structure
 
 class Menu {
-private:
-    int selectedOption = 0; // Tracks the currently highlighted option
-    std::vector<std::vector<Tile>> menuGridState; // Separate grid for menu rendering
+protected:
+    std::vector<std::vector<Tile>> menuGridState; // Grid for menu rendering
+    int selectedOption = 0;                       // Current selection index
 
-    // Chase animation state variables
-    float elapsedTime = 0.0f; // Tracks elapsed time for chase animation
-    int enemyCol = 0;         // Column position for MOVING-ENEMY
-    int playerCol = 2;        // Column position for PLAYER-R
-
-    void updateChaseAnimation(float dt); // Updates the chase animation
+    void clearGrid(); // Clear the grid to black
+    void drawTitle(const std::vector<std::string>& title, int row); // Draw a title
+    void drawOptions(const std::vector<std::vector<std::string>>& options, int startRow); // Draw menu options
 
 public:
-    void update(); // Handles navigation and selection
-    void draw();   // Renders the menu on the menu grid
-    void init();   // Initializes resources like fonts, sounds, and menu grid
+    virtual ~Menu() = default;
+
+    virtual void init() = 0;
+    virtual void update(float dt) = 0;
+    virtual void draw() = 0;
 };

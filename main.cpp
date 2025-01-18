@@ -1,23 +1,28 @@
 #include "graphics.h"
 #include "GameState.h"
-#include "Player.h"
-#include "Menu.h"
-#include "config.h"
-#include <iostream> // For debug output
+#include "MainMenu.h"
+#include "HiScoreMenu.h"
 #include "GridRenderer.h"
+#include <iostream> // For debug output
 
-bool inMenu = true;         // Default menu state
+// Global state flags
+bool inMenu = true;        // Default menu state
+bool inHiScores = false;   // HiScore menu state
 
-// Menu instance
-Menu menu;
+// Menu instances
+MainMenu* mainMenu = MainMenu::getInstance();
+HiScoreMenu* hiScoreMenu = HiScoreMenu::getInstance();
 
 // Draw function
 void draw() {
     if (inMenu) {
-        menu.draw(); // Draw the menu
+        mainMenu->draw(); // Draw the main menu
+    }
+    else if (inHiScores) {
+        hiScoreMenu->draw(); // Draw the hiScore menu
     }
     else {
-        drawGrid();                       // Draw the alternating grid
+        drawGrid();                       // Draw the grid
         GameState::getInstance()->draw(); // Draw all game objects
     }
 }
@@ -25,11 +30,14 @@ void draw() {
 // Update function
 void update(float dt) {
     if (inMenu) {
-        menu.update(); // Update menu if in menu mode
+        mainMenu->update(dt); // Update the main menu
+    }
+    else if (inHiScores) {
+        hiScoreMenu->update(dt); // Update the hiScore menu
     }
     else {
         GameState::getInstance()->update(dt); // Update game state
-        updateGrid();                         // Update the grid dynamically
+        updateGrid();                         // Dynamically update the grid
     }
 }
 
@@ -39,13 +47,13 @@ int main() {
     graphics::createWindow(CANVAS_WIDTH, CANVAS_HEIGHT, "BYTERAIDER");
 
     // Set logical canvas size and scaling mode
-    graphics::setCanvasSize(CANVAS_WIDTH, CANVAS_HEIGHT); // Logical size for a square grid
-    graphics::setCanvasScaleMode(graphics::CANVAS_SCALE_FIT); // Maintain aspect ratio with black bars
+    graphics::setCanvasSize(CANVAS_WIDTH, CANVAS_HEIGHT);       // Logical size
+    graphics::setCanvasScaleMode(graphics::CANVAS_SCALE_FIT);   // Maintain aspect ratio
 
-    initGrid(); // Initialize the grid first
+    initGrid(); // Initialize the grid
 
-    // Initialize the menu
-    menu.init();
+    // Initialize the main menu
+    mainMenu->init();
 
     // Set callbacks for drawing and updating
     graphics::setDrawFunction(draw);

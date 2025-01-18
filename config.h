@@ -4,6 +4,7 @@ const std::string ASSET_PATH = "bin/assets/";
 
 // Global toggle for menu state
 extern bool inMenu; // Declare inMenu as external
+extern bool inHiScores; // Tracks if the hiScore menu is active
 
 // Grid Dimensions
 const int GRID_WIDTH = 14;       // Increased by 2 for left and right columns
