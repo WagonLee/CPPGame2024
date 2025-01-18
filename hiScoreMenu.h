@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 
+
 class HiScoreMenu : public Menu {
 private:
     static HiScoreMenu* instance;
@@ -13,6 +14,9 @@ private:
     int selectedOption = 0;                 // Tracks "Back" option selection
 
     HiScoreMenu();
+
+    float inputCooldown;
+    float lastInputTime;
 
 public:
     static HiScoreMenu* getInstance();

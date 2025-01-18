@@ -1,41 +1,46 @@
 #include "graphics.h"
 #include "MenuUtils.h"
+#include <iostream> // For debug output
 
 int handleMenuInput(const std::vector<std::string>& options, int currentSelection, bool& selectTriggered) {
     static bool keyUpPressed = false;
     static bool keyDownPressed = false;
 
-    // Handle DOWN key with debounce
-    if (graphics::getKeyState(graphics::SCANCODE_DOWN)) {
-        if (!keyDownPressed) {
-            currentSelection = (currentSelection + 1) % options.size(); // Move down
-            keyDownPressed = true; // Mark key as pressed
-        }
-    }
-    else {
-        keyDownPressed = false; // Reset key state when released
-    }
-
     // Handle UP key with debounce
     if (graphics::getKeyState(graphics::SCANCODE_UP)) {
         if (!keyUpPressed) {
-            currentSelection = (currentSelection - 1 + options.size()) % options.size(); // Move up
-            keyUpPressed = true; // Mark key as pressed
+            currentSelection = (currentSelection - 1 + options.size()) % options.size();
+            keyUpPressed = true;
         }
     }
     else {
-        keyUpPressed = false; // Reset key state when released
+        keyUpPressed = false;
+    }
+
+    // Handle DOWN key with debounce
+    if (graphics::getKeyState(graphics::SCANCODE_DOWN)) {
+        if (!keyDownPressed) {
+            currentSelection = (currentSelection + 1) % options.size();
+            keyDownPressed = true;
+        }
+    }
+    else {
+        keyDownPressed = false;
     }
 
     // Handle selection with ENTER
     if (graphics::getKeyState(graphics::SCANCODE_RETURN)) {
         if (!selectTriggered) {
-            selectTriggered = true; // Mark ENTER as triggered
+            selectTriggered = true;
         }
     }
     else {
-        selectTriggered = false; // Reset ENTER state when released
+        selectTriggered = false;
     }
+
+    // Ensure currentSelection is clamped
+    if (currentSelection < 0) currentSelection = 0;
+    if (currentSelection >= static_cast<int>(options.size())) currentSelection = static_cast<int>(options.size()) - 1;
 
     return currentSelection;
 }
