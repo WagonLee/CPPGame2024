@@ -3,6 +3,7 @@
 #include "graphics.h"
 #include "GameState.h"
 #include "HiScoreMenu.h"
+#include "tutorialMenu.h"
 
 // Global flags from main.cpp
 extern bool inMenu;
@@ -67,9 +68,10 @@ void MainMenu::update(float dt) {
             HiScoreMenu::getInstance()->init();
             break;
 
-        case 2:
-            // HELP
-            // (not implemented)
+        case 2: // Help (Tutorial)
+            inMenu = false;
+            inHiScores = false;
+            TutorialMenu::getInstance()->init();
             break;
 
         case 3:

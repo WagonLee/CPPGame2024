@@ -4,6 +4,7 @@
 #include "HiScoreMenu.h"
 #include "GridRenderer.h"
 #include <iostream> // For debug output
+#include "tutorialMenu.h"
 
 // Global state flags
 bool inMenu = true;        // Default menu state
@@ -16,28 +17,32 @@ HiScoreMenu* hiScoreMenu = HiScoreMenu::getInstance();
 // Draw function
 void draw() {
     if (inMenu) {
-        mainMenu->draw(); // Draw the main menu
+        mainMenu->draw();
     }
     else if (inHiScores) {
-        hiScoreMenu->draw(); // Draw the hiScore menu
+        hiScoreMenu->draw();
+    }
+    else if (!inMenu && !inHiScores) { // Tutorial Menu
+        TutorialMenu::getInstance()->draw();
     }
     else {
-        drawGrid();                       // Draw the grid
-        GameState::getInstance()->draw(); // Draw all game objects
+        GameState::getInstance()->draw();
     }
 }
 
 // Update function
 void update(float dt) {
     if (inMenu) {
-        mainMenu->update(dt); // Update the main menu
+        mainMenu->update(dt);
     }
     else if (inHiScores) {
-        hiScoreMenu->update(dt); // Update the hiScore menu
+        hiScoreMenu->update(dt);
+    }
+    else if (!inMenu && !inHiScores) { // Tutorial Menu
+        TutorialMenu::getInstance()->update(dt);
     }
     else {
-        GameState::getInstance()->update(dt); // Update game state
-        updateGrid();                         // Dynamically update the grid
+        GameState::getInstance()->update(dt);
     }
 }
 

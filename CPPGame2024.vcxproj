@@ -40,6 +40,7 @@
     <ClCompile Include="powerUpLevel4.cpp" />
     <ClCompile Include="mainMenu.cpp" />
     <ClCompile Include="stationaryEnemy.cpp" />
+    <ClCompile Include="tutorialMenu.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="collectible.h" />
@@ -63,6 +64,7 @@
     <ClInclude Include="powerUpLevel3.h" />
     <ClInclude Include="powerUpLevel4.h" />
     <ClInclude Include="stationaryEnemy.h" />
+    <ClInclude Include="tutorialMenu.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

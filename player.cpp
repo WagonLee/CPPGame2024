@@ -137,7 +137,7 @@ void Player::update(float dt) {
 
     handleInput();
 
-    if (graphics::getKeyState(graphics::SCANCODE_SPACE)) {
+    if (graphics::getKeyState(graphics::SCANCODE_SPACE) || graphics::getKeyState(graphics::SCANCODE_X)) {
         shedTail();
     }
 
