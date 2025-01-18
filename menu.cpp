@@ -65,16 +65,30 @@ void Menu::draw() {
         }
     }
 
+   // Add the game title "BYTERAIDER"
+    const std::vector<std::string> gameTitle = {
+        "B.png", "Y.png", "T.png", "E.png", "R.png", "A.png", "I.png", "D.png", "E.png", "R.png"
+    };
+
+    int titleStartCol = (GRID_WIDTH - static_cast<int>(gameTitle.size())) / 2; // Center title
+    int titleRow = 3; // Place title at row 1 (adjusted from row 2 for better alignment)
+
+    for (const auto& charTexture : gameTitle) {
+        menuGridState[titleRow][titleStartCol] = Tile(1.0f, 1.0f, 1.0f); // Set white text
+        menuGridState[titleRow][titleStartCol].texture = ASSET_PATH + "chars/" + charTexture;
+        ++titleStartCol;
+    }
+
     // Define menu options using textures
     const std::vector<std::vector<std::string>> menuOptions = {
-        {"P.png", "L.png", "CENTER.png", "A.png", "Y.png"},        // PLAY
+        {"P.png", "L.png", "A.png", "Y.png"},        // PLAY
         {"H.png", "I.png", "S.png", "C.png", "O.png", "R.png", "E.png", "S.png"}, // HISCORES
-        {"H.png", "E.png", "L.png", "P.png"},                     // HELP
-        {"E.png", "X.png", "I.png", "T.png"}                      // EXIT
+        {"H.png", "E.png", "L.png", "P.png"},       // HELP
+        {"E.png", "X.png", "I.png", "T.png"}        // EXIT
     };
 
     // Draw each menu option on the menu grid
-    int startRow = 4; // Starting row for menu options
+    int startRow = 6; // Starting row for menu options
     for (size_t i = 0; i < menuOptions.size(); ++i) {
         int startCol = (GRID_WIDTH - static_cast<int>(menuOptions[i].size())) / 2; // Center text
         for (const auto& charTexture : menuOptions[i]) {
