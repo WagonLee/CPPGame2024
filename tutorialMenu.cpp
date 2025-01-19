@@ -41,40 +41,40 @@ void TutorialMenu::update(float dt) {
 }
 
 void TutorialMenu::draw() {
-    // 1) Draw the background image first
+    // 1) Draw the background image for the entire menu
     {
         graphics::Brush bg;
-        bg.texture = ASSET_PATH + "test.png";
+        bg.texture = ASSET_PATH + "HELP.png";
         bg.outline_opacity = 0.0f;
 
-        float w = GRID_WIDTH * CELL_SIZE;
-        float h = (GRID_HEIGHT - 2) * CELL_SIZE; // space for title/back
-        float x = (GRID_WIDTH * CELL_SIZE) / 2.0f;
-        float y = (GRID_HEIGHT * CELL_SIZE) / 2.0f;
-        graphics::drawRect(x, y, w, h, bg);
+        // Define smaller dimensions for the middle image
+        float w = GRID_WIDTH * CELL_SIZE * 0.9f; // 
+        float h = (GRID_HEIGHT - 6) * CELL_SIZE * 0.9f; 
+        float x = (GRID_WIDTH * CELL_SIZE) / 2.0f; // Center horizontally
+        float y = (GRID_HEIGHT * CELL_SIZE) / 2.0f; // Center vertically
+
+        graphics::drawRect(x, y, w, h, bg); // Render the image
     }
 
-    // 2) Clear the grid (which internally sets every tile's color/texture to blank)
+    // 2) Clear the grid for the text elements
     clearGrid();
 
-    // 3) Draw your title and "BACK" the usual way
+    // 3) Draw the title "HELP" at the top
     drawTitle({ "H.png", "E.png", "L.png", "P.png" }, 2);
 
+    // 4) Draw the "BACK" button at the bottom
     int backRow = GRID_HEIGHT - 2;
     drawOptions({ {"B.png", "A.png", "C.png", "K.png"} }, backRow);
 
-    // 4) Render only the tiles that have a texture (text). 
-    //    Skip empty tiles so the background remains visible.
+    // 5) Render the grid for text tiles
     graphics::Brush br;
     for (int r = 0; r < GRID_HEIGHT; ++r) {
         for (int c = 0; c < GRID_WIDTH; ++c) {
             const auto& tile = menuGridState[r][c];
 
-            // If this tile has no texture, do nothing (keeps background visible)
-            if (tile.texture.empty())
-                continue;
+            // Skip tiles without textures
+            if (tile.texture.empty()) continue;
 
-            // Otherwise, draw the textured tile (letter)
             br.fill_color[0] = tile.r;
             br.fill_color[1] = tile.g;
             br.fill_color[2] = tile.b;
