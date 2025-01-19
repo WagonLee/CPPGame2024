@@ -80,13 +80,13 @@ void HiScoreMenu::updateLeaderboard(int score) {
         if (scores.size() > 10) {
             scores.resize(10);
         }
-        std::cout << "Updated leaderboard with score: " << score << std::endl;
+        //std::cout << "Updated leaderboard with score: " << score << std::endl;
     }
 }
 
 void HiScoreMenu::draw() {
     // Debug: Print current scores
-    std::cout << "Current scores in leaderboard: ";
+    //std::cout << "Current scores in leaderboard: ";
     for (int score : scores) {
         std::cout << score << " ";
     }
