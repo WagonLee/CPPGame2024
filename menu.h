@@ -1,16 +1,17 @@
 #pragma once
-#include "GridRenderer.h"
+
+#include "gridrenderer.h"
 #include <vector>
 #include <string>
 
 class Menu {
 protected:
-    std::vector<std::vector<Tile>> menuGridState; // Grid for menu rendering
-    int selectedOption = 0;                       // Current selection index
+    std::vector<std::vector<Tile>> menuGridState; 
+    int selectedOption = 0;                        
 
     void clearGrid(); // Clear the grid to black
-    void drawTitle(const std::vector<std::string>& title, int row); // Draw a title
-    void drawOptions(const std::vector<std::vector<std::string>>& options, int startRow); // Draw menu options
+    void drawTitle(const std::vector<std::string>& title, int row); 
+    void drawOptions(const std::vector<std::vector<std::string>>& options, int startRow); 
 
 public:
     virtual ~Menu() = default;

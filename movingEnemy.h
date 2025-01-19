@@ -1,47 +1,42 @@
 #pragma once
 
-#include "Enemy.h"
-#include <chrono> // For timing
+#include "enemy.h"
+#include <chrono> // non graphics clock logic...
 
 class MovingEnemy : public Enemy {
 private:
     // Smooth movement variables
-    float xPos, yPos;           // Exact position in pixels
-    float targetX, targetY;     // Target positions for smooth movement
-    bool moving;                // Tracks if currently moving
-    float speed;                // Movement speed
+    float xPos, yPos;           
+    float targetX, targetY;     
+    bool moving;                
+    float speed;                
 
-    // Timing variables
+    // Timing variables NON GRAPHICS CLOCK... MY BAD DIDN'T KNOW LOL
     std::chrono::time_point<std::chrono::high_resolution_clock> lastMoveTime;
-    int moveInterval;           // Random interval (1.5–4s)
+    int moveInterval;         
 
     // Movement logic
     int directionX, directionY;
 
-    // Methods
-    void randomizeDirection();   // Randomizes direction
-    void moveToTarget(float dt); // Smooth movement logic
-    bool canMoveTo(int x, int y) const; // Checks if the move is valid
+    void randomizeDirection();   
+    void moveToTarget(float dt); 
+    bool canMoveTo(int x, int y) const; 
 
-    bool isWeakState = false; // Tracks if the enemy is weak
-    bool stopped = false;     // Tracks if movement is stopped while weak
+    bool isWeakState = false; 
+    bool stopped = false;     
 
 public:
-    // Constructor with weak state initialization
     MovingEnemy(GameState* state, int x, int y, bool weak = false);
 
     void draw() override;
     void update(float dt) override;
     void init() override;
 
-    // Set and check weak state
     void setWeak(bool weak);
     bool isWeak() const { return isWeakState; }
 
-    // Control movement when weak
     void stopMovement();
     void startMovement();
 
-    // Collision handling (override base)
     void handleCollision(Player& player) override;
 };

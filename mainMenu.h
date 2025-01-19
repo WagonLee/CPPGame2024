@@ -1,19 +1,14 @@
 #pragma once
-#include "Menu.h"
+
+#include "menu.h"
 
 class MainMenu : public Menu {
 private:
     static MainMenu* instance;
-
-    // Existing variables:
-    // int selectedOption;
-    // float currCooldown;
-
-    // ADD: For a short input debounce after opening the menu
     int debounceFrameCount = 0;
     const int DEBOUNCE_FRAMES = 10;
 
-    MainMenu(); // Private constructor
+    MainMenu(); 
 
 public:
     static MainMenu* getInstance();

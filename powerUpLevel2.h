@@ -1,11 +1,11 @@
 #pragma once
 
-#include "PowerUpBase.h" // Include the base class explicitly
+#include "powerUpBase.h" 
 
 class PowerUpLevel2 : public PowerUpBase {
 public:
     PowerUpLevel2(GameState* state, int x, int y);
 
-    void applyEffect() override; // Level 2 effect
-    void draw() override;        // Level 2 visual
+    void applyEffect() override; 
+    void draw() override;        
 };

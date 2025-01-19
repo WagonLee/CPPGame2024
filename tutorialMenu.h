@@ -1,5 +1,6 @@
 #pragma once
-#include "Menu.h"
+
+#include "menu.h"
 
 class TutorialMenu : public Menu {
 private:

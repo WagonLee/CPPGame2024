@@ -1,61 +1,51 @@
 #pragma once
 
-#include "InteractiveObject.h"
+#include "interactiveObject.h"
 
-class GameState;        // Forward declare GameState
+class GameState;        
 
 class PowerUpBase : public InteractiveObject {
 protected:
-    GameState* state; // Pointer to GameState for accessing timers and data
+    GameState* state; 
 
-    int level; // Level of the Power-Up (1, 2, or 3)
+    int level; 
 
-    bool isCollectible = true;         // Can be collected by player
-    bool visible = true;               // Visual representation
-    bool isWeakEffectActive = false;   // Tracks weak effect timer
-    float weakEffectDuration = 0.0f;   // Duration for weak effect
+    bool isCollectible = true;         
+    bool visible = true;               
+    bool isWeakEffectActive = false;   
+    float weakEffectDuration = 0.0f;   
     
-    // new
-    bool markedForRemoval = false; // Track if marked for removal
-    bool inCleanup = false;        // Prevent recursive cleanup
+    bool markedForRemoval = false; 
+    bool inCleanup = false;        
 
 public:
-    // Constructor
     PowerUpBase(GameState* state, int x, int y, int level);
 
-    // Getter for removal state
     bool isMarkedForRemoval() const { return markedForRemoval; }
     void markForRemoval() { markedForRemoval = true; }
 
-    // Getter and setter for cleanup state
     bool isInCleanupProcess() const { return inCleanup; }
     void setInCleanup(bool cleanup) { inCleanup = cleanup; }
 
     bool canCollide() const { return isCollectible && isActive(); }
 
     bool isEffectRunning() const {
-        return isWeakEffectActive && !isMarkedForRemoval(); // Only active if effect is running and not marked for removal
+        return isWeakEffectActive && !isMarkedForRemoval(); 
     }
 
-    // Apply Effect (abstract, overridden in derived classes)
     virtual void applyEffect() = 0;
 
-    // Overrides from GameObject
     virtual void update(float dt) override;
     virtual void draw() override;
     virtual void init() override;
 
-    // Weakness Effect Methods (shared across levels)
-    void startWeakEffect(float duration);  // Start the timer for weak effect
-    void updateWeakEffect(float dt);       // Handle timing updates
-    void endWeakEffect();                  // Reset enemies after effect
+    void startWeakEffect(float duration);  
+    void updateWeakEffect(float dt);       
+    void endWeakEffect();                  
 
-    // Getter for Power-Up level
     int getLevel() const { return level; }
 
-    // Collision handling
     virtual void handleCollision(Player& player) override;
 
-    // Virtual destructor
     virtual ~PowerUpBase() = default;
 };

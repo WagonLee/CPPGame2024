@@ -1,7 +1,7 @@
 #pragma once
 
-#include "GameObject.h"
-#include "Player.h"
+#include "gameobject.h"
+#include "player.h"
 
 class InteractiveObject : public GameObject {
 protected:
@@ -10,8 +10,8 @@ protected:
 
 public:
     InteractiveObject(GameState* state, int x, int y, const std::string& name = "");
-    virtual void handleCollision(Player& player); // Made virtual
-    bool checkCollision(const Player& player) const; // Check for collision
+    virtual void handleCollision(Player& player); 
+    bool checkCollision(const Player& player) const; 
     int getGridX() const { return gridX; }
     int getGridY() const { return gridY; }
     void setPosition(int x, int y) { gridX = x; gridY = y; }
