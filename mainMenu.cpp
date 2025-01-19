@@ -1,11 +1,10 @@
-#include "MainMenu.h"
-#include "MenuUtils.h"
+#include "mainmenu.h"
+#include "menuutils.h"
 #include "graphics.h"
-#include "GameState.h"
-#include "HiScoreMenu.h"
-#include "tutorialMenu.h"
+#include "gamestate.h"
+#include "hiscoremenu.h"
+#include "tutorialmenu.h"
 
-// Global flags from main.cpp
 extern bool inMenu;
 extern bool inHiScores;
 extern bool inTutorial;
@@ -25,7 +24,6 @@ void MainMenu::init() {
     selectedOption = 0;
     currCooldown = 0.0f;
 
-    // Initialize your grid, etc.
     menuGridState = std::vector<std::vector<Tile>>(
         GRID_HEIGHT,
         std::vector<Tile>(GRID_WIDTH, Tile(0.0f, 0.0f, 0.0f))
@@ -71,7 +69,7 @@ void MainMenu::update(float dt) {
         case 2: // HELP (Tutorial)
             inMenu = false;
             inHiScores = false;
-            inTutorial = true;  // <--- THE KEY
+            inTutorial = true;
             TutorialMenu::getInstance()->init();
             break;
 

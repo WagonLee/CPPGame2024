@@ -1,11 +1,11 @@
-#include "GridRenderer.h"
+#include "gridrenderer.h"
 #include "graphics.h"
-#include "gameState.h"
+#include "gamestate.h"
 
 // Define the grid state
 std::vector<std::vector<Tile>> gridState(GRID_HEIGHT, std::vector<Tile>(GRID_WIDTH));
 
-// Initialize the grid
+// Initialize the grid - NOT VERY PROUD OF THIS... I FOUND MORE ELEGANT SOLUTIONS LATER, BUT THIS IS VERY MODULAR AND I NEEDED THAT AT THE TIME. 
 void initGrid() {
     for (int row = 0; row < GRID_HEIGHT; ++row) {
         for (int col = 0; col < GRID_WIDTH; ++col) {
@@ -249,7 +249,7 @@ void initGrid() {
                 gridState[row][col] = Tile(ASSET_PATH + "grid/HORIZONTAL-EDGE.png");
             }
 
-            // 8. Playable rows (alternating black/white)
+            // 8. Playable rows 
             else {
                 if ((row + col) % 2 == 0) {
                     gridState[row][col] = Tile(ASSET_PATH + "grid/GRID.png");

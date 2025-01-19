@@ -1,10 +1,9 @@
-﻿#include "MovingEnemy.h"
+﻿#include "movingenemy.h"
 #include "graphics.h"
-#include "GameState.h"
-#include <cstdlib>   // For rand()
-#include <iostream>  // For debug logs
+#include "gamestate.h"
+#include <cstdlib>   // for rand()
+#include <iostream>  // for debug logs
 
-// Constructor
 MovingEnemy::MovingEnemy(GameState* state, int x, int y, bool weak)
     : Enemy(state, x, y, "MovingEnemy"), directionX(0), directionY(0), moveInterval(1500 + rand() % 2500) {
     lastMoveTime = std::chrono::high_resolution_clock::now();
@@ -17,17 +16,16 @@ MovingEnemy::MovingEnemy(GameState* state, int x, int y, bool weak)
     moving = false;
     speed = 0.008f;
 
-    randomizeDirection(); // Set initial random direction
+    randomizeDirection(); 
 
-    // Initialize as weak if specified
     if (weak) {
-        setWeak(true); // Set to weak state
+        setWeak(true); 
     }
 }
 
 // Initialize behavior
 void MovingEnemy::init() {
-    randomizeDirection(); // Randomize direction on initialization
+    randomizeDirection(); 
 }
 
 // Draw the moving enemy
@@ -35,52 +33,41 @@ void MovingEnemy::draw() {
     graphics::Brush br;
     br.outline_opacity = 0.0f;
 
-    if (isInactive) { // Check for inactive state
-        br.texture = ASSET_PATH + "objects/MOVING-ENEMY-SPAWNING.png"; // Texture for inactive state
+    if (isInactive) { 
+        br.texture = ASSET_PATH + "objects/MOVING-ENEMY-SPAWNING.png"; 
     }
-    else if (isWeak()) { // Check for weak state
-        br.texture = ASSET_PATH + "objects/MOVING-ENEMY-WEAK.png"; // Texture for weak state
+    else if (isWeak()) { 
+        br.texture = ASSET_PATH + "objects/MOVING-ENEMY-WEAK.png"; 
     }
     else {
-        br.texture = ASSET_PATH + "objects/MOVING-ENEMY.png"; // Texture for strong state
+        br.texture = ASSET_PATH + "objects/MOVING-ENEMY.png"; 
     }
 
-    br.fill_opacity = 1.0f; // Ensure the texture is fully visible
+    br.fill_opacity = 1.0f; 
 
-    // Draw the enemy with the appropriate texture
     graphics::drawRect(xPos, yPos, CELL_SIZE, CELL_SIZE, br);
 }
 
-// Update behavior
 void MovingEnemy::update(float dt) {
-    // Handle inactive state
     if (isInactive) {
         if (graphics::getGlobalTime() >= inactiveEndTime) {
-            // Instead of forcibly resetting isWeak here, just do:
             isInactive = false;
-            // If you have an activate() method, call it, but remove any 'isWeak = false' there!
-            // activate(); 
-
-            std::cout << "MovingEnemy at (" << gridX << ", " << gridY << ") is now ACTIVE." << std::endl;
         }
-        return; // Skip further updates while inactive
-    }
-
-    // Handle weak state
-    // If the enemy is weak (due to a power-up), skip movement
-    if (isWeak()) { // Don't move if weak
         return;
     }
 
-    moveToTarget(dt); // Smooth movement logic
+    if (isWeak()) {
+        return;
+    }
 
-    // The rest of your movement timer logic:
+    moveToTarget(dt);
+
     auto now = std::chrono::high_resolution_clock::now();
     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastMoveTime).count();
 
     if (!moving && elapsed >= moveInterval) {
-        lastMoveTime = now; // Reset timer
-        moveInterval = 1500 + rand() % 2500; // Randomize next interval (1.5–4s)
+        lastMoveTime = now; 
+        moveInterval = 1500 + rand() % 2500; // Randomize move interval (1.5–2.5s)
 
         randomizeDirection();
 
@@ -104,7 +91,7 @@ void MovingEnemy::update(float dt) {
     }
 }
 
-// Move smoothly toward the target
+// Move smoothly
 void MovingEnemy::moveToTarget(float dt) {
     if (moving) {
         float dx = targetX - xPos;
@@ -141,42 +128,36 @@ bool MovingEnemy::canMoveTo(int x, int y) const {
     return true;
 }
 
-// Randomize direction
 void MovingEnemy::randomizeDirection() {
     int dir = rand() % 4;
     switch (dir) {
-    case 0: directionX = 0; directionY = -1; break; // Up
-    case 1: directionX = 0; directionY = 1; break; // Down
-    case 2: directionX = -1; directionY = 0; break; // Left
-    case 3: directionX = 1; directionY = 0; break; // Right
+    case 0: directionX = 0; directionY = -1; break; 
+    case 1: directionX = 0; directionY = 1; break; 
+    case 2: directionX = -1; directionY = 0; break; 
+    case 3: directionX = 1; directionY = 0; break; 
     }
 }
 
-// Set Weak State
 void MovingEnemy::setWeak(bool weak) {
     isWeakState = weak;
     if (weak) {
-        stopMovement(); // Stop movement
+        stopMovement(); 
     }
     else {
-        startMovement(); // Resume movement
+        startMovement(); 
     }
 }
 
-// Stop Movement
 void MovingEnemy::stopMovement() {
-    stopped = true;  // Mark as stopped
-    moving = false;  // Prevent further movement
+    stopped = true;  
+    moving = false;  
 }
 
-// Start Movement
 void MovingEnemy::startMovement() {
-    stopped = false; // Allow movement again
+    stopped = false; 
 }
 
-// Collision Handling for MovingEnemy
 void MovingEnemy::handleCollision(Player& player) {
-    // Ignore collisions if the enemy is inactive
     if (isInactive) {
         return;
     }
@@ -184,17 +165,16 @@ void MovingEnemy::handleCollision(Player& player) {
     if (isWeak()) {
         graphics::playSound(ASSET_PATH + "sounds/kill.wav", 0.7f, false);
         std::cout << "Weak enemy killed by player!" << std::endl;
-        setActive(false); // Deactivate the enemy
+        setActive(false); 
 
         auto* gameState = GameState::getInstance();
 
-        // Notify GameState about the kill
-        gameState->addToKillChain(); // Increment kill chain and calculate score
+        gameState->addToKillChain(); 
         gameState->enemyKilled = true;
-        gameState->enemyKillEndTime = graphics::getGlobalTime() + 1500.0f; // 1.5 seconds from now
+        gameState->enemyKillEndTime = graphics::getGlobalTime() + 1500.0f;
     }
     else {
         std::cout << "Player killed by enemy!" << std::endl;
-        player.setDead(); // Kill the player if enemy is strong
+        player.setDead();
     }
 }

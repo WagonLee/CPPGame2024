@@ -5,10 +5,10 @@
 
 // Structure representing a single tile in the grid
 struct Tile {
-    float r, g, b; // Deprecated coloured tiles                 
+    float r, g, b; // Coloured tiles                 
     std::string texture = "";      
 
-    // Deprecated constructor for colors
+    // Constructor for colors
     Tile(float red = 1.0f, float green = 1.0f, float blue = 1.0f)
         : r(red), g(green), b(blue), texture("") {}
 

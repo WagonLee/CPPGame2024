@@ -1,22 +1,22 @@
-#include "GameState.h"
-#include "DepositZone.h"
-#include <iostream>  // Debug output added
+#include "gamestate.h"
+#include "depositzone.h"
+#include <iostream>  // debug output added
 #include <cstdlib>
 #include <ctime>
 #include <chrono>
-#include "MovingEnemy.h"
-#include "StationaryEnemy.h"
-#include "Collectible.h"
-#include "Config.h"
-#include "PowerUpBase.h"
-#include "PowerUpLevel1.h" // Include Level 1 Power-Up
-#include "PowerUpLevel2.h" // Include Level 2 Power-Up
-#include "PowerUpLevel3.h" // Include Level 3 Power-Up
-#include "PowerUpLevel4.h" // Include Level 4 Power-Up
-#include "MenuUtils.h"
+#include "movingenemy.h"
+#include "stationaryenemy.h"
+#include "collectible.h"
+#include "config.h"
+#include "powerupbase.h"
+#include "poweruplevel1.h" // include level 1 power-up
+#include "poweruplevel2.h" // include level 2 power-up
+#include "poweruplevel3.h" // include level 3 power-up
+#include "poweruplevel4.h" // include level 4 power-up
+#include "menuutils.h"
 #include <algorithm>
-#include "gridRenderer.h"
-#include "hiScoreMenu.h"
+#include "gridrenderer.h"
+#include "hiscoremenu.h"
 
 GameState* GameState::instance = nullptr;
 
@@ -779,16 +779,29 @@ void GameState::updateDeathMenu() {
     // Update the leaderboard with the current score
     HiScoreMenu::getInstance()->updateLeaderboard(score);
 
-    // Update death menu navigation
+    // Play sound effects for navigation
+    static int previousSelection = deathMenuSelection;
     deathMenuSelection = handleMenuInput({ "REBOOT", "MAIN", "EXIT" }, deathMenuSelection, selectTriggered);
+
+    if (deathMenuSelection != previousSelection) {
+        if (deathMenuSelection > previousSelection) {
+            graphics::playSound(ASSET_PATH + "sounds/down.wav", 0.5f, false); // Down navigation sound
+        }
+        else {
+            graphics::playSound(ASSET_PATH + "sounds/up.wav", 0.5f, false); // Up navigation sound
+        }
+        previousSelection = deathMenuSelection; // Update the previous selection
+    }
 
     // Handle option selection
     if (selectTriggered) {
+        graphics::playSound(ASSET_PATH + "sounds/select.wav", 0.5f, false); // Selection sound
+
         switch (deathMenuSelection) {
         case 0: // REBOOT
             resetGameStates();
             init(); // Restart game
-            setPreGamePause(true);
+            setPreGamePause(true); // Enter pre-game pause
             break;
 
         case 1: // MAIN
@@ -797,11 +810,12 @@ void GameState::updateDeathMenu() {
             break;
 
         case 2: // EXIT
-            graphics::stopMessageLoop();
+            graphics::stopMessageLoop(); // Exit the game
             break;
         }
     }
 }
+
 
 void GameState::updateHiScore(int score) {
     if (score > hiScore) {

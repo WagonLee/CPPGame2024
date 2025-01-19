@@ -1,40 +1,34 @@
-#include "PowerUpBase.h"
-#include "GameState.h"
+#include "powerupbase.h"
+#include "gamestate.h"
 #include "graphics.h"
 #include <iostream>
-#include "MovingEnemy.h"
-#include "StationaryEnemy.h"
+#include "movingenemy.h"
+#include "stationaryenemy.h"
 
-// Constructor
 PowerUpBase::PowerUpBase(GameState* state, int x, int y, int level)
     : InteractiveObject(state, x, y, "PowerUp"), state(state), level(level) {}
 
-// Handle collision
 void PowerUpBase::handleCollision(Player& player) {
-    if (!canCollide()) return; // Prevent duplicate collisions
+    if (!canCollide()) return; 
 
     graphics::playSound(ASSET_PATH + "sounds/pwrpickup.wav", 0.7f, false);
 
 
     std::cout << "PowerUp Level " << level << " collected!" << std::endl;
 
-    // Mark as collected
     isCollectible = false;
-    visible = false;        // Hide visually but keep active for effect
-    setActive(true);       // Remains active for timers
+    visible = false;        
+    setActive(true);       
 
-    // Apply the effect
     applyEffect();
 }
 
 
-// Weak Effect: Start Timer
 void PowerUpBase::startWeakEffect(float duration) {
     weakEffectDuration = duration;
     isWeakEffectActive = true;
     std::cout << "Weak effect started for " << duration << " seconds." << std::endl;
 
-    // Apply effect to MovingEnemies and StationaryEnemies
     for (auto& obj : state->getGameObjects()) {
         MovingEnemy* movingEnemy = dynamic_cast<MovingEnemy*>(obj.get());
         if (movingEnemy && movingEnemy->isActive()) {
@@ -57,29 +51,26 @@ void PowerUpBase::startWeakEffect(float duration) {
 
 void PowerUpBase::update(float dt) {
     if (isWeakEffectActive) {
-        updateWeakEffect(dt); // Continue updating the weak effect timer
+        updateWeakEffect(dt);
     }
 }
 
-// Weak Effect: Update Timer
 void PowerUpBase::updateWeakEffect(float dt) {
-    if (!isWeakEffectActive) return; // Skip if not active
+    if (!isWeakEffectActive) return; 
 
     // Clamp timer to prevent negative values
     weakEffectDuration = std::max(0.0f, weakEffectDuration - dt);
 
-    // Log remaining time
     std::cout << "Weak effect time left: " << weakEffectDuration << " seconds." << std::endl;
 
     if (weakEffectDuration <= 0.0f) {
-        endWeakEffect(); // End the effect
+        endWeakEffect(); 
     }
 }
 
-// Weak Effect: End Effect
 void PowerUpBase::endWeakEffect() {
     if (!isWeakEffectActive || isInCleanupProcess() || isMarkedForRemoval()) {
-        return; // Prevent recursive or duplicate cleanup
+        return;
     }
 
     isWeakEffectActive = false;
@@ -118,11 +109,9 @@ void PowerUpBase::endWeakEffect() {
     }
 }
 
-// Draw (for override)
 void PowerUpBase::draw() {
 }
 
-// Default init
 void PowerUpBase::init() {
     std::cout << "PowerUpBase initialized at Level " << level << std::endl;
 }

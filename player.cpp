@@ -1,11 +1,10 @@
-#include "Player.h"
+#include "player.h"
 #include "graphics.h"
-#include "GameState.h"
-#include "MovingEnemy.h"
+#include "gamestate.h"
+#include "movingenemy.h"
 #include <iostream>
 #include "config.h"
 
-// Constructor
 Player::Player(GameState* gs, int startX, int startY, float speed)
     : GameObject(gs, "Player"), gridX(startX), gridY(startY), directionX(0), directionY(-1),
     nextDirectionX(0), nextDirectionY(-1), speed(speed), moving(false), isAlive(true), hitEdge(false) {
@@ -13,9 +12,8 @@ Player::Player(GameState* gs, int startX, int startY, float speed)
     y = startY * CELL_SIZE + CELL_SIZE / 2;
     targetX = x;
     targetY = y;
-    // Player starts with no tail
 }
-// Initialize/reset player
+
 void Player::init() {
     directionX = 0;
     directionY = -1;
@@ -25,7 +23,6 @@ void Player::init() {
     isAlive = true;
     hitEdge = false;
 
-    // Reset position
     gridX = 6;
     gridY = 6;
     x = gridX * CELL_SIZE + CELL_SIZE / 2;
@@ -33,11 +30,9 @@ void Player::init() {
     targetX = x;
     targetY = y;
 
-    // Clear tail on reset
     tail.clear();
 }
 
-// Add a tail segment
 void Player::addTailSegment() {
     int newGridX, newGridY;
 
@@ -59,27 +54,24 @@ void Player::addTailSegment() {
 }
 
 void Player::shedTail() {
-    if (tail.empty()) return; // No tail to shed
+    if (tail.empty()) return; 
 
     auto* depositZone = GameState::getInstance()->getDepositZone().get();
     std::cout << "Processing tail: " << tail.size() << " segments." << std::endl;
 
     std::vector<TailSegment> tempTail = tail;
-    tail.clear(); // Clear tail immediately to avoid reprocessing
+    tail.clear(); 
     int depositedCount = 0;
 
-    // Check if any power-up is active
     bool powerUpActive = GameState::getInstance()->isAnyPowerUpActive();
 
     for (const auto& segment : tempTail) {
-        // Check if segment is inside the zone
         if (depositZone->isTileInZone(segment.gridX, segment.gridY)) {
             std::cout << "Segment at (" << segment.gridX << ", " << segment.gridY
                 << ") deposited." << std::endl;
             depositedCount++;
         }
         else {
-            // Spawn enemy for non-deposited segment
             std::cout << "Segment at (" << segment.gridX << ", " << segment.gridY
                 << ") -> enemy" << std::endl;
 
@@ -89,8 +81,8 @@ void Player::shedTail() {
 
             // Set enemy to weak state if power-up is active
             if (powerUpActive) {
-                enemy->setWeak(true);  // Enemy starts in a weak state
-                enemy->stopMovement(); // Optional: Stop movement for weak enemies
+                enemy->setWeak(true);  
+                enemy->stopMovement(); 
                 std::cout << "Enemy spawned in a WEAK state at (" << segment.gridX
                     << ", " << segment.gridY << ")" << std::endl;
             }
@@ -101,19 +93,16 @@ void Player::shedTail() {
     if (depositedCount > 0) {
         GameState* gameState = GameState::getInstance();
 
-        // Play deposit sound effect
         graphics::playSound(ASSET_PATH + "sounds/depo.wav", 1.0f, false);
 
-        // Revamped scoring logic
         int depositScore = 0;
         for (int i = 1; i <= depositedCount; ++i) {
-            depositScore += i * 10; // Add score based on the deposit pattern
+            depositScore += i * 10; // Add score based on the deposit combo
         }
 
-        gameState->incrementTally(depositedCount); // Increment tally
-        gameState->addScore(depositScore);         // Update game score
+        gameState->incrementTally(depositedCount); 
+        gameState->addScore(depositScore);         
 
-        // Force respawn AFTER processing all deposits
         std::cout << "Forcing deposit zone respawn immediately!" << std::endl;
         gameState->replaceDepositZone();
 
@@ -121,7 +110,6 @@ void Player::shedTail() {
             << " points (Pattern scoring applied)." << std::endl;
     }
     else {
-        // Play fail deposit sound effect
         graphics::playSound(ASSET_PATH + "sounds/faildepo.wav", 1.0f, false);
         std::cout << "Failed to deposit any segments." << std::endl;
     }
@@ -129,9 +117,6 @@ void Player::shedTail() {
     std::cout << "Tail processing complete. Deposited: " << depositedCount << std::endl;
 }
 
-
-
-// Update movement and collisions
 void Player::update(float dt) {
     if (!isAlive) return;
 
@@ -141,14 +126,11 @@ void Player::update(float dt) {
         shedTail();
     }
 
-    // Move smoothly toward the target
+    // Move smoothly
     moveToTarget(dt);
     updateTail(dt);
-    // Smooth tail movement
-    // Check for self-collision with tail
     checkTailCollision();
 
-    // If reached the target, check for the next move
     if (!moving) {
         if (!tail.empty()) {
             for (int i = tail.size() - 1; i > 0; --i) {
@@ -177,7 +159,6 @@ void Player::update(float dt) {
     }
 }
 
-// Move smoothly toward the target
 void Player::moveToTarget(float dt) {
     if (moving) {
         float dx = targetX - x;
@@ -216,7 +197,6 @@ void Player::updateTail(float dt) {
     }
 }
 
-// Check for collision with the tail
 void Player::checkTailCollision() {
     for (const auto& segment : tail) {
         if (segment.gridX == gridX && segment.gridY == gridY) {
@@ -257,7 +237,6 @@ void Player::draw() {
     br.outline_opacity = 0.0f;
     br.fill_opacity = 1.0f;
 
-    // Draw the player with the selected texture (draw this last to appear on top of the tail)
     graphics::drawRect(x, y - CELL_SIZE / 2, CELL_SIZE, CELL_SIZE * 2.0f, br);
 }
 
@@ -269,7 +248,6 @@ void Player::handleInput() {
 }
 
 void Player::checkCollision() {
-    // Adjust boundaries to account for the shifted playable area
     if (gridX < 1 || gridX >= 1 + PLAYABLE_COLUMNS || gridY < UI_ROWS_ABOVE || gridY >= UI_ROWS_ABOVE + PLAYABLE_ROWS) {
         setDead();
     }

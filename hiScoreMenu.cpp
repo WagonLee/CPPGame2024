@@ -1,11 +1,10 @@
-#include "HiScoreMenu.h"
-#include "MainMenu.h"
-#include "MenuUtils.h"
+#include "hiscoremenu.h"
+#include "mainmenu.h"
+#include "menuutils.h"
 #include "graphics.h"
 #include <iostream>
 #include <algorithm>
 
-// Static member definitions
 HiScoreMenu* HiScoreMenu::instance = nullptr;
 std::vector<int> HiScoreMenu::scores;
 bool HiScoreMenu::defaultScoresInitialized = false;
@@ -38,7 +37,7 @@ void HiScoreMenu::initDefaultScores() {
 }
 
 void HiScoreMenu::init() {
-    initDefaultScores(); // Ensure default scores are initialized once
+    initDefaultScores();
 
     // Initialize the menu grid
     menuGridState = std::vector<std::vector<Tile>>(
@@ -85,26 +84,21 @@ void HiScoreMenu::updateLeaderboard(int score) {
 }
 
 void HiScoreMenu::draw() {
-    // Debug: Print current scores
     //std::cout << "Current scores in leaderboard: ";
     for (int score : scores) {
         std::cout << score << " ";
     }
     std::cout << std::endl;
 
-    // Clear the grid first
     clearGrid();
 
-    // Draw the title "HISCORES"
     const std::vector<std::string> title = { "H.png", "I.png", "S.png", "C.png", "O.png", "R.png", "E.png", "S.png" };
     drawTitle(title, 2);
 
-    // Draw each score in 'scores' on a new row
     int row = 4;
     for (int s : scores) {
-        if (row >= GRID_HEIGHT) break; // Safeguard against out-of-bounds
+        if (row >= GRID_HEIGHT) break; 
 
-        // Convert score to textures
         std::string sStr = std::to_string(s);
         std::vector<std::string> digits;
         for (char c : sStr) {
@@ -112,16 +106,14 @@ void HiScoreMenu::draw() {
         }
 
         drawOptions({ digits }, row);
-        row += 1; // Move down one line per score
+        row += 1;
     }
 
-    // Draw "BACK" option a bit lower
     row += 2;
     if (row < GRID_HEIGHT) {
         drawOptions({ {"B.png", "A.png", "C.png", "K.png"} }, row);
     }
 
-    // Render the grid (replacement for renderGrid)
     graphics::Brush br;
     for (int r = 0; r < GRID_HEIGHT; ++r) {
         for (int c = 0; c < GRID_WIDTH; ++c) {

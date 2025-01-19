@@ -1,18 +1,16 @@
-#include "DepositZone.h"
+#include "depositzone.h"
 #include "graphics.h"
 #include <iostream>
 #include "config.h"
 
-// Constructor
 DepositZone::DepositZone(GameState* state, int x, int y, Shape shape, bool horizontal)
     : GameObject(state, "DepositZone"), gridX(x + 1), gridY(y + UI_ROWS_ABOVE), shape(shape), horizontal(horizontal) {
-    duration = 145.0f;  // 10 seconds active time
+    duration = 145.0f;  
     timer = duration;
-    init(); // Calculate zone tiles
-    initializeVariants(); // Precompute random variants
+    init(); 
+    initializeVariants(); 
 }
 
-// Initialize zone shape
 void DepositZone::init() {
     tiles.clear();
 
@@ -27,20 +25,17 @@ void DepositZone::init() {
         createCircle();
         break;
     }
-    initializeVariants(); // Ensure variants are updated after tiles are created
+    initializeVariants(); 
 }
 
-// Initialize random variants for middle tiles
 void DepositZone::initializeVariants() {
-    tileVariants.resize(tiles.size(), 0); // Match the size of tiles
+    tileVariants.resize(tiles.size(), 0); 
 
     for (size_t i = 0; i < tiles.size(); ++i) {
         if (horizontal && i > 0 && i < tiles.size() - 1) {
-            // Generate random variants for horizontal middle tiles
-            tileVariants[i] = 1 + (rand() % 4); // Random number between 1 and 4
+            tileVariants[i] = 1 + (rand() % 4); 
         }
         else {
-            // No variant needed for edge or vertical tiles
             tileVariants[i] = 0;
         }
     }
@@ -49,7 +44,7 @@ void DepositZone::initializeVariants() {
 // Create a straight line (horizontal or vertical)
 void DepositZone::createStraightLine() {
     if (horizontal) { // Horizontal line
-        for (int x = 1; x < 13; ++x) { // Start from column 1 to align properly
+        for (int x = 1; x < 13; ++x) { 
             tiles.emplace_back(x, gridY);
         }
     }
@@ -63,8 +58,8 @@ void DepositZone::createStraightLine() {
 // Create a donut shape
 void DepositZone::createDonut() {
     // Ensure the shape fits within the playable grid
-    int adjustedGridX = std::min(gridX, 1 + PLAYABLE_COLUMNS - 4); // Adjust for right bound
-    int adjustedGridY = std::min(gridY, UI_ROWS_ABOVE + PLAYABLE_ROWS - 4); // Adjust for bottom bound
+    int adjustedGridX = std::min(gridX, 1 + PLAYABLE_COLUMNS - 4); 
+    int adjustedGridY = std::min(gridY, UI_ROWS_ABOVE + PLAYABLE_ROWS - 4); 
 
     for (int x = adjustedGridX; x < adjustedGridX + 4; ++x) {
         for (int y = adjustedGridY; y < adjustedGridY + 4; ++y) {
@@ -84,10 +79,10 @@ void DepositZone::createCircle() {
     for (int x = adjustedGridX; x < adjustedGridX + 4; ++x) {
         for (int y = adjustedGridY; y < adjustedGridY + 4; ++y) {
             // Exclude the corners
-            if (!((x == adjustedGridX && y == adjustedGridY) ||                 // Top-left corner
-                (x == adjustedGridX + 3 && y == adjustedGridY) ||             // Top-right corner
-                (x == adjustedGridX && y == adjustedGridY + 3) ||             // Bottom-left corner
-                (x == adjustedGridX + 3 && y == adjustedGridY + 3))) {        // Bottom-right corner
+            if (!((x == adjustedGridX && y == adjustedGridY) ||                 
+                (x == adjustedGridX + 3 && y == adjustedGridY) ||             
+                (x == adjustedGridX && y == adjustedGridY + 3) ||
+                (x == adjustedGridX + 3 && y == adjustedGridY + 3))) {
                 tiles.emplace_back(x, y);
             }
         }
@@ -104,17 +99,14 @@ bool DepositZone::isTileInZone(int x, int y) const {
     return false;
 }
 
-// Update zone timer
 void DepositZone::update(float dt) {
-    // Clamp dt to avoid large jumps causing instant expiration
-    if (dt > 0.1f) dt = 0.1f; // Limit to 100ms/frame
+    if (dt > 0.1f) dt = 0.1f; 
 
     if (timer > 0) {
-        timer -= dt; // Decrement timer based on safe dt
+        timer -= dt; 
     }
 }
 
-// Draw the deposit zone
 void DepositZone::draw() {
     if (shape == Shape::STRAIGHT_LINE) {
         drawStraightLine();
@@ -136,40 +128,31 @@ void DepositZone::drawStraightLine() {
         float yPos = tile.second * CELL_SIZE + CELL_SIZE / 2.0f;
 
         if (horizontal) {
-            // Horizontal straight line
             if (i == 0) {
-                // Left edge
                 br.texture = ASSET_PATH + "zones/HORIZ-LEFT.png";
             }
             else if (i == tiles.size() - 1) {
-                // Right edge
                 br.texture = ASSET_PATH + "zones/HORIZ-RIGHT.png";
             }
             else {
-                // Use precomputed random variant for middle tiles
                 int variant = tileVariants[i];
                 br.texture = ASSET_PATH + "zones/HORIZ-MID" + std::to_string(variant) + ".png";
             }
         }
         else {
-            // Vertical straight line
             if (i == 0) {
-                // Top edge
                 br.texture = ASSET_PATH + "zones/VERT-TOP.png";
             }
             else if (i == tiles.size() - 1) {
-                // Bottom edge
                 br.texture = ASSET_PATH + "zones/VERT-BOT.png";
             }
             else {
-                // Middle tiles
                 br.texture = ASSET_PATH + "zones/VERT-MID.png";
             }
         }
 
-        br.outline_opacity = 0.0f; // Remove outlines for textures
+        br.outline_opacity = 0.0f; 
 
-        // Draw the tile
         graphics::drawRect(xPos, yPos, CELL_SIZE, CELL_SIZE, br);
     }
 }
@@ -180,26 +163,22 @@ void DepositZone::drawDonut() {
         float xPos = tile.first * CELL_SIZE + CELL_SIZE / 2.0f;
         float yPos = tile.second * CELL_SIZE + CELL_SIZE / 2.0f;
 
-        // First, validate if this tile position is valid for the intended shape
-        // If gridY + 3 would exceed playable area, adjust gridY to keep donut in bounds
         int effectiveGridY = (gridY + 3 >= PLAYABLE_ROWS + UI_ROWS_ABOVE) ?
             PLAYABLE_ROWS + UI_ROWS_ABOVE - 4 : gridY;
 
-        // Now use effectiveGridY instead of gridY for all position checks
         bool isTopLeftCorner = (tile.first == gridX && tile.second == effectiveGridY);
         bool isTopRightCorner = (tile.first == gridX + 3 && tile.second == effectiveGridY);
         bool isBottomLeftCorner = (tile.first == gridX && tile.second == effectiveGridY + 3);
         bool isBottomRightCorner = (tile.first == gridX + 3 && tile.second == effectiveGridY + 3);
 
         bool isHorizontalEdge =
-            ((tile.second == effectiveGridY) || (tile.second == effectiveGridY + 3))    // top or bottom row
-            && !(tile.first == gridX || tile.first == gridX + 3);     // exclude corners
+            ((tile.second == effectiveGridY) || (tile.second == effectiveGridY + 3))    
+            && !(tile.first == gridX || tile.first == gridX + 3);
 
         bool isVerticalEdge =
-            ((tile.first == gridX) || (tile.first == gridX + 3))      // left or right column
-            && !(tile.second == effectiveGridY || tile.second == effectiveGridY + 3);   // exclude corners
+            ((tile.first == gridX) || (tile.first == gridX + 3))      
+            && !(tile.second == effectiveGridY || tile.second == effectiveGridY + 3);   
 
-        // Rest of the function remains the same...
         if (isTopLeftCorner) {
             br.texture = ASSET_PATH + "zones/DONTL.png";
         }
@@ -231,16 +210,13 @@ void DepositZone::drawCircle() {
         int tx = tile.first;
         int ty = tile.second;
 
-        // 1) Skip tiles that fall outside the valid grid range
         if (tx < 0 || tx >= GRID_WIDTH || ty < 0 || ty >= GRID_HEIGHT) {
             continue;
         }
 
-        // 2) Compute center for drawing
         float xPos = tx * CELL_SIZE + CELL_SIZE / 2.0f;
         float yPos = ty * CELL_SIZE + CELL_SIZE / 2.0f;
 
-        // 3) The same logic you already use to figure out which texture to apply
         bool isTopSideCorner = ((tx == gridX + 1 || tx == gridX + 2) && ty == gridY);
         bool isBottomSideCorner = ((tx == gridX + 1 || tx == gridX + 2) && ty == gridY + 3);
         bool isLeftSideCorner = (tx == gridX && (ty == gridY + 1 || ty == gridY + 2));
@@ -251,7 +227,6 @@ void DepositZone::drawCircle() {
         bool isBottomLeftCenter = (tx == gridX + 1 && ty == gridY + 2);
         bool isBottomRightCenter = (tx == gridX + 2 && ty == gridY + 2);
 
-        // TEXTURE ASSIGNMENTS
         if (isTopSideCorner) {
             if (tx == gridX + 1)
                 br.texture = ASSET_PATH + "zones/TOPLEFT1.png";
@@ -294,7 +269,6 @@ void DepositZone::drawCircle() {
 
         br.outline_opacity = 0.0f;
 
-        // 4) Draw the tile
         graphics::drawRect(xPos, yPos, CELL_SIZE, CELL_SIZE, br);
     }
 }

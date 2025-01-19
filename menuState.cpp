@@ -1,5 +1,5 @@
-#include "MenuState.h"
-#include "MainMenu.h"
+#include "menustate.h"
+#include "mainmenu.h"
 #include <iostream>
 
 MenuState* MenuState::instance = nullptr;
@@ -22,7 +22,6 @@ void MenuState::switchMenu(Menu* newMenu) {
 
 void MenuState::startGame() {
     std::cout << "Starting the game..." << std::endl;
-    // Game initialization logic here
 }
 
 void MenuState::update(float dt) {

@@ -1,16 +1,15 @@
-#include "Menu.h"
+#include "menu.h"
 
 void Menu::clearGrid() {
     for (int row = 0; row < GRID_HEIGHT; ++row) {
         for (int col = 0; col < GRID_WIDTH; ++col) {
-            menuGridState[row][col] = Tile(0.0f, 0.0f, 0.0f); // Black background
-            menuGridState[row][col].texture = ""; // Clear textures
+            menuGridState[row][col] = Tile(0.0f, 0.0f, 0.0f); 
+            menuGridState[row][col].texture = ""; 
         }
     }
 }
 
 void Menu::drawTitle(const std::vector<std::string>& title, int row) {
-    // Calculate center
     int startCol = (GRID_WIDTH - static_cast<int>(title.size())) / 2;
 
     // Draw each character
@@ -24,10 +23,8 @@ void Menu::drawTitle(const std::vector<std::string>& title, int row) {
 
 void Menu::drawOptions(const std::vector<std::vector<std::string>>& options, int startRow) {
     for (size_t i = 0; i < options.size(); ++i) {
-        // Calculate center for this option
         int startCol = (GRID_WIDTH - static_cast<int>(options[i].size())) / 2;
 
-        // Draw each character in this option
         for (size_t j = 0; j < options[i].size(); ++j) {
             // Highlight if selected
             if (i == selectedOption) {
@@ -39,7 +36,6 @@ void Menu::drawOptions(const std::vector<std::vector<std::string>>& options, int
             // Set texture
             menuGridState[startRow][startCol + j].texture = ASSET_PATH + "chars/" + options[i][j];
         }
-        // Move down a couple of rows for spacing
         startRow += 2;
     }
 }
