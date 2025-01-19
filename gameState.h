@@ -17,6 +17,7 @@
 #include "Player.h"
 #include "DepositZone.h" // Added DepositZone
 #include "config.h"
+#include "gridRenderer.h"
 
 class PowerUpBase;      // Forward declare PowerUpBase
 class PowerUpLevel1;    // Forward declare Level 1
@@ -83,6 +84,19 @@ private:
     bool enemySpawnedInactive = false; // Ensure one spawn at a time
 
 public:
+
+    std::vector<std::vector<Tile>> deathMenuGridState; // Grid for death menu rendering
+    int deathMenuSelection = 0;                       // Selection index in death menu
+
+    // Death menu rendering and navigation
+    void clearGrid(std::vector<std::vector<Tile>>& grid); // Clear the grid
+    void drawTitle(std::vector<std::vector<Tile>>& grid, const std::vector<std::string>& title, int row); // Render title
+    void drawOptions(std::vector<std::vector<Tile>>& grid, const std::vector<std::vector<std::string>>& options, int startRow, int selectedIndex); // Render options
+    void drawDeathMenu();    // Render the death menu
+    void updateDeathMenu();  // Handle navigation in the death menu
+
+    bool waitingForDeathMenuInput = false; // Tracks if waiting for player input after death
+
     // Singleton pattern
     static GameState* getInstance();
 
