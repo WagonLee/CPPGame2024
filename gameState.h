@@ -55,6 +55,7 @@ private:
     void spawnDepositZone();  // Handles spawning deposit zones
 
     int score = 0;         // Total score
+    int hiScore = 0; // Highest score
     int tally = 0;         // Tracks consecutive deposits
 
     int killChain = 0;         // Tracks the number of kills in the current chain
@@ -136,6 +137,9 @@ public:
     // Score management
     void addScore(int points); // Adds points to score (general purpose)
     int getScore() const { return score; } // Getter for score
+
+    int getHiScore() const { return hiScore; } // Getter for hiScore
+    void updateHiScore(int score);            // Method to update hiScore
 
     bool isPowerUpUpgrading(PowerUpBase* powerup) const; // Check if a power-up has an active upgrade timer
 

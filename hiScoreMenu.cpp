@@ -2,14 +2,13 @@
 #include "MainMenu.h"
 #include "MenuUtils.h"
 #include "graphics.h"
-#include <iostream> // For debug output
+#include <iostream>
+#include <algorithm>
 
-// Global flags from main.cpp
-extern bool inMenu;
-extern bool inHiScores;
-extern bool inTutorial;
-
+// Static member definitions
 HiScoreMenu* HiScoreMenu::instance = nullptr;
+std::vector<int> HiScoreMenu::scores;
+bool HiScoreMenu::defaultScoresInitialized = false;
 
 HiScoreMenu::HiScoreMenu() {}
 
@@ -20,20 +19,26 @@ HiScoreMenu* HiScoreMenu::getInstance() {
     return instance;
 }
 
+void HiScoreMenu::initDefaultScores() {
+    if (!defaultScoresInitialized) {
+        scores = {
+            200,
+            800,
+            2000,
+            5000,
+            8000,
+            15000,
+            30000,
+            50000,
+            70000,
+            100000
+        };
+        defaultScoresInitialized = true;
+    }
+}
+
 void HiScoreMenu::init() {
-    // Example scores
-    scores = {
-    2000,    
-    4000,
-    7000,
-    12000,
-    50000,
-    100000,  
-    150000,
-    200000,
-    250000,
-    300000   
-    };
+    initDefaultScores(); // Ensure default scores are initialized once
 
     // Initialize the menu grid
     menuGridState = std::vector<std::vector<Tile>>(
@@ -41,9 +46,7 @@ void HiScoreMenu::init() {
         std::vector<Tile>(GRID_WIDTH, Tile(0.0f, 0.0f, 0.0f))
         );
 
-    selectedOption = 0; // Always start with the first option
-
-    // Reset debounce
+    selectedOption = 0;
     debounceFrameCount = 0;
 
     std::cout << "HiScoreMenu initialized with grid size: "
@@ -51,7 +54,6 @@ void HiScoreMenu::init() {
 }
 
 void HiScoreMenu::update(float dt) {
-    // Skip input for a few frames so we don't immediately detect leftover Enter presses
     if (debounceFrameCount < DEBOUNCE_FRAMES) {
         debounceFrameCount++;
         return;
@@ -59,39 +61,50 @@ void HiScoreMenu::update(float dt) {
 
     static bool selectTriggered = false;
 
-    // We only have 1 logical option: "BACK". 
-    // So handleMenuInput can move selectedOption around, but it will always be 0 if clamped.
     selectedOption = handleMenuInput({ "BACK" }, selectedOption, selectTriggered);
 
     if (selectTriggered) {
         std::cout << "Exiting HiScoreMenu, transitioning to MainMenu" << std::endl;
         graphics::playSound(ASSET_PATH + "sounds/select.wav", 1.0f, false);
-        inTutorial = false;
         inHiScores = false;
         inMenu = true;
         MainMenu::getInstance()->init();
     }
 }
 
-void HiScoreMenu::draw()
-{
-    // 1) Clear the grid first
+void HiScoreMenu::updateLeaderboard(int score) {
+    if (score > 0) {
+        scores.push_back(score);
+        std::sort(scores.begin(), scores.end(), std::greater<int>());
+
+        if (scores.size() > 10) {
+            scores.resize(10);
+        }
+        std::cout << "Updated leaderboard with score: " << score << std::endl;
+    }
+}
+
+void HiScoreMenu::draw() {
+    // Debug: Print current scores
+    std::cout << "Current scores in leaderboard: ";
+    for (int score : scores) {
+        std::cout << score << " ";
+    }
+    std::cout << std::endl;
+
+    // Clear the grid first
     clearGrid();
 
-    // 2) Draw the title "HISCORES"
-    //    (Make sure you have H.png, I.png, S.png, C.png, O.png, R.png, E.png, S.png in your chars folder)
-    const std::vector<std::string> title = {
-        "H.png","I.png","S.png","C.png","O.png","R.png","E.png","S.png"
-    };
-    drawTitle(title, /*row*/ 2);
+    // Draw the title "HISCORES"
+    const std::vector<std::string> title = { "H.png", "I.png", "S.png", "C.png", "O.png", "R.png", "E.png", "S.png" };
+    drawTitle(title, 2);
 
-    // 3) Draw each score in 'scores' on a new row
-    //    Start from row=4, increment by 1 each time so we don't run off the bottom
+    // Draw each score in 'scores' on a new row
     int row = 4;
     for (int s : scores) {
-        if (row >= GRID_HEIGHT) break; // safeguard against out-of-bounds
+        if (row >= GRID_HEIGHT) break; // Safeguard against out-of-bounds
 
-        // Convert score to textures, e.g. "3.png","0.png","0.png"...
+        // Convert score to textures
         std::string sStr = std::to_string(s);
         std::vector<std::string> digits;
         for (char c : sStr) {
@@ -99,19 +112,16 @@ void HiScoreMenu::draw()
         }
 
         drawOptions({ digits }, row);
-        row += 1; // move down one line per score
+        row += 1; // Move down one line per score
     }
 
-    // 4) Draw "BACK" option a bit lower
+    // Draw "BACK" option a bit lower
     row += 2;
     if (row < GRID_HEIGHT) {
-        std::vector<std::vector<std::string>> backOption = {
-            {"B.png","A.png","C.png","K.png"}
-        };
-        drawOptions(backOption, row);
+        drawOptions({ {"B.png", "A.png", "C.png", "K.png"} }, row);
     }
 
-    // 5) Render the grid
+    // Render the grid (replacement for renderGrid)
     graphics::Brush br;
     for (int r = 0; r < GRID_HEIGHT; ++r) {
         for (int c = 0; c < GRID_WIDTH; ++c) {

@@ -16,6 +16,7 @@
 #include "MenuUtils.h"
 #include <algorithm>
 #include "gridRenderer.h"
+#include "hiScoreMenu.h"
 
 GameState* GameState::instance = nullptr;
 
@@ -273,12 +274,9 @@ void GameState::update(float dt) {
                 graphics::getKeyState(graphics::SCANCODE_DOWN) ||
                 graphics::getKeyState(graphics::SCANCODE_LEFT) ||
                 graphics::getKeyState(graphics::SCANCODE_RIGHT))) {
-                waitingForDeathMenuInput = false; // Stop waiting
-                deathMenuGridState = std::vector<std::vector<Tile>>(
-                    GRID_HEIGHT,
-                    std::vector<Tile>(GRID_WIDTH, Tile(0.0f, 0.0f, 0.0f))
-                    ); // Initialize death menu grid
-                std::cout << "Transitioning to death menu." << std::endl;
+                waitingForDeathMenuInput = false;
+                HiScoreMenu::getInstance()->updateLeaderboard(score);
+                deathMenuGridState = std::vector<std::vector<Tile>>(GRID_HEIGHT, std::vector<Tile>(GRID_WIDTH, Tile(0.0f, 0.0f, 0.0f)));
             }
         }
         else {
@@ -775,6 +773,12 @@ void GameState::drawDeathMenu() {
 void GameState::updateDeathMenu() {
     static bool selectTriggered = false;
 
+    // Check if the score is a new hiScore
+    updateHiScore(score);
+
+    // Update the leaderboard with the current score
+    HiScoreMenu::getInstance()->updateLeaderboard(score);
+
     // Update death menu navigation
     deathMenuSelection = handleMenuInput({ "REBOOT", "MAIN", "EXIT" }, deathMenuSelection, selectTriggered);
 
@@ -782,18 +786,27 @@ void GameState::updateDeathMenu() {
     if (selectTriggered) {
         switch (deathMenuSelection) {
         case 0: // REBOOT
-            resetGameStates(); // Properly reset game state
-            init();            // Reinitialize game state
-            setPreGamePause(true); // Return to pre-game pause
+            resetGameStates();
+            init(); // Restart game
+            setPreGamePause(true);
             break;
+
         case 1: // MAIN
             extern bool inMenu;
             inMenu = true; // Return to main menu
             break;
+
         case 2: // EXIT
-            graphics::stopMessageLoop(); // Exit the game
+            graphics::stopMessageLoop();
             break;
         }
+    }
+}
+
+void GameState::updateHiScore(int score) {
+    if (score > hiScore) {
+        hiScore = score; // Update hiScore if the current score is higher
+        std::cout << "New hiScore achieved: " << hiScore << std::endl;
     }
 }
 
@@ -842,6 +855,13 @@ void GameState::reset() {}
 void GameState::endGame() {
     isGameOver = true; // Mark game over
     waitingForDeathMenuInput = true; // Wait for input to open the death menu
+
+    // Update hiScore if the score is higher
+    updateHiScore(score);
+
+    // Update HiScoreMenu leaderboard
+    auto* hiScoreMenu = HiScoreMenu::getInstance();
+    hiScoreMenu->updateLeaderboard(score);
 
     // Stop current background music
     graphics::stopMusic();
