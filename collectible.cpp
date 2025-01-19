@@ -26,12 +26,6 @@ void Collectible::draw() {
 
 // Update behavior
 void Collectible::update(float dt) {
-    if (isLingering && graphics::getGlobalTime() >= lingeringEndTime) {
-        setActive(false); // Deactivate collectible after lingering
-        isLingering = false; // Reset lingering state
-    }
-
-    //InteractiveObject::update(dt); 
 }
 
 
@@ -51,14 +45,4 @@ void Collectible::handleCollision(Player& player) {
 
     setActive(false); // Collectible disappears
     GameState::getInstance()->scheduleCollectibleRespawn(); // Schedule respawn
-}
-
-
-void Collectible::startLingering(float duration) {
-    isLingering = true;
-    lingeringEndTime = graphics::getGlobalTime() + duration;
-}
-
-bool Collectible::getIsLingering() const {
-    return isLingering;
 }

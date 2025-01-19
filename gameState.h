@@ -2,28 +2,29 @@
 
 #include <vector>
 #include <memory>
-#include <ctime>      // For time-based tracking
-#include <iostream>   // For debug output
-#include <chrono>     // For precise timing
-#include "GameObject.h"
-#include "InteractiveObject.h"
-#include "MovingEnemy.h"
-#include "StationaryEnemy.h"
-#include "Collectible.h"
-#include "PowerUpLevel1.h" // Include Level 1 Power-Up
-#include "PowerUpLevel2.h" // Include Level 2 Power-Up
-#include "PowerUpLevel3.h" // Include Level 3 Power-Up
-#include "PowerUpLevel4.h" // Include Level 3 Power-Up
-#include "Player.h"
-#include "DepositZone.h" // Added DepositZone
+#include <ctime>      
+#include <iostream>   
+#include <chrono>    
+#include "gameobject.h"
+#include "interactiveobject.h"
+#include "movingenemy.h"
+#include "stationaryenemy.h"
+#include "collectible.h"
+#include "poweruplevel1.h" 
+#include "poweruplevel2.h" 
+#include "poweruplevel3.h" 
+#include "poweruplevel4.h" 
+#include "player.h"
+#include "depositzone.h" 
 #include "config.h"
-#include "gridRenderer.h"
+#include "gridrenderer.h"
 
-class PowerUpBase;      // Forward declare PowerUpBase
-class PowerUpLevel1;    // Forward declare Level 1
-class PowerUpLevel2;    // Forward declare Level 2
-class PowerUpLevel3;    // Forward declare Level 3
-class PowerUpLevel4;    // Forward declare Level 3
+// Forward declare power ups
+class PowerUpBase;     
+class PowerUpLevel1;    
+class PowerUpLevel2;   
+class PowerUpLevel3;   
+class PowerUpLevel4;    
 
 class GameState {
 private:
@@ -33,89 +34,80 @@ private:
     static GameState* instance;
     std::vector<std::unique_ptr<GameObject>> gameObjects;
 
-    // Deposit zone variables
-    std::unique_ptr<DepositZone> depositZone; // Single deposit zone
-    const double depositZoneDuration = 10.0; // 10 seconds per zone
+    std::unique_ptr<DepositZone> depositZone; 
+    const double depositZoneDuration = 10.0; 
 
-    // Collectible management
     const int collectibleCount = 2;
 
-    // Collectible respawn
-    std::vector<std::pair<time_t, time_t>> collectibleRespawnTimers; // Tracks respawn timers
-    const double collectibleRespawnDelay = 0; // Delay in seconds before respawn
+    std::vector<std::pair<time_t, time_t>> collectibleRespawnTimers;
+    const double collectibleRespawnDelay = 0; 
 
-    // Player death state
     bool isGameOver = false;
 
-    std::vector<PowerUpBase*> powerUpsToRemove; // Track power-ups marked for removal
-    bool isPowerUpRemovalPending = false;      // Flag for pending removal
-    bool isProcessingUpdates = false;          // Track if in update loop
+    std::vector<PowerUpBase*> powerUpsToRemove;
+    bool isPowerUpRemovalPending = false;      
+    bool isProcessingUpdates = false;          
 
-    // Private methods
-    void spawnDepositZone();  // Handles spawning deposit zones
+    void spawnDepositZone();  
 
-    int score = 0;         // Total score
-    int hiScore = 0; // Highest score
-    int tally = 0;         // Tracks consecutive deposits
+    int score = 0;       
+    int hiScore = 0; 
+    int tally = 0;         
 
-    int killChain = 0;         // Tracks the number of kills in the current chain
-    int killChainScore = 0;    // Accumulated score for the chain
-
+    int killChain = 0;         
+    int killChainScore = 0;    
     int scoreMulti = 1;
 
     // Power-Up Management
-    std::vector<std::unique_ptr<PowerUpBase>> activePowerUps; // Unlimited power-ups
-    std::vector<std::pair<size_t, float>> upgradeTimers;      // Use indices instead of pointers
+    std::vector<std::unique_ptr<PowerUpBase>> activePowerUps; 
+    std::vector<std::pair<size_t, float>> upgradeTimers;      
 
     void spawnPowerUpAt(int level, int gridX, int gridY);
 
-    const int tallyLevel1 = 6; // Tally thresholds
+    const int tallyLevel1 = 6; 
     const int tallyLevel2 = 7;
     const int tallyLevel3 = 8;
     const int tallyLevel4 = 9;
 
-    const float upgradeTime = 400.0f; // Time for auto-upgrade
+    const float upgradeTime = 400.0f; 
 
-    bool preGamePaused = true; // Tracks if the game is in the "READY?" state
-    bool paused = false;       // Tracks if the game is paused during gameplay
-    int pauseMenuSelection = 0; // Tracks the current option in the pause menu
+    bool preGamePaused = true; 
+    bool paused = false;       
+    int pauseMenuSelection = 0; 
 
-    bool firstSpawn = true;            // Track the first spawn
-    float firstSpawnTime = 0.0f;       // Time for the first spawn 
-    bool enemySpawnedInactive = false; // Ensure one spawn at a time
+    bool firstSpawn = true;            
+    float firstSpawnTime = 0.0f;        
+    bool enemySpawnedInactive = false; 
 
 public:
 
-    std::vector<std::vector<Tile>> deathMenuGridState; // Grid for death menu rendering
-    int deathMenuSelection = 0;                       // Selection index in death menu
+    std::vector<std::vector<Tile>> deathMenuGridState; 
+    int deathMenuSelection = 0;                       
 
     // Death menu rendering and navigation
-    void clearGrid(std::vector<std::vector<Tile>>& grid); // Clear the grid
-    void drawTitle(std::vector<std::vector<Tile>>& grid, const std::vector<std::string>& title, int row); // Render title
-    void drawOptions(std::vector<std::vector<Tile>>& grid, const std::vector<std::vector<std::string>>& options, int startRow, int selectedIndex); // Render options
-    void drawDeathMenu();    // Render the death menu
-    void updateDeathMenu();  // Handle navigation in the death menu
+    void clearGrid(std::vector<std::vector<Tile>>& grid); 
+    void drawTitle(std::vector<std::vector<Tile>>& grid, const std::vector<std::string>& title, int row); 
+    void drawOptions(std::vector<std::vector<Tile>>& grid, const std::vector<std::vector<std::string>>& options, int startRow, int selectedIndex); 
+    void drawDeathMenu();    
+    void updateDeathMenu();  
 
-    bool waitingForDeathMenuInput = false; // Tracks if waiting for player input after death
+    bool waitingForDeathMenuInput = false; 
 
-    // Singleton pattern
     static GameState* getInstance();
 
-    // Game state management
     void addObject(GameObject* obj);
     void update(float dt);
     void draw();
     void init();
     void reset();
-    void endGame(); // Handles stopping all activity on player death
+    void endGame(); 
 
-    void replaceDepositZone(); // Replaces the deposit zone immediately
+    void replaceDepositZone(); 
 
     // Template method for spawning InteractiveObjects
     template <typename T>
     void spawnInteractiveObject();
 
-    // Schedule collectible respawn after a delay
     void scheduleCollectibleRespawn();
 
     // Getter for gameObjects
@@ -132,60 +124,52 @@ public:
         return activePowerUps;
     }
 
-    const std::unique_ptr<DepositZone>& getDepositZone() const { return depositZone; }
-
-    // Score management
-    void addScore(int points); // Adds points to score (general purpose)
-    int getScore() const { return score; } // Getter for score
-
-    int getHiScore() const { return hiScore; } // Getter for hiScore
-    void updateHiScore(int score);            // Method to update hiScore
-
-    bool isPowerUpUpgrading(PowerUpBase* powerup) const; // Check if a power-up has an active upgrade timer
-
-    // Tally management
-    void incrementTally(int count); // Increments tally (only deposits)
-    int getTally() const { return tally; } // Getter for tally
-    void resetTally(); // Resets tally for power-ups
-
-    void resetKillChain();     // Resets the kill chain
-    void addToKillChain();     // Increments the kill chain and calculates score
-
-    // Power-Up Management
-    void spawnPowerUp(int level);       // Spawns a power-up of a specific level
-    void updatePowerUpTimers(float dt); // Handles auto-upgrading of power-ups
-
     // Getter for upgradeTimers
     std::vector<std::pair<size_t, float>>& getUpgradeTimers() {
         return upgradeTimers;
     }
 
-    bool isAnyPowerUpActive() const; // Checks if any power-up effect is active
+    const std::unique_ptr<DepositZone>& getDepositZone() const { return depositZone; }
 
-    // new shit hope it works
+    void addScore(int points); 
+    int getScore() const { return score; } 
+
+    int getHiScore() const { return hiScore; } 
+    void updateHiScore(int score);            
+
+    bool isPowerUpUpgrading(PowerUpBase* powerup) const; 
+
+    void incrementTally(int count); 
+    int getTally() const { return tally; } 
+    void resetTally(); 
+
+    void resetKillChain();    
+    void addToKillChain();    
+
+    void spawnPowerUp(int level);      
+    void updatePowerUpTimers(float dt); 
+
+
+    bool isAnyPowerUpActive() const; 
     void markPowerUpForRemoval(PowerUpBase* powerUp);
     void cleanupMarkedPowerUps();
     bool hasPendingRemovals() const { return isPowerUpRemovalPending; }
     void setProcessingUpdates(bool processing) { isProcessingUpdates = processing; }    
 
-    // Pre-game pause
-    void setPreGamePause(bool preGame);  // Enable or disable the pre-game pause
-    bool isPreGamePaused() const;        // Check if the game is in the pre-game pause
+    void setPreGamePause(bool preGame);  
+    bool isPreGamePaused() const;        
 
-    // Reset states for new game
-    void resetGameStates();              // Reset all flags to their default state
+    void resetGameStates();              
 
     bool enemyKilled = false;
     float enemyKillEndTime = 0.0f;
 
-    void incrementMultiplier(); // Increase multiplier
-    int getMultiplier() const;  // Get the current multiplier
+    void incrementMultiplier(); 
+    int getMultiplier() const;  
 
-    // Destructor
     ~GameState();
 };
 
-// Template
 template <typename T>
 void GameState::spawnInteractiveObject() {
     if (isGameOver) return;
@@ -195,9 +179,8 @@ void GameState::spawnInteractiveObject() {
     int attempts = 0;
 
     while (!positionValid && attempts < 100) {
-        // Adjust spawn range to the playable area
         gridX = 1 + (rand() % PLAYABLE_COLUMNS); // Shift by 1 for left column
-        gridY = UI_ROWS_ABOVE + (rand() % PLAYABLE_ROWS); // Shift by UI_ROWS_ABOVE for top rows
+        gridY = UI_ROWS_ABOVE + (rand() % PLAYABLE_ROWS); 
 
         positionValid = true;
 
@@ -223,11 +206,11 @@ void GameState::spawnInteractiveObject() {
             int playerY = player->getGridY();
 
             // Check against player's position and adjacent tiles
-            if ((gridX == playerX && gridY == playerY) || // Player's position
-                (gridX == playerX - 1 && gridY == playerY) || // Left
-                (gridX == playerX + 1 && gridY == playerY) || // Right
-                (gridX == playerX && gridY == playerY - 1) || // Up
-                (gridX == playerX && gridY == playerY + 1)) { // Down
+            if ((gridX == playerX && gridY == playerY) || 
+                (gridX == playerX - 1 && gridY == playerY) || 
+                (gridX == playerX + 1 && gridY == playerY) || 
+                (gridX == playerX && gridY == playerY - 1) || 
+                (gridX == playerX && gridY == playerY + 1)) { 
                 positionValid = false;
             }
 
@@ -245,30 +228,28 @@ void GameState::spawnInteractiveObject() {
 
     if (!positionValid) return;
 
-    // Correct instantiation for object type
     if constexpr (std::is_same<T, MovingEnemy>::value || std::is_same<T, StationaryEnemy>::value) {
         auto* enemy = new T(this, gridX, gridY);
-        enemy->setInactive(4000.0f); // Set inactive state for 4 seconds
+        enemy->setInactive(4000.0f); 
         addObject(enemy);
         std::cout << typeid(T).name() << " spawned INACTIVE at (" << gridX << ", " << gridY << ")" << std::endl;
     }
     else if constexpr (std::is_same<T, Collectible>::value) {
         addObject(new Collectible(this, gridX, gridY));
     }
-    else if constexpr (std::is_same<T, PowerUpLevel1>::value) { // Level 1 Power-Up
+    else if constexpr (std::is_same<T, PowerUpLevel1>::value) { 
         addObject(new PowerUpLevel1(this, gridX, gridY));
     }
-    else if constexpr (std::is_same<T, PowerUpLevel2>::value) { // Level 2 Power-Up
+    else if constexpr (std::is_same<T, PowerUpLevel2>::value) { 
         addObject(new PowerUpLevel2(this, gridX, gridY));
     }
-    else if constexpr (std::is_same<T, PowerUpLevel3>::value) { // Level 3 Power-Up
+    else if constexpr (std::is_same<T, PowerUpLevel3>::value) { 
         addObject(new PowerUpLevel3(this, gridX, gridY));
     }
-    else if constexpr (std::is_same<T, PowerUpLevel4>::value) { // Level 4 Power-Up
+    else if constexpr (std::is_same<T, PowerUpLevel4>::value) { 
         addObject(new PowerUpLevel4(this, gridX, gridY));
     }
 
-    // Debug log with timestamp
     auto now = std::chrono::system_clock::now();
     auto timeT = std::chrono::system_clock::to_time_t(now);
     struct tm timeInfo;

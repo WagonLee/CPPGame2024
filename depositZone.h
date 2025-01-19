@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GameObject.h"
+#include "gameobject.h"
 #include "graphics.h"
 #include <vector>
 
@@ -10,13 +10,13 @@ public:
     enum class Shape { STRAIGHT_LINE, DONUT, CIRCLE };
 
 private:
-    int gridX, gridY;              // Starting position
-    Shape shape;                   // Shape of the deposit zone
-    bool horizontal;               // Orientation for straight lines
-    std::vector<std::pair<int, int>> tiles; // Stores affected grid tiles
-    std::vector<int> tileVariants; // Precomputed random variants for tiles
-    float duration;                // Active duration (seconds)
-    float timer;                   // Tracks remaining time
+    int gridX, gridY; // Start pos of zones              
+    Shape shape;                   
+    bool horizontal; // Straight line orientation               
+    std::vector<std::pair<int, int>> tiles; 
+    std::vector<int> tileVariants; // For randomizing horiz line
+    float duration;                
+    float timer; // TTL timers                   
 
     void drawStraightLine();
     void drawDonut();
@@ -26,21 +26,20 @@ private:
     void initializeVariants();
 
 public:
-    // Constructor
     DepositZone(GameState* state, int x, int y, Shape shape, bool horizontal = true);
 
     // Override methods
-    void update(float dt) override;   // Update timer
-    void draw() override;             // Draw zone
-    void init() override;             // Initialize tiles based on shape
+    void update(float dt) override;   
+    void draw() override;              
+    void init() override;             
 
     // Utility methods
-    bool isTileInZone(int x, int y) const; // Check if a tile is in the zone
-    bool isExpired() const { return timer <= 0.0f; } // Check if expired
-    void resetTimer() { timer = duration; }      // Reset zone timer
+    bool isTileInZone(int x, int y) const; 
+    bool isExpired() const { return timer <= 0.0f; } 
+    void resetTimer() { timer = duration; }      
 
     // Accessor for tiles
-    const std::vector<std::pair<int, int>>& getTiles() const { return tiles; } // Read-only access
+    const std::vector<std::pair<int, int>>& getTiles() const { return tiles; } 
 
     // Shape calculation helpers
     void createStraightLine();
