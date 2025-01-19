@@ -16,7 +16,7 @@ void StationaryEnemy::draw() {
     br.outline_opacity = 0.0f; 
 
     if (isInactive) {
-        br.texture = ASSET_PATH + "objects/STATIONARY-ENEMY-SPAWNING.png";K
+        br.texture = ASSET_PATH + "objects/STATIONARY-ENEMY-SPAWNING.png";
     }
     else if (isWeak) {
         br.texture = ASSET_PATH + "objects/STATIONARY-ENEMY-WEAK.png"; 

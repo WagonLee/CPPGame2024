@@ -1,6 +1,6 @@
 #include "gamestate.h"
 #include "depositzone.h"
-#include <iostream>  // debug output added
+#include <iostream>  
 #include <cstdlib>
 #include <ctime>
 #include <chrono>
@@ -9,10 +9,10 @@
 #include "collectible.h"
 #include "config.h"
 #include "powerupbase.h"
-#include "poweruplevel1.h" // include level 1 power-up
-#include "poweruplevel2.h" // include level 2 power-up
-#include "poweruplevel3.h" // include level 3 power-up
-#include "poweruplevel4.h" // include level 4 power-up
+#include "poweruplevel1.h" 
+#include "poweruplevel2.h" 
+#include "poweruplevel3.h" 
+#include "poweruplevel4.h" 
 #include "menuutils.h"
 #include <algorithm>
 #include "gridrenderer.h"
@@ -20,9 +20,8 @@
 
 GameState* GameState::instance = nullptr;
 
-// Constructor
 GameState::GameState() {
-    firstSpawnTime = graphics::getGlobalTime(); // Initialize the spawn timer
+    firstSpawnTime = graphics::getGlobalTime(); 
     std::cout << "GameState initialized. First spawn time set to: " << firstSpawnTime << std::endl;
     deathMenuGridState = std::vector<std::vector<Tile>>(
         GRID_HEIGHT,
@@ -30,7 +29,6 @@ GameState::GameState() {
         );
 }
 
-// Singleton instance
 GameState* GameState::getInstance() {
     if (!instance) {
         instance = new GameState();
@@ -38,14 +36,13 @@ GameState* GameState::getInstance() {
     return instance;
 }
 
-// Add object to game
 void GameState::addObject(GameObject* obj) {
-    if (!obj) { // Null check to prevent crashes
+    if (!obj) { 
         std::cerr << "Error: Attempted to add null object to gameObjects!" << std::endl;
         return;
     }
 
-    if (!obj->isActive()) { // Validate active state before adding
+    if (!obj->isActive()) { 
         std::cerr << "Error: Attempted to add inactive object to gameObjects!" << std::endl;
         return;
     }
@@ -55,7 +52,6 @@ void GameState::addObject(GameObject* obj) {
 
 // --- Deposit Zone Handling ---
 
-// Spawn deposit zone
 void GameState::spawnDepositZone() {
     int gridX, gridY;
     DepositZone::Shape shape;
@@ -99,7 +95,7 @@ void GameState::spawnPowerUp(int level) {
         }
 
         if (positionValid) {
-            break; // Exit loop on valid position
+            break;
         }
     }
 
@@ -131,11 +127,10 @@ void GameState::spawnPowerUp(int level) {
 
     // Add the power-up if created successfully
     if (powerUp) {
-        powerUp->init(); // Initialize the object
+        powerUp->init();
         activePowerUps.push_back(std::move(powerUp));
         addObject(activePowerUps.back().get());
 
-        // Add the index (not pointer) to timers
         size_t index = activePowerUps.size() - 1;
         upgradeTimers.emplace_back(index, 0.0f);
 
@@ -170,9 +165,8 @@ void GameState::spawnPowerUpAt(int level, int gridX, int gridY) {
         activePowerUps.push_back(std::move(powerUp));
         addObject(activePowerUps.back().get());
 
-        // Add the new Power-Up to timers
         size_t index = activePowerUps.size() - 1;
-        upgradeTimers.emplace_back(index, 0.0f); // Use index instead of pointer
+        upgradeTimers.emplace_back(index, 0.0f); 
         std::cout << "Upgraded Power-Up Level " << level << " added to timers at ("
             << gridX << ", " << gridY << ")" << std::endl;
     }
@@ -192,13 +186,12 @@ bool GameState::isPowerUpUpgrading(PowerUpBase* powerup) const {
 }
 
 void GameState::updatePowerUpTimers(float dt) {
-    const float upgradeTime = 200.0f; // Time required for auto-upgrade
+    const float upgradeTime = 200.0f; 
 
     for (size_t i = 0; i < upgradeTimers.size(); ++i) {
         size_t index = upgradeTimers[i].first;
         float& elapsedTime = upgradeTimers[i].second;
 
-        // Ensure the index is valid and the power-up exists
         if (index >= activePowerUps.size()) {
             upgradeTimers.erase(upgradeTimers.begin() + i);
             --i;
@@ -207,7 +200,6 @@ void GameState::updatePowerUpTimers(float dt) {
 
         PowerUpBase* powerUp = dynamic_cast<PowerUpBase*>(activePowerUps[index].get());
 
-        // Skip invalid or inactive power-ups, or those already collected
         if (!powerUp || !powerUp->isActive() || !powerUp->canCollide()) {
             std::cout << "Removing timer for collected or inactive Power-Up at index " << index << std::endl;
             upgradeTimers.erase(upgradeTimers.begin() + i);
@@ -215,7 +207,6 @@ void GameState::updatePowerUpTimers(float dt) {
             continue;
         }
 
-        // Skip upgrade for Level 4 (max level)
         if (powerUp->getLevel() >= 4) {
             std::cout << "Removing timer for max-level Power-Up at index " << index << std::endl;
             upgradeTimers.erase(upgradeTimers.begin() + i);
@@ -223,10 +214,7 @@ void GameState::updatePowerUpTimers(float dt) {
             continue;
         }
 
-        // Increment elapsed time
-        elapsedTime += dt / 60.0f; // Adjust for frame rate scaling
-        /*std::cout << "Timer for Power-Up Level " << powerUp->getLevel()
-            << ": " << elapsedTime << "/" << upgradeTime << " seconds" << std::endl;*/
+        elapsedTime += dt / 60.0f;
 
         // Auto-upgrade if time threshold is reached
         if (elapsedTime >= upgradeTime && powerUp->isActive()) {
@@ -269,7 +257,7 @@ void GameState::update(float dt) {
 
     if (isGameOver) {
         if (waitingForDeathMenuInput) {
-            // Wait for space or X key to transition to the death menu
+            // Wait for key to transition to the death menu
             if (graphics::getKeyState(graphics::SCANCODE_SPACE) || graphics::getKeyState(graphics::SCANCODE_X) || graphics::getKeyState(graphics::SCANCODE_RETURN) || (graphics::getKeyState(graphics::SCANCODE_UP) ||
                 graphics::getKeyState(graphics::SCANCODE_DOWN) ||
                 graphics::getKeyState(graphics::SCANCODE_LEFT) ||
@@ -280,36 +268,34 @@ void GameState::update(float dt) {
             }
         }
         else {
-            updateDeathMenu(); // Update death menu navigation
+            updateDeathMenu(); 
         }
-        return; // Skip game updates during game over
+        return; 
     }
 
-    // Handle pre-game pause 
     if (isPreGamePaused()) {
         if (graphics::getKeyState(graphics::SCANCODE_UP) ||
             graphics::getKeyState(graphics::SCANCODE_DOWN) ||
             graphics::getKeyState(graphics::SCANCODE_LEFT) ||
             graphics::getKeyState(graphics::SCANCODE_RIGHT)) {
 
-            setPreGamePause(false); // Exit the pre-game pause state
-            graphics::playMusic(ASSET_PATH + "sounds/BGM.mp3", 0.6f, true); // Start background music
+            setPreGamePause(false); 
+            graphics::playMusic(ASSET_PATH + "sounds/BGM.mp3", 0.6f, true); 
         }
         return;
     }
 
     setProcessingUpdates(true);
 
-    // --- Preallocate memory to avoid resizing ---
+    // Preallocate mem
     if (gameObjects.capacity() < 100) {
         gameObjects.reserve(100);
     }
 
-    time_t currentTime = time(nullptr); // declaration
+    time_t currentTime = time(nullptr);
 
     // --- MOVING ENEMY SPAWNING
     if (isAnyPowerUpActive()) {
-        // Check for inactive enemies and turn them weak
         for (const auto& obj : gameObjects) {
             MovingEnemy* movingEnemy = dynamic_cast<MovingEnemy*>(obj.get());
             if (movingEnemy && movingEnemy->isInactive && !movingEnemy->getIsWeak()) {
@@ -326,8 +312,8 @@ void GameState::update(float dt) {
                 spawnInteractiveObject<MovingEnemy>();
                 firstSpawn = false;
                 enemySpawnedInactive = true;
-                std::cout << "First MovingEnemy spawned after 4 seconds." << std::endl;
             }
+
         } else {
             // Spawn new enemy as soon as the last one exits inactive state
             for (const auto& obj : gameObjects) {
@@ -368,14 +354,14 @@ void GameState::update(float dt) {
         if (depositZone->isExpired()) {
             std::cout << "Deposit zone expired! Respawning..." << std::endl;
 
-            // Log expiration and clear tiles for debugging
+            // Log for debugging
             for (const auto& tile : depositZone->getTiles()) {
                 std::cout << "Tile: (" << tile.first << ", " << tile.second << ")" << std::endl;
             }
 
             // Reset and respawn
             depositZone->resetTimer(); // Reset timer for new zone
-            spawnDepositZone();        // Create a new zone immediately
+            spawnDepositZone(); // Create a new zone immediately
             // --- STATIONARY ENEMY SPAWNING ---
             if (!isAnyPowerUpActive()) {
                 spawnInteractiveObject<StationaryEnemy>();
@@ -421,7 +407,7 @@ void GameState::update(float dt) {
     }
 
     // Reset Tally AFTER checking ALL conditions
-    if (tally >= tallyLevel1) { // Only reset if a Power-Up was attempted
+    if (tally >= tallyLevel1) {
         std::cout << "Tally reset! Reached " << tally << " deposits." << std::endl;
         resetTally();
     }
@@ -481,31 +467,27 @@ void GameState::update(float dt) {
         cleanupMarkedPowerUps();
     }
 
-    // Append buffered objects safely
+    // Append buffered objects
     for (auto& newObj : newObjects) {
         gameObjects.push_back(std::move(newObj));
     }
 
-    // Remove inactive objects safely
+    // Remove inactive objects
     gameObjects.erase(
         std::remove_if(gameObjects.begin(), gameObjects.end(),
             [](const std::unique_ptr<GameObject>& obj) { return !obj->isActive(); }),
         gameObjects.end());
 
-    // --- Debug Logs ---
 #ifdef DEBUG
     std::cout << "Active objects after update: " << gameObjects.size() << std::endl;
 #endif
 }
 
-// Draw all game objects
 void GameState::draw() {
-    // Draw deposit zone first (background layer)
     if (depositZone) {
         depositZone->draw();
     }
 
-    // Draw all other active objects, including collectibles
     for (auto& obj : gameObjects) {
         Player* potentialPlayer = dynamic_cast<Player*>(obj.get());
         if (obj->isActive() && !potentialPlayer) { // Skip player for now
@@ -518,68 +500,57 @@ void GameState::draw() {
     for (auto& obj : gameObjects) {
         player = dynamic_cast<Player*>(obj.get());
         if (player) {
-            player->draw(); // Always draw the player regardless of the game state
+            player->draw(); 
             break;
         }
     }
 
-    // Check if the player is dead and waiting for input
     if (isGameOver) {
         if (!waitingForDeathMenuInput) {
-            drawDeathMenu(); // Render the death menu after input
+            drawDeathMenu(); 
         }
     }
 }
-
-
 
 // Initialize game state
 void GameState::init() {
     std::cout << "Initializing GameState..." << std::endl;
 
-    // Reset random seed for consistent randomness in each session
+    // Reset random seed
     srand(static_cast<unsigned int>(time(nullptr)));
 
-    // Clear existing game objects to ensure a clean slate
     gameObjects.clear();
     activePowerUps.clear();
     collectibleRespawnTimers.clear();
     upgradeTimers.clear();
     powerUpsToRemove.clear();
 
-    // Reset flags and state variables
     paused = false;
-    preGamePaused = true;  // Start in the "READY?" state
+    preGamePaused = true;  
     isGameOver = false;
-    waitingForDeathMenuInput = true;  // Prevent immediate death menu display
+    waitingForDeathMenuInput = true;  
     firstSpawn = true;
     enemySpawnedInactive = false;
 
-    // Reset score and tally
     score = 0;
     tally = 0;
     killChain = 0;
     killChainScore = 0;
     scoreMulti = 1;
 
-    // Reset first spawn timer
     firstSpawnTime = graphics::getGlobalTime();
 
-    // Initialize deposit zone
     spawnDepositZone();
 
-    // Spawn initial collectibles
     for (int i = 0; i < collectibleCount; i++) {
         spawnInteractiveObject<Collectible>();
     }
 
-    // Initialize the player at the center of the playable grid
-    int startX = GRID_WIDTH / 2; // Horizontal center
-    int startY = UI_ROWS_ABOVE + (PLAYABLE_ROWS / 2); // Vertical center
-    Player* player = new Player(this, startX, startY, 0.004f); // Adjust speed if needed
-    addObject(player); // Add player to game objects
+    int startX = GRID_WIDTH / 2; 
+    int startY = UI_ROWS_ABOVE + (PLAYABLE_ROWS / 2); 
+    Player* player = new Player(this, startX, startY, 0.004f); 
+    addObject(player); 
 
-    // Initialize death menu grid state
     deathMenuGridState = std::vector<std::vector<Tile>>(
         GRID_HEIGHT,
         std::vector<Tile>(GRID_WIDTH, Tile(0.0f, 0.0f, 0.0f))
@@ -591,20 +562,18 @@ void GameState::init() {
 void GameState::replaceDepositZone() {
     std::cout << "Replacing deposit zone immediately!" << std::endl;
 
-    // Clear old zone
     depositZone.reset();
 
-    // Spawn new zone
-    spawnDepositZone(); // Use existing spawn logic
+    spawnDepositZone(); 
 }
 
 bool GameState::isAnyPowerUpActive() const {
     for (const auto& powerUp : activePowerUps) {
         if (powerUp->isEffectRunning()) {
-            return true; // Active effect detected
+            return true; 
         }
     }
-    return false; // No active effects
+    return false; 
 }
 
 void GameState::markPowerUpForRemoval(PowerUpBase* powerUp) {
@@ -622,14 +591,12 @@ void GameState::cleanupMarkedPowerUps() {
 
     std::cout << "Starting power-up cleanup process..." << std::endl;
 
-    // Mark power-ups for cleanup
     for (auto* powerUp : powerUpsToRemove) {
         if (powerUp) {
-            powerUp->setInCleanup(true); // Prevent recursive cleanup
+            powerUp->setInCleanup(true);
         }
     }
 
-    // Remove from activePowerUps
     activePowerUps.erase(
         std::remove_if(
             activePowerUps.begin(),
@@ -640,7 +607,6 @@ void GameState::cleanupMarkedPowerUps() {
         activePowerUps.end()
                 );
 
-    // Remove from gameObjects
     gameObjects.erase(
         std::remove_if(
             gameObjects.begin(),
@@ -661,17 +627,17 @@ void GameState::cleanupMarkedPowerUps() {
 }
 
 void GameState::addScore(int points) {
-    score += points; // Increment total score
+    score += points; 
     std::cout << "Score updated! Current score: " << score << std::endl;
 }
 
 void GameState::incrementTally(int count) {
-    tally += count; // Increment the tally
+    tally += count; 
     std::cout << "Tally updated! Current tally: " << tally << std::endl;
 }
 
 void GameState::resetTally() {
-    tally = 0; // Reset tally to zero
+    tally = 0; 
     std::cout << "Tally reset to 0." << std::endl;
 }
 
@@ -682,37 +648,33 @@ void GameState::resetKillChain() {
 
 void GameState::addToKillChain() {
     killChain++;
-    int points = 10 * killChain * scoreMulti; // Points based on chain and multiplier
-    killChainScore += points;                // Add to cumulative score
+    int points = 10 * killChain * scoreMulti; 
+    killChainScore += points;                
     addScore(points);
     std::cout << "Kill chain: " << killChain << ", Points awarded: " << points << ", Total: " << killChainScore << std::endl;
 }
 
-// Increment the multiplier
 void GameState::incrementMultiplier() {
     scoreMulti++;
     std::cout << "Score multiplier increased to " << scoreMulti << "." << std::endl;
 }
 
-// Get the current multiplier
 int GameState::getMultiplier() const {
     return scoreMulti;
 }
 
-// Set the pre-game pause state
 void GameState::setPreGamePause(bool preGame) {
-    preGamePaused = preGame; // Update the pre-game pause variable
+    preGamePaused = preGame; 
 }
 
-// Check if the game is in the pre-game pause state
 bool GameState::isPreGamePaused() const {
-    return preGamePaused; // Return the pre-game pause state
+    return preGamePaused; 
 }
 
 void GameState::clearGrid(std::vector<std::vector<Tile>>& grid) {
     for (auto& row : grid) {
         for (auto& tile : row) {
-            tile = Tile(0.0f, 0.0f, 0.0f); // Black background
+            tile = Tile(0.0f, 0.0f, 0.0f); 
         }
     }
 }
@@ -732,12 +694,12 @@ void GameState::drawOptions(std::vector<std::vector<Tile>>& grid, const std::vec
             grid[startRow][startCol + j] = Tile(i == selectedIndex ? 0.0f : 1.0f, 1.0f, i == selectedIndex ? 0.0f : 1.0f); // Highlight selected
             grid[startRow][startCol + j].texture = ASSET_PATH + "chars/" + options[i][j];
         }
-        startRow += 2; // Add spacing between options
+        startRow += 2; 
     }
 }
 
 void GameState::drawDeathMenu() {
-    clearGrid(deathMenuGridState); // Clear the death menu grid
+    clearGrid(deathMenuGridState); 
 
     // Add Game Over Title
     const std::vector<std::string> title = { "PWND.png", "D.png", "E.png", "A.png", "D.png", "PWND.png" };
@@ -745,14 +707,13 @@ void GameState::drawDeathMenu() {
 
     // Define menu options
     const std::vector<std::vector<std::string>> options = {
-        {"R.png", "E.png", "B.png", "O.png", "O.png", "T.png"},   // REBOOT
-        {"M.png", "A.png", "I.png", "N.png"},                    // MAIN
-        {"E.png", "X.png", "I.png", "T.png"}                     // EXIT
+        {"R.png", "E.png", "B.png", "O.png", "O.png", "T.png"},   
+        {"M.png", "A.png", "I.png", "N.png"},                    
+        {"E.png", "X.png", "I.png", "T.png"}                     
     };
 
     drawOptions(deathMenuGridState, options, 6, deathMenuSelection);
 
-    // Render the grid
     graphics::Brush br;
     for (int r = 0; r < GRID_HEIGHT; ++r) {
         for (int c = 0; c < GRID_WIDTH; ++c) {
@@ -779,23 +740,21 @@ void GameState::updateDeathMenu() {
     // Update the leaderboard with the current score
     HiScoreMenu::getInstance()->updateLeaderboard(score);
 
-    // Play sound effects for navigation
     static int previousSelection = deathMenuSelection;
     deathMenuSelection = handleMenuInput({ "REBOOT", "MAIN", "EXIT" }, deathMenuSelection, selectTriggered);
 
     if (deathMenuSelection != previousSelection) {
         if (deathMenuSelection > previousSelection) {
-            graphics::playSound(ASSET_PATH + "sounds/down.wav", 0.5f, false); // Down navigation sound
+            graphics::playSound(ASSET_PATH + "sounds/down.wav", 0.5f, false); 
         }
         else {
-            graphics::playSound(ASSET_PATH + "sounds/up.wav", 0.5f, false); // Up navigation sound
+            graphics::playSound(ASSET_PATH + "sounds/up.wav", 0.5f, false); 
         }
-        previousSelection = deathMenuSelection; // Update the previous selection
+        previousSelection = deathMenuSelection; 
     }
 
-    // Handle option selection
     if (selectTriggered) {
-        graphics::playSound(ASSET_PATH + "sounds/select.wav", 0.5f, false); // Selection sound
+        graphics::playSound(ASSET_PATH + "sounds/select.wav", 0.5f, false); 
 
         switch (deathMenuSelection) {
         case 0: // REBOOT
@@ -826,17 +785,14 @@ void GameState::updateHiScore(int score) {
 
 // Reset all game states
 void GameState::resetGameStates() {
-    // Clear all game objects
     gameObjects.clear();
     activePowerUps.clear();
     collectibleRespawnTimers.clear();
     upgradeTimers.clear();
     powerUpsToRemove.clear();
 
-    // Reset player and deposit zone
     depositZone.reset();
 
-    // Reset flags and variables
     paused = false;
     preGamePaused = true;
     isGameOver = false;
@@ -844,17 +800,14 @@ void GameState::resetGameStates() {
     firstSpawn = true;
     enemySpawnedInactive = false;
 
-    // Reset scores and counters
     score = 0;
     tally = 0;
     killChain = 0;
     killChainScore = 0;
     scoreMulti = 1;
 
-    // Reset timers
     firstSpawnTime = graphics::getGlobalTime();
 
-    // Clear visual grid states
     if (!deathMenuGridState.empty()) {
         deathMenuGridState.clear();
     }
@@ -867,7 +820,7 @@ void GameState::reset() {}
 
 // Handles stopping activity after player death
 void GameState::endGame() {
-    isGameOver = true; // Mark game over
+    isGameOver = true; 
     waitingForDeathMenuInput = true; // Wait for input to open the death menu
 
     // Update hiScore if the score is higher
@@ -882,17 +835,13 @@ void GameState::endGame() {
 
     // Play death music
     graphics::playMusic(ASSET_PATH + "sounds/death.wav", 0.85f, false);
-
-    std::cout << "Game Over! Waiting for input to continue." << std::endl;
 }
 
-// Schedule collectible respawn
 void GameState::scheduleCollectibleRespawn() {
     time_t currentTime = time(nullptr);
     collectibleRespawnTimers.emplace_back(currentTime, currentTime + static_cast<time_t>(collectibleRespawnDelay));
 }
 
-// Destructor
 GameState::~GameState() {
     gameObjects.clear();
 }
